@@ -13,8 +13,17 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('idTicket');
+            $table->foreign('idTicket')->references('id')->on('tickets')->onDelete('CASCADE');
+            $table->integer('note');
+            $table->text('commentaire');
+            $table->dateTime('dateNote');
             $table->timestamps();
         });
+        //    'idTicket',
+        // 'note',
+        // 'commentaire',
+        // 'dateNote'
     }
 
     /**

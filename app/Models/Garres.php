@@ -7,4 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 class Garres extends Model
 {
     //
+    protected $fillable=[
+        'name',
+        'localisation',
+        'ville',
+        'idCompagnie'
+    ];
+  public  function compagnie(){
+        return $this->belongsTo(Compagnies::class,'idCompagnie');
+    }
 }

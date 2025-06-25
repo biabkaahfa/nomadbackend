@@ -13,8 +13,20 @@ return new class extends Migration
     {
         Schema::create('compagnies', function (Blueprint $table) {
             $table->id();
+            $table->string('name',255);
+            $table->string('logo')->nullable();
+            $table->text('description')->nullable();
+            $table->string('telephone',8)->nullable();
+            $table->string('email')->unique();
+           // $table->string('password');
+            //$table->
             $table->timestamps();
         });
+         //   'name',
+        // 'logo',
+        // 'description',
+        // 'telephone',
+        // 'email'
     }
 
     /**

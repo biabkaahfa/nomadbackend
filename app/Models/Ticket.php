@@ -7,4 +7,24 @@ use Illuminate\Database\Eloquent\Model;
 class Ticket extends Model
 {
     //
+    protected $fillable=[
+        'dateReservation',
+        'statut',
+       // 'idUtilisateur',
+        'idVoyage',
+        'idGarre',
+        'dateScan',
+        'idPaiement'
+
+    ];
+     public  function user(){
+        return $this->belongsTo(User::class,'idUtilisateur');
+    }
+     public  function voyage(){
+        return $this->belongsTo(Voyages::class,'idVoyage');
+    }
+
+     public  function paiement(){
+        return $this->belongsTo(Paiements::class,'idPaiement');
+    }
 }

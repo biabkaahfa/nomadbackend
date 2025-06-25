@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('garre_trajets', function (Blueprint $table) {
             $table->id();
+             $table->unsignedBigInteger('idGarre');
+            $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
+             $table->unsignedBigInteger('idTrajet');
+            $table->foreign('idTrajet')->references('id')->on('trajets')->onDelete('CASCADE');
             $table->timestamps();
         });
+        // 'idGarre',
+        // 'idTrajet',
     }
 
     /**

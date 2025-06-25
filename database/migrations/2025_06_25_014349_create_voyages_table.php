@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('voyages', function (Blueprint $table) {
             $table->id();
+            $table->time('heuresDepart');
+            $table->unsignedBigInteger('idTrajet');
+             $table->foreign('idTrajet')->references('id')->on('trajets')->onDelete('CASCADE');
+            $table->unsignedBigInteger('idBus')->nullable();
+             $table->foreign('idBus')->references('id')->on('buses')->onDelete('CASCADE');
+            $table->Date('dateDepart');
             $table->timestamps();
         });
     }

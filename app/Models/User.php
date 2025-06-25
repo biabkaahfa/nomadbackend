@@ -21,6 +21,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'idProfil',
+        'statut',
+        'telephone',
+        'idGarre',
+        'idCompagnie',
+        'image'
     ];
 
     /**
@@ -29,6 +35,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $hidden = [
+       
         'password',
         'remember_token',
     ];
@@ -44,5 +51,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+    public function profil()
+    {
+        return $this->belongsTo(Profils::class,'idProfil');
+    }
+     public function garre()
+    {
+        return $this->belongsTo(Garres::class,'idGarre');
+    }
+     public function compagnie()
+    {
+        return $this->belongsTo(Compagnies::class,'idCompagnie');
     }
 }

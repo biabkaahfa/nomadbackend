@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('permission_profils', function (Blueprint $table) {
             $table->id();
+             $table->unsignedBigInteger('idPermission');
+            $table->foreign('idPermission')->references('id')->on('permissions')->onDelete('CASCADE');
+             $table->unsignedBigInteger('idProfil');
+            $table->foreign('idProfil')->references('id')->on('profils')->onDelete('CASCADE');
             $table->timestamps();
         });
+        // 'idPermission',
+        // 'idProfil'
     }
 
     /**

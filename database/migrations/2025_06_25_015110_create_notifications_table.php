@@ -13,8 +13,17 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->id();
+            $table->string('titre');
+            $table->text('contenu');
+            $table->date('DateEnvoie');
+            $table->unsignedBigInteger('idUtilisateur');
+            $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
             $table->timestamps();
         });
+        //  'titre',
+        // 'contenu',
+        // 'DateEnvoie',
+        // 'idUtilisateur'
     }
 
     /**

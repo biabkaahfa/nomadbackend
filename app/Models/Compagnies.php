@@ -7,4 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Compagnies extends Model
 {
     //
+    protected $fillable=[
+        'name',
+        'logo',
+        'description',
+        'telephone',
+        'email'
+    ];
 }

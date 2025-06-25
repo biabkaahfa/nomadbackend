@@ -13,13 +13,33 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name',255);
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('idProfil');
+            $table->foreign('idProfil')->references('id')->on('profils')->onDelete('CASCADE');
+            $table->enum('statut', ['actif', 'inactif']);
+            $table->string('telephone',12);
+             $table->unsignedBigInteger('idGarre')->nullable();
+            $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
+            
+            $table->unsignedBigInteger('idCompagnie')->nullable();
+              $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
+            $table->string('image')->nullable();
+           
             $table->rememberToken();
             $table->timestamps();
         });
+        //  'name',
+        // 'email',
+        // 'password',
+        // 'idProfil',
+        // 'statut',
+        // 'telephone',
+        // 'idGarre',
+        // 'idCompagnie',
+        // 'image'
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

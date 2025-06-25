@@ -4,16 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class GarreTrajets extends Model
+class FrequenceTrajets extends Model
 {
     //
-    protected $fillable=[
-        'idGarre',
+    protected $fillable =[
         'idTrajet',
+        'heureDepart',
+        'nombrePlaceMinimum',
+        'jourSemaine'
     ];
-     public  function garre(){
-        return $this->belongsTo(Garres::class,'idGarre');
-    }
      public  function trajet(){
         return $this->belongsTo(Trajets::class,'idTrajet');
     }

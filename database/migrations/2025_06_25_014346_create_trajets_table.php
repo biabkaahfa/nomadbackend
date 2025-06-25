@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('trajets', function (Blueprint $table) {
             $table->id();
+            $table->string('pointDepart');
+             $table->string('pointArrive');
+             $table->float('prix');
+             $table->enum('status',['actif', 'inactif']);
+             $table->unsignedBigInteger('idCompagnie');
+              $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
+
+        //     $'pointDepart',
+        // 'pointArrive',
+        // "prix",
+        // "status",
+        // "idCompagnie"
             $table->timestamps();
         });
     }
