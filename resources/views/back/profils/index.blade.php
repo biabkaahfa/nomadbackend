@@ -26,34 +26,25 @@
                                     <th>name profils</th>
                                     <th>descriptions</th>
                                     <th>Permissions</th>
+                                     <th>Actions</th>
                                   
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($articles as $item)
+                                {{-- @foreach ($articles as $item) --}}
                                     <tr>
                                         <td>{{ $item->id }}</td>
-                                        <td><img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" width="100"
+                                        {{-- <td><img src="{{ $item->imageUrl() }}" alt="{{ $item->title }}" width="100"
                                                 height="100"></td>
-                                        <td>{{ $item->title }}</td>
-                                        <td>{{ $item->category->name }}</td>
-                                        <td>21-03-2020</td>
-                                        <td>
-                                            @if ($item->isActive == 1)
-                                                <div class="actions">
-                                                    <a href="" class="btn btn-sm bg-success-light mr-2">
-                                                        Publier</a>
-                                                </div>
-                                            @else
-                                                <div class="actions">
-                                                    <a href="" class="btn btn-sm bg-success-light mr-2">
-                                                        Non Publier</a>
-                                                </div>
-                                            @endif
+                                        <td>{{ $item->title }}</td> --}}
+                                        <td>{{ $item->name }}</td>
+                                        {{-- <td>21-03-2020</td> --}}
+                                        
+                                           <td>{{  $item->description }}</td>
 
-                                        </td>
-                                        <td>
-                                            @if ($item->isSharable == 1)
+                                @foreach ( as )
+                                <td>
+                                            {{-- @if ($item->isSharable == 1)
                                                 <div class="actions"><a href="#"
                                                         class="btn btn-sm bg-success-light mr-2">
                                                         Active</a></div>
@@ -61,52 +52,14 @@
                                                 <div class="actions"><a href="#"
                                                         class="btn btn-sm bg-success-light mr-2">
                                                         Desactive</a></div>
-                                            @endif
+                                            @endif --}}
 
                                         </td>
-                                        <td>
-
-                                            @if ($item->isComment == 1)
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        Active</a></div>
-                                            @else
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        Desactive</a></div>
-                                            @endif
-                                            
-
-                                        </td>
-                                        <td>
-
-                                            @if ($item->islocation == 1)
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        Louable</a></div>
-                                            @else
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        Occuper</a></div>
-                                            @endif
-                                            
-
-                                        </td>
-                                         <td>
-
-                                            @if ($item->isrent == 1)
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        En vente</a></div>
-                                            @else
-                                                <div class="actions"><a href="#"
-                                                        class="btn btn-sm bg-success-light mr-2">
-                                                        vendu</a></div>
-                                            @endif
-                                            
-
-                                        </td>
-                                         
+                                    
+                                @endforeach
+                                        
+                                        
+{{--                                          
                                         <td>
                                             <h2 class="table-avatar">
                                                 <a href="profile.html" class="avatar avatar-sm mr-2"><img
@@ -117,7 +70,7 @@
                                                 <a
                                                     href="">{{ $item->author->name }}<span>{{ $item->author->id }}</span></a>
                                             </h2>
-                                        </td>
+                                        </td> --}}
                                         <td class="text-right">
                                             <div class="dropdown dropdown-action">
                                                 <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown"
