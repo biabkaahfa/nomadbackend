@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('frequence_trajets', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('idTrajet');
-             $table->foreign('idTrajet')->references('id')->on('Trajets')->onDelete('CASCADE');
+             $table->foreign('idTrajet')->references('id')->on('trajets')->onDelete('CASCADE');
              $table->integer('nombrePlaceMinimum')->default(25);
             $table->Time('heureDepart');
             $table->enum('jourSemaine',['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE', 'TOUS_LES_JOURS']);

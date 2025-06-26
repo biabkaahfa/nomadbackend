@@ -1,4 +1,4 @@
-<?php
+9<?php
 
 use App\Http\Controllers\Api\Auth\JWTAuthController;
 use Illuminate\Http\Request;
