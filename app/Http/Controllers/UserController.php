@@ -8,11 +8,15 @@ use App\Models\User;
 use App\Models\Profil;
 use App\Models\Garre;
 use App\Models\Compagnie;
+use App\Models\Compagnies;
+use App\Models\Garres;
+use App\Models\Profils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
@@ -55,9 +59,12 @@ class UserController extends Controller
 
         $users = $query->paginate(15);
         
-      
+        // Récupérer les données pour les filtres
+        $profils = Profils::all();
+        $garres = Garres::all();
+        $compagnies = Compagnies::all();
 
-        return view('users.index', compact('users'));
+        return view('back.users.index', compact('users', 'profils', 'garres', 'compagnies'));
     }
 
     /**
@@ -65,9 +72,11 @@ class UserController extends Controller
      */
     public function create(): View
     {
-       
+        $profils = Profils::all();
+        $garres = Garres::all();
+        $compagnies = Compagnies::all();
 
-        return view('users.create');
+        return view('back.users.create', compact('profils', 'garres', 'compagnies'));
     }
 
     /**
@@ -87,8 +96,7 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return redirect()
-            ->route('users.show', $user)
+        return redirect()->route('users.index')
             ->with('success', 'Utilisateur créé avec succès.');
     }
 
@@ -99,7 +107,7 @@ class UserController extends Controller
     {
         $user->load(['profil', 'garre', 'compagnie', 'reservations.voyage', 'tickets']);
         
-        return view('users.show', compact('user'));
+        return view('back.users.show', compact('user'));
     }
 
     /**
@@ -107,9 +115,11 @@ class UserController extends Controller
      */
     public function edit(User $user): View
     {
-        
+        $profils = Profils::all();
+        $garres = Garres::all();
+        $compagnies = Compagnies::all();
 
-        return view('users.edit', compact('user'));
+        return view('back.users.edit', compact('user', 'profils', 'garres', 'compagnies'));
     }
 
     /**
@@ -137,8 +147,7 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return redirect()
-            ->route('users.show', $user)
+        return redirect()->route('users.index')
             ->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
@@ -147,16 +156,20 @@ class UserController extends Controller
      */
     public function destroy(User $user): RedirectResponse
     {
-        // Supprimer l'image si elle existe
-        if ($user->image) {
-            Storage::disk('public')->delete($user->image);
+        try {
+            // Supprimer l'image si elle existe
+            if ($user->image) {
+                Storage::disk('public')->delete($user->image);
+            }
+
+            $user->delete();
+
+            return redirect()->route('users.index')
+                ->with('success', 'Utilisateur supprimé avec succès.');
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->with('error', 'Erreur lors de la suppression de l\'utilisateur.');
         }
-
-        $user->delete();
-
-        return redirect()
-            ->route('users.index')
-            ->with('success', 'Utilisateur supprimé avec succès.');
     }
 
     /**
@@ -170,18 +183,20 @@ class UserController extends Controller
 
         $status = $user->statut === 'actif' ? 'activé' : 'désactivé';
         
-        return redirect()
-            ->back()
+        return redirect()->back()
             ->with('success', "Utilisateur {$status} avec succès.");
     }
 
-  
     /**
      * Recherche d'utilisateurs (pour AJAX)
      */
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
         $query = $request->get('q');
+        
+        if (empty($query)) {
+            return response()->json([]);
+        }
         
         $users = User::where('name', 'like', "%{$query}%")
                     ->orWhere('email', 'like', "%{$query}%")
@@ -191,6 +206,4 @@ class UserController extends Controller
 
         return response()->json($users);
     }
-
-   
 }
