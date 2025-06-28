@@ -26,6 +26,17 @@ class UsersSeeder extends Seeder
             'image' => null,
             'idCompagnie' => null,
             'idGarre' => null
+        ],
+        [
+            'name' => 'Admin compagnie',
+            'email' => 'admin@faso.com',
+            'password' => Hash::make('password'),
+            'idProfil' => 2,
+            'statut' => 'inactif',
+            'telephone' => '00000000',
+            'image' => null,
+            'idCompagnie' => null,
+            'idGarre' => null
         ]
     ]);
     }

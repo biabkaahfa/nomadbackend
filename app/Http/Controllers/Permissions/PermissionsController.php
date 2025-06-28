@@ -1,10 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Permissions;
 
+use App\Http\Controllers\Controller;
 use App\Models\Permissions;
+// use App\Http\Requests\StorePermissionsRequest;
+// use App\Http\Requests\UpdatePermissionsRequest;
+
+// use App\Models\Permissions;
 use App\Http\Requests\StorePermissionsRequest;
 use App\Http\Requests\UpdatePermissionsRequest;
+
+// use App\Http\Controllers\Controller;
 
 class PermissionsController extends Controller
 {
@@ -14,6 +21,8 @@ class PermissionsController extends Controller
     public function index()
     {
         //
+         $permissions = Permissions::all();
+        return view('back.permissions.index',['permissions'=>$permissions]);
     }
 
     /**
@@ -22,6 +31,8 @@ class PermissionsController extends Controller
     public function create()
     {
         //
+
+        return view('back.permissions.create');
     }
 
     /**
@@ -29,7 +40,13 @@ class PermissionsController extends Controller
      */
     public function store(StorePermissionsRequest $request)
     {
-        //
+        $validated = $request->validated();
+
+        $permission = Permissions::create([
+            'name' => $validated['name'],
+        ]);
+
+        return redirect()->route('permissions.index')->with('success', 'Permission créée avec succès.');
     }
 
     /**
@@ -43,24 +60,36 @@ class PermissionsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Permissions $permissions)
+    public function edit(Permissions $permission)
     {
         //
+         return view('back.permissions.create',['permission'=>$permission]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdatePermissionsRequest $request, Permissions $permissions)
+    public function update(UpdatePermissionsRequest $request, Permissions $permission)
     {
-        //
+
+        
+        $validated = $request->validated();
+
+        $permission->update([
+            'name' => $validated['name'],
+        ]);
+
+        return redirect()->route('permissions.index')->with('success', 'Permission mise à jour avec succès.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Permissions $permissions)
+    public function destroy(Permissions $permission)
     {
-        //
+        // 
+        $permission->delete();
+         return redirect()->route('permissions.index')->with('success', 'permission supprimer  avec succès.');
+
     }
 }

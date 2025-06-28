@@ -18,11 +18,15 @@
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="submenu_class" style="display: none;">
-                        <li><a href="{{ route('article.index') }}">Tous les logements</a></li>
-                        <li><a href="{{ route('article.create') }}">Ajouter un logement</a></li>
+                        <li><a href="
+                            {{-- {{ route('') }} --}}
+                            ">Tous les logements</a></li>
+                        <li><a href="
+                            {{-- {{ route('') }} --}}
+                             ">Ajouter un logement</a></li>
                     </ul>
                 </li>
-                @can('admin-access')
+                {{-- @can('admin-access') --}}
                     <li class="submenu">
                         <a href="#">
                             <i class="fas fa-book"></i>
@@ -30,8 +34,12 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
-                            <li><a href="{{ route('category.index') }}">Toutes les catégories</a></li>
-                            <li><a href="{{ route('category.create') }}">Ajouter une catégorie</a></li>
+                            <li><a href="
+                                 {{ route('permissions.index') }} 
+                                 ">Toutes les catégories</a></li>
+                            <li><a href="
+                                {{ route('permissions.create') }}
+                                ">Ajouter une catégorie</a></li>
                         </ul>
                     </li>
 
@@ -43,31 +51,41 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
-                            <li><a href="{{ route('author.index') }}">Tout le personnel</a></li>
-                            <li><a href="{{ route('author.create') }}">Ajouter un personnel</a></li>
+                            <li><a href="
+                                {{-- {{ route('') }} --}}
+                                 ">Tout le personnel</a></li>
+                            <li><a href="
+                                {{-- {{ route('') }} --}}
+                                 ">Ajouter un personnel</a></li>
                         </ul>
                     </li>
-                @endcan
+                {{-- @endcan --}}
 
                 <li>
-                    <a href="{{ route('comment.index') }}">
+                    <a href="
+                    {{-- {{ route('') }} --}}
+                     ">
                         <i class="fe fe-table"></i>
                         <span>Commentaires</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('location.index') }}">
+                    <a href="
+                    {{-- {{ route('') }} --}}
+                     ">
                         <i class="fe fe-table"></i>
                         <span>Location</span>
                     </a>
                 </li>
                 <li>
-                    <a href="{{ route('rent.index') }}">
+                    <a href="
+                    {{-- {{ route('') }} --}}
+                     ">
                         <i class="fe fe-table"></i>
                         <span>Vente</span>
                     </a>
                 </li>
-                @can('admin-access')
+                {{-- @can('admin-access') --}}
                     <li class="submenu">
                         <a href="#">
                             <i class="far fa-money-bill-alt"></i>
@@ -75,8 +93,12 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
-                            <li><a href="{{ route('social.index') }}">Tous les médias</a></li>
-                            <li><a href="{{ route('social.create') }}">Ajouter un média</a></li>
+                            <li><a href="
+                                {{-- {{ route('') }} --}}
+                                 ">Tous les médias</a></li>
+                            <li><a href="
+                                {{-- {{ route('') }} --}}
+                                 ">Ajouter un média</a></li>
                         </ul>
                     </li>
                     <li class="submenu">
@@ -86,13 +108,15 @@
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
-                            <li><a href="{{ route('role.index') }}">Tous les Roles</a></li>
-                            <li><a href="{{ route('role.create') }}">Ajouter un Role</a></li>
+                            <li><a href="{{ route('profils.index') }}">Tous les Roles</a></li>
+                            <li><a href="{{ route('profils.create') }}">Ajouter un Role</a></li>
                         </ul>
                     </li>
 
                     <li>
-                        <a href="{{ route('contact.index') }}">
+                        <a href="
+                        {{-- {{ route('') }} --}}
+                         ">
                             <i class="fe fe-table"></i>
                             <span>Contacts</span>
                         </a>
@@ -100,12 +124,14 @@
 
 
                     <li>
-                        <a href="{{ route('Setting.index') }}">
+                        <a href="
+                        {{-- {{ route('') }} --}}
+                         ">
                             <i class="fas fa-cog"></i>
                             <span>Paramètres</span>
                         </a>
                     </li>
-                @endcan
+                {{-- @endcan --}}
 
 
             </ul>

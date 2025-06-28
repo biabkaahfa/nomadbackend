@@ -1,4 +1,4 @@
-@extends('back.app')
+@extends('back.app')  
 
 @section('title', 'Liste des Permissions')
 
@@ -29,9 +29,12 @@
                             </thead>
                             <tbody>
                                 {{-- DONNÉES STATIQUES TEMPORAIRES --}}
+                                @foreach ($permissions as $permission )
+                                    
+                               
                                 <tr>
-                                    <td>1</td>
-                                    <td>voir_utilisateurs</td>
+                                    <td>{{ $permission->id }}</td>
+                                    <td>{{ $permission->name }}</td>
                                     <td class="text-right">
                                         <div class="dropdown dropdown-action">
                                             <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -39,46 +42,16 @@
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-right">
                                                 <a class="dropdown-item" href="#"><i class="fas fa-eye m-r-5"></i> Voir</a>
-                                                <a class="dropdown-item" href="#"><i class="fas fa-edit m-r-5"></i> Modifier</a>
+                                                <a class="dropdown-item" href="{{ route('permissions.edit',$permission) }}"><i class="fas fa-edit m-r-5"></i> Modifier</a>
                                                 <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt m-r-5"></i> Supprimer</a>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
 
-                                <tr>
-                                    <td>2</td>
-                                    <td>creer_compagnie</td>
-                                    <td class="text-right">
-                                        <div class="dropdown dropdown-action">
-                                            <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-ellipsis-v ellipse_color"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="#"><i class="fas fa-eye m-r-5"></i> Voir</a>
-                                                <a class="dropdown-item" href="#"><i class="fas fa-edit m-r-5"></i> Modifier</a>
-                                                <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt m-r-5"></i> Supprimer</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                 @endforeach
 
-                                <tr>
-                                    <td>3</td>
-                                    <td>gerer_gares</td>
-                                    <td class="text-right">
-                                        <div class="dropdown dropdown-action">
-                                            <a href="#" class="action-icon dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                                <i class="fas fa-ellipsis-v ellipse_color"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right">
-                                                <a class="dropdown-item" href="#"><i class="fas fa-eye m-r-5"></i> Voir</a>
-                                                <a class="dropdown-item" href="#"><i class="fas fa-edit m-r-5"></i> Modifier</a>
-                                                <a class="dropdown-item text-danger" href="#"><i class="fas fa-trash-alt m-r-5"></i> Supprimer</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                               
                                 {{-- FIN DES LIGNES STATIQUES --}}
                             </tbody>
                         </table>
