@@ -2,141 +2,107 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Inscription Utilisateur</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    <!-- Bootstrap 5 CDN -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilisateur</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
     <style>
-        body {
-            background-color: #f8f9fa;
-        }
-        .card {
-            border-radius: 1rem;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        .form-label {
-            font-weight: 500;
-        }
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
+        body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+        .card-glass { background: rgba(255, 255, 255, 0.9); border-radius: 16px; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); padding: 2rem; }
+        .btn-primary-gradient { background: linear-gradient(to right, #6a11cb, #2575fc); border: none; color: #fff; }
+        .btn-primary-gradient:hover { filter: brightness(1.1); }
     </style>
 </head>
 <body>
 
-<div class="container my-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card p-4">
-                <h3 class="text-center mb-4">Créer un compte utilisateur</h3>
+<div class="container py-5">
+    <div class="card card-glass">
+        <h3 class="mb-4">
+            {{ isset($user) ? ($mode === 'show' ? 'Détails de l\'utilisateur' : 'Modifier l\'utilisateur') : 'Créer un utilisateur' }}
+        </h3>
 
-                <!-- Affichage des erreurs -->
-                @if ($errors->any())
-                    <div class="alert alert-danger">
-                        <strong>Veuillez corriger les erreurs suivantes :</strong>
-                        <ul class="mb-0 mt-2">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
+        <form method="POST" enctype="multipart/form-data"
+              action="{{ isset($user) ? ($mode === 'edit' ? route('users.update', $user) : '#') : route('users.store') }}">
 
-                <form action="{{ route('users.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+            @csrf
+            @if(isset($user) && $mode === 'edit')
+                @method('PUT')
+            @endif
 
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Nom complet</label>
-                            <input type="text" name="name" value="{{ old('name') }}" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Adresse email</label>
-                            <input type="email" name="email" value="{{ old('email') }}" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Mot de passe</label>
-                            <input type="password" name="password" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Confirmer mot de passe</label>
-                            <input type="password" name="password_confirmation" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Profil</label>
-                            <select name="idProfil" class="form-select" required>
-                                <option value="">-- Sélectionner un profil --</option>
-                                @foreach($profils as $profil)
-                                    <option value="{{ $profil->id }}" {{ old('idProfil') == $profil->id ? 'selected' : '' }}>
-                                        {{ $profil->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Statut</label>
-                            <select name="statut" class="form-select" required>
-                                <option value="">-- Statut --</option>
-                                <option value="actif" {{ old('statut') == 'actif' ? 'selected' : '' }}>Actif</option>
-                                <option value="inactif" {{ old('statut') == 'inactif' ? 'selected' : '' }}>Inactif</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Téléphone</label>
-                            <input type="text" name="telephone" value="{{ old('telephone') }}" class="form-control" required>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Gare (optionnel)</label>
-                            <select name="idGarre" class="form-select">
-                                <option value="">-- Aucune --</option>
-                                @foreach($garres as $garre)
-                                    <option value="{{ $garre->id }}" {{ old('idGarre') == $garre->id ? 'selected' : '' }}>
-                                        {{ $garre->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Compagnie (optionnel)</label>
-                            <select name="idCompagnie" class="form-select">
-                                <option value="">-- Aucune --</option>
-                                @foreach($compagnies as $compagnie)
-                                    <option value="{{ $compagnie->id }}" {{ old('idCompagnie') == $compagnie->id ? 'selected' : '' }}>
-                                        {{ $compagnie->nom }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-6">
-                            <label class="form-label">Photo de profil (optionnel)</label>
-                            <input type="file" name="image" class="form-control" accept="image/*">
-                        </div>
-
-                        <div class="col-12 text-center mt-4">
-                            <button type="submit" class="btn btn-primary px-4">Créer le compte</button>
-                            <a href="{{ url()->previous() }}" class="btn btn-secondary px-4">Annuler</a>
-                        </div>
-                    </div>
-                </form>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Nom</label>
+                    <input type="text" name="name" class="form-control"
+                           value="{{ old('name', $user->name ?? '') }}"
+                           {{ $mode === 'show' ? 'readonly' : '' }}>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="email" class="form-control"
+                           value="{{ old('email', $user->email ?? '') }}"
+                           {{ $mode === 'show' ? 'readonly' : '' }}>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Téléphone</label>
+                    <input type="text" name="telephone" class="form-control"
+                           value="{{ old('telephone', $user->telephone ?? '') }}"
+                           {{ $mode === 'show' ? 'readonly' : '' }}>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Mot de passe</label>
+                    <input type="password" name="password" class="form-control"
+                           {{ $mode === 'show' ? 'readonly' : '' }}>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Profil</label>
+                    <select name="idProfil" class="form-select" {{ $mode === 'show' ? 'disabled' : '' }}>
+                        @foreach($profils as $profil)
+                            <option value="{{ $profil->id }}" {{ (old('idProfil', $user->idProfil ?? '') == $profil->id) ? 'selected' : '' }}>
+                                {{ $profil->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Gare</label>
+                    <select name="idGarre" class="form-select" {{ $mode === 'show' ? 'disabled' : '' }}>
+                        @foreach($garres as $garre)
+                            <option value="{{ $garre->id }}" {{ (old('idGarre', $user->idGarre ?? '') == $garre->id) ? 'selected' : '' }}>
+                                {{ $garre->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Compagnie</label>
+                    <select name="idCompagnie" class="form-select" {{ $mode === 'show' ? 'disabled' : '' }}>
+                        @foreach($compagnies as $compagnie)
+                            <option value="{{ $compagnie->id }}" {{ (old('idCompagnie', $user->idCompagnie ?? '') == $compagnie->id) ? 'selected' : '' }}>
+                                {{ $compagnie->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label class="form-label">Photo</label><br>
+                    @if(isset($user) && $user->image)
+                        <img src="{{ asset('storage/' . $user->image) }}" width="100" class="mb-2">
+                    @endif
+                    <input type="file" name="image" class="form-control" {{ $mode === 'show' ? 'disabled' : '' }}>
+                </div>
             </div>
-        </div>
+
+            @if($mode !== 'show')
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary-gradient">
+                        {{ isset($user) ? 'Mettre à jour' : 'Créer' }}
+                    </button>
+                </div>
+            @endif
+        </form>
     </div>
 </div>
 
-<!-- Bootstrap JS (optionnel si tu as besoin de fonctionnalités dynamiques comme dropdowns) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

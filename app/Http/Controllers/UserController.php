@@ -103,24 +103,34 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(User $user): View
-    {
-        $user->load(['profil', 'garre', 'compagnie', 'reservations.voyage', 'tickets']);
-        
-        return view('back.users.show', compact('user'));
-    }
+   
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(User $user): View
-    {
-        $profils = Profils::all();
-        $garres = Garres::all();
-        $compagnies = Compagnies::all();
+   
 
-        return view('back.users.edit', compact('user', 'profils', 'garres', 'compagnies'));
-    }
+public function show(User $user): View
+{
+    $user->load(['profil', 'garre', 'compagnie']);
+
+    return view('back.users.create', [
+        'mode' => 'show',
+        'user' => $user,
+        'profils' => Profils::all(),
+        'garres' => Garres::all(),
+        'compagnies' => Compagnies::all()
+    ]);
+}
+
+public function edit(User $user): View
+{
+    return view('back.users.create', [
+        'mode' => 'edit',
+        'user' => $user,
+        'profils' => Profils::all(),
+        'garres' => Garres::all(),
+        'compagnies' => Compagnies::all()
+    ]);
+}
+
 
     /**
      * Update the specified resource in storage.
