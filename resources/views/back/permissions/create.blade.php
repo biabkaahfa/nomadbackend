@@ -15,7 +15,7 @@
 @section('dashboard-content')
     <div class="row">
         <div class="col-lg-8">
-            <form action="{{ isset($permission) ? route('permissions.update', $permission) : route('permissions.store') }}" method="POST">
+            <form action="{{ isset($permission) ? route('permissions.update', $permission->id) : route('permissions.store') }}" method="POST">
                 @csrf
                 @if (isset($permission))
                     @method('PUT')
@@ -34,7 +34,7 @@
                     {{ isset($permission) ? 'Mettre à jour' : 'Créer' }}
                 </button>
 
-                @if (isset($permission))
+                {{-- @if (isset($permission))
                     <a href="{{ route('permissions.destroy', $permission->id) }}"
                         onclick="event.preventDefault(); if(confirm('Supprimer cette permission ?')) document.getElementById('delete-form').submit();"
                         class="btn btn-danger ml-2">
@@ -45,7 +45,7 @@
                         @csrf
                         @method('DELETE')
                     </form>
-                @endif
+                @endif --}}
             </form>
         </div>
     </div>

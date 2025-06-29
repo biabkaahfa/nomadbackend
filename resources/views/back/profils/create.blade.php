@@ -1,81 +1,63 @@
-@extends('back.app')
 
-@section('title', isset($profil) ? "Modifier un profil" : "Ajouter un profil")
+@extends('back.app')  
+
+@section('title', 'Liste des Permissions')
 
 @section('dashboard-header')
     <div class="row align-items-center">
         <div class="col">
-            <h3 class="page-title mt-5">
-                {{ isset($profil) ? 'Modifier' : 'Ajouter' }} un Profil
-            </h3>
+            <div class="mt-5">
+                <h4 class="card-title float-left mt-2">
+                    {{ isset($profil) && $profil ? 'Modifier' : 'Ajouter' }} Profil
+                </h4>
+                 {{-- <h2> @if($profil) Modifier  @else Ajouter @endif  Profil</h2> --}}
+                
+                {{-- <a href="{{ route('profils.create') }}" class="btn btn-primary float-right viewbutton">@if($profil) Modifier  @else Ajouter @endif Profil</a> --}}
+            </div>
         </div>
     </div>
 @endsection
 
 @section('dashboard-content')
     <div class="row">
-        <div class="col-lg-12">
-            <form action="{{ isset($profil) ? route('profils.update', $profil) : route('profils.store') }}" method="POST">
-                @csrf
-                @if (isset($profil))
-                    @method('PUT')
-                @endif
+        <div class="col-sm-12">
+            <div class="card card-table">
+                <div class="card-body booking_card">
+                    <div class="table-responsive">
+<body>
 
-                <div class="row formtype">
-                    <!-- Nom du profil -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Nom du profil</label>
-                            <input class="form-control" type="text" name="name"
-                                value="{{ isset($profil) ? old('name', $profil->name) : old('name') }}" required />
-                            @error('name')
-                                <p class="text-danger mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+    {{-- <h2> @if($profil) Modifier  @else Ajouter @endif  Profil</h2> --}}
 
-                    <!-- Description -->
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label>Description</label>
-                            <input class="form-control" type="text" name="description"
-                                value="{{ isset($profil) ? old('description', $profil->description) : old('description') }}" />
-                            @error('description')
-                                <p class="text-danger mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+   <form action="{{ isset($profil) ? route('profils.update', $profil->id) : route('profils.store') }}" method="POST">
 
-                    <!-- Permissions (si applicable) -->
-                    <div class="col-md-12">
-                        <div class="form-group">
-                            <label>Permissions associées</label>
-                            <div class="d-flex flex-wrap">
-                                @foreach($permissions as $permission)
-                                    <div class="form-check mr-4 mb-2">
-                                        <input class="form-check-input" type="checkbox" name="permissions[]"
-                                            value="{{ $permission->id }}"
-                                            @if (isset($profil) && $profil->permissions->contains($permission->id)) checked @endif>
-                                        <label class="form-check-label">
-                                            {{ $permission->name }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
-                            @error('permissions')
-                                <p class="text-danger mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-                    </div>
+    @csrf
+    @if (isset($profil))
+        @method('PUT')
+    @endif
 
-                    <!-- Bouton de validation -->
-                    <div class="col-md-12">
-                        <button type="submit" class="btn btn-primary">
-                            {{ isset($profil) ? 'Mettre à jour' : 'Créer le profil' }}
-                        </button>
+    <!-- Name + Description -->
+    <input type="text" name="name" placeholder="Nom du profil" value="{{ old('name', $profil->name ?? '') }}" required>
+    <input type="text" name="description" placeholder="Description" value="{{ old('description', $profil->description ?? '') }}">
+
+    <!-- Permissions -->
+    <h4>Permissions associées</h4>
+    @foreach($permissions as $permission)
+    <div class="form-check mr-4 mb-2">
+        <input class="form-check-input" type="checkbox" name="permissions[]"
+            value="{{ $permission->id }}"
+            @if (isset($profil) && $profil->permissions->contains($permission->id)) checked @endif>
+        <label class="form-check-label">
+            {{ $permission->name }}
+        </label>
+    </div>
+    @endforeach
+
+    <button type="submit"> {{ isset($profil) && $profil ? 'Modifier' : 'Ajouter' }} Profil</button>
+
+</form>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
 @endsection

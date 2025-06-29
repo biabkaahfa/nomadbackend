@@ -7,7 +7,7 @@
             <a href="{{ route('profile.edit') }}" class="logo">
                 <img src="{{ asset('back_auth/assets/profile/' . \Illuminate\Support\Facades\Auth::user()->image) }}"
                     width="50" height="70" alt="logo4" />
-                <span class="logoclass">{{ Auth::user()->name }}</span>
+                <span class="logoclass">{{ Auth::user()->name ?? "non connecter " }}</span>
             </a>
             <a href="index.html" class="logo logo-small">
                 {{-- <img src="{{ asset('back_auth/assets/img/logo.png') }}" 
@@ -67,6 +67,6 @@
     </div>
 @else
     <script>
-        window.location.href = "{{ route('login') }}";
+        // window.location.href = "{{ route('login') }}";
     </script>
 @endauth

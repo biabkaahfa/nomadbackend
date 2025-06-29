@@ -18,9 +18,11 @@
             <thead>
                 <tr>
                     <th>ID</th>
+                     <th>Logo</th>
                     <th>Nom</th>
                     <th>Email</th>
                     <th>Téléphone</th>
+                     <th>Description</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -28,9 +30,13 @@
                 @foreach($compagnies as $compagnie)
                 <tr>
                     <td>{{ $compagnie->id }}</td>
+                    <td> <img src="{{ $compagnie->imageUrl() }}" alt="{{ $compagnie->name }}" width="100"
+                                                height="100">  </td>
                     <td>{{ $compagnie->name }}</td>
                     <td>{{ $compagnie->email }}</td>
                     <td>{{ $compagnie->telephone }}</td>
+                    <td>{{ $compagnie->descriptions }}</td>
+                    
                     <td>
                         <a href="{{ route('compagnies.edit', $compagnie) }}" class="btn btn-sm btn-warning">Modifier</a>
                         <form action="{{ route('compagnies.destroy', $compagnie) }}" method="POST" style="display:inline;">

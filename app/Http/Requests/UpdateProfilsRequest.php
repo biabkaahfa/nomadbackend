@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use Illuminate\Validation\Rule;
+
 class UpdateProfilsRequest extends FormRequest
 {
     /**
@@ -11,7 +13,7 @@ class UpdateProfilsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +23,18 @@ class UpdateProfilsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+    //    $profilId = $this->route('profils');
+
+    return [
+        'name' => [
+            'required',
+            'string',
+            'max:255',
+            // Rule::unique('profils', 'name')->ignore($profilId),
+        ],
+        'description' => ['nullable', 'string', 'max:500'],
+        'permissions' => ['nullable', 'array'],
+        'permissions.*' => ['exists:permissions,id'],
+    ];
     }
 }

@@ -1,4 +1,4 @@
-@extends('back.app')
+{{-- @extends('back.app')
 
 @section('title', isset($bus) ? 'Modifier un Bus' : 'Ajouter un Bus')
 
@@ -36,4 +36,4 @@
             </form>
         @endif
     </form>
-@endsection
+@endsection --}}

@@ -11,4 +11,8 @@ class Profils extends Model
         'name',
         'description'
     ];
+     public function permissions()
+    {
+        return $this->belongsToMany(Permissions::class, 'permission_profils', 'idProfil', 'idPermission');
+    }
 }

@@ -2,11 +2,19 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Profils\ProfilsController;
+use App\Http\Controllers\Permissions\PermissionsController;
+use App\Http\Controllers\Compagnies\CompagniesController;
+use App\Http\Controllers\Trajets\TrajetsController;
 use Illuminate\Support\Facades\Route;
+//ProfilsController   PermissionsController
+Route::get('/user', [UserController::class, 'index'])->name('users.index');
 
-Route::get('/', function () {
-    return view('back/users/index');
-});
+Route::resource('profils',ProfilsController::class);
+Route::resource('permissions', PermissionsController::class);
+Route::resource('compagnies', CompagniesController::class);
+
+Route::resource('trajets', TrajetsController::class);
 
 Route::middleware(['auth'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');
@@ -23,7 +31,7 @@ Route::middleware(['guest'])->group(function () {
     
    
     Route::resource('users', UserController::class);
-     // Routes supplémentaires pour les utilisateurs
+    //  // Routes supplémentaires pour les utilisateurs
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
          ->name('users.toggleStatus');
     
