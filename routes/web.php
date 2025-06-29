@@ -4,15 +4,24 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Profils\ProfilsController;
 use App\Http\Controllers\Permissions\PermissionsController;
+use App\Http\Controllers\Voyages\VoyagesController;
+use App\Http\Controllers\Bus\BusController;
 use App\Http\Controllers\Compagnies\CompagniesController;
 use App\Http\Controllers\Trajets\TrajetsController;
+use App\Http\Controllers\FrequenceTrajetsController;
 use Illuminate\Support\Facades\Route;
-//ProfilsController   PermissionsController
+//ProfilsController   PermissionsController FrequencesTrajetsController
 Route::get('/user', [UserController::class, 'index'])->name('users.index');
 
 Route::resource('profils',ProfilsController::class);
 Route::resource('permissions', PermissionsController::class);
 Route::resource('compagnies', CompagniesController::class);
+Route::resource('voyages', VoyagesController::class);
+
+Route::resource('frequences', FrequenceTrajetsController::class);
+
+Route::resource('buses', BusController::class);
+
 
 Route::resource('trajets', TrajetsController::class);
 

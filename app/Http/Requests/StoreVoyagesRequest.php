@@ -11,7 +11,7 @@ class StoreVoyagesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,11 @@ class StoreVoyagesRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+         return [
+        'heuresDepart' => ['required', 'date_format:H:i'],
+        'dateDepart' => ['required', 'date', 'after_or_equal:today'],
+        'idTrajet' => ['required', 'exists:trajets,id'],
+        'idBus' => ['nullable', 'exists:buses,id'], // si tu as une table "buses"
+    ];
     }
 }

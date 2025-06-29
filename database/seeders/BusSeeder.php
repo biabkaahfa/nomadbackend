@@ -15,9 +15,12 @@ class BusSeeder extends Seeder
     {
         //
         DB::table('buses')->insert([
-            [
+            [    'numeroBus' => 20,
                 'nombrePlaces' => 60,
-                'nombrePlaceDispo' => 60
+                'nombrePlaceDispo' => 60,
+                'idCompagnie'=> 1,
+                'status' => 'Actif',
+                //'nombrePlaceDispo' => 60
             ]
         ]);
     }

@@ -11,7 +11,7 @@ class UpdatePermissionProfilsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,9 @@ class UpdatePermissionProfilsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'idTrajet' => ['required', 'exists:trajets,id'],
+            'jour' => ['required', 'in:Lundi,Mardi,Mercredi,Jeudi,Vendredi,Samedi,Dimanche,chaquejours'],
+            'heure' => ['required', 'date_format:H:i'],
         ];
     }
 }

@@ -1,4 +1,4 @@
-{{-- @extends('back.app')
+@extends('back.app')
 
 @section('title', isset($bus) ? 'Modifier un Bus' : 'Ajouter un Bus')
 
@@ -15,18 +15,40 @@
             @method('PUT')
         @endif
 
+        <input type="number" name="numeroBus" class="form-control mb-3" placeholder="Numéro du bus"
+            value="{{ old('numeroBus', $bus->numeroBus ?? '') }}" required>
+
         <input type="number" name="nombrePlaces" class="form-control mb-3" placeholder="Nombre total de places"
-            value="{{ old('nombrePlaces', $bus->nombrePlaces ?? '') }}">
+            value="{{ old('nombrePlaces', $bus->nombrePlaces ?? '') }}" required>
 
         <input type="number" name="nombrePlaceDispo" class="form-control mb-3" placeholder="Places disponibles"
-            value="{{ old('nombrePlaceDispo', $bus->nombrePlaceDispo ?? '') }}">
+            value="{{ old('nombrePlaceDispo', $bus->nombrePlaceDispo ?? '') }}" required>
 
-        <button class="btn btn-primary">
+        <select name="idCompagnie" class="form-control mb-3" required>
+    <option value="">-- Choisir une compagnie --</option>
+    @foreach($compagnies as $compagnie)
+        <option value="{{ $compagnie->id }}"
+            {{ old('idCompagnie', $bus->idCompagnie ?? '') == $compagnie->id ? 'selected' : '' }}>
+            {{ $compagnie->name }}
+        </option>
+    @endforeach
+</select>
+
+
+
+        <select name="status" class="form-control mb-3" required>
+            <option value="">-- Statut du bus --</option>
+            <option value="Actif" {{ old('status', $bus->status ?? '') == 'Actif' ? 'selected' : '' }}>Actif</option>
+            <option value="Inactifs" {{ old('status', $bus->status ?? '') == 'Inactifs' ? 'selected' : '' }}>Inactif</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary">
             {{ isset($bus) ? 'Mettre à jour' : 'Ajouter' }}
         </button>
 
         @if(isset($bus))
-            <a href="#" class="btn btn-danger ml-2" onclick="event.preventDefault(); if(confirm('Supprimer ce bus ?')) document.getElementById('delete-form').submit();">
+            <a href="#" class="btn btn-danger ml-2"
+                onclick="event.preventDefault(); if(confirm('Supprimer ce bus ?')) document.getElementById('delete-form').submit();">
                 Supprimer
             </a>
 
@@ -36,4 +58,4 @@
             </form>
         @endif
     </form>
-@endsection --}}
+@endsection

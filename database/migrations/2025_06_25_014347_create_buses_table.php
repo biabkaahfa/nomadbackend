@@ -12,11 +12,21 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('buses', function (Blueprint $table) {
-            $table->id();
-            $table->integer('nombrePlaces');
-            $table->integer('nombrePlaceDispo');
-            $table->timestamps();
-        });
+    $table->id();
+    $table->integer('numeroBus');
+    $table->integer('nombrePlaces');
+    $table->integer('nombrePlaceDispo');
+
+    $table->unsignedBigInteger('idCompagnie');
+    $table->foreign('idCompagnie')
+          ->references('id')
+          ->on('compagnies')
+          ->onDelete('cascade');
+
+    $table->enum('status', ['Actif', 'Inactif']);
+    $table->timestamps();
+});
+
     //     'nombrePlaces',
     //     'idVoyage', 
     //     'nombrePlaceDispo'

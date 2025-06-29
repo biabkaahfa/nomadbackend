@@ -11,7 +11,7 @@ class UpdateBusRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,11 @@ class UpdateBusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'numeroBus' => ['required', 'integer'],
+            'nombrePlaces' => ['required', 'integer', 'min:1'],
+            'nombrePlaceDispo' => ['required', 'integer', 'min:0', 'lte:nombrePlaces'],
+            'idCompagnie' => ['required', 'exists:compagnies,id'],
+            'status' => ['required', 'in:Actif,Inactif'],
         ];
     }
 }

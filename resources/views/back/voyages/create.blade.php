@@ -19,27 +19,41 @@
             value="{{ old('heuresDepart', $voyage->heuresDepart ?? '') }}">
 
         <input type="date" name="dateDepart" class="form-control mb-3"
-            value="{{ old('dateDepart', $voyage->dateDepart ?? '') }}">
+    min="{{ date('Y-m-d') }}"
+    value="{{ old('dateDepart', $voyage->dateDepart ?? '') }}">
 
-        <input type="number" name="idTrajet" placeholder="ID Trajet" class="form-control mb-3"
-            value="{{ old('idTrajet', $voyage->idTrajet ?? '') }}">
+       <select name="idTrajet" class="form-control mb-3" required>
+    <option value="">-- Choisir un trajet --</option>
+    @foreach ($trajets as $trajet)
+        <option value="{{ $trajet->id }}"
+            {{ old('idTrajet', $voyage->idTrajet ?? '') == $trajet->id ? 'selected' : '' }}>
+            {{ $trajet->pointDepart }} → {{ $trajet->pointArrive }}
+        </option>
+    @endforeach
+</select>
+@error('idTrajet')
+    <p class="text-danger mt-1">{{ $message }}</p>
+@enderror
 
-        <input type="number" name="idBus" placeholder="ID Bus (facultatif)" class="form-control mb-3"
-            value="{{ old('idBus', $voyage->idBus ?? '') }}">
 
-        <button class="btn btn-primary">
+         <select name="idBus" class="form-control mb-3">
+    <option value="">-- Choisir un bus --</option>
+    @foreach($buses as $bus)
+        <option value="{{ $bus->id }}"
+            {{ old('idBus', $voyage->idBus ?? '') == $bus->id ? 'selected' : '' }}>
+            Bus N°{{ $bus->numeroBus }}
+        </option>
+    @endforeach
+</select>
+
+        <button type="submit" class="btn btn-primary">
             {{ isset($voyage) ? 'Mettre à jour' : 'Valider' }}
         </button>
+{{-- 
+       <a href="{{ route('voyages.update', $voyage->id) }}" class="btn btn-sm btn-primary">
+        Modifier
+    </a> --}}
 
-        @if(isset($voyage))
-            <a href="#" class="btn btn-danger ml-2" onclick="event.preventDefault(); if(confirm('Supprimer ce voyage ?')) document.getElementById('delete-form').submit();">
-                Supprimer
-            </a>
-
-            <form id="delete-form" action="{{ route('voyages.destroy', $voyage->id) }}" method="POST" style="display:none;">
-                @csrf
-                @method('DELETE')
-            </form>
-        @endif
+           
     </form>
 @endsection

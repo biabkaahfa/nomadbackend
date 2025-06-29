@@ -120,10 +120,10 @@
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
-                                {{-- {{ route('profils.index') }} --}}
+                                {{ route('voyages.index') }}
                                 ">Tous les Voyages</a></li>
                             <li><a href="
-                                {{-- {{ route('profils.create') }} --}}
+                                {{ route('voyages.create') }}
                                  ">Ajouter un voyage</a></li>
                         </ul>
                     </li>
@@ -136,10 +136,10 @@
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
-                                {{-- {{ route('profils.index') }} --}}
+                                {{ route('buses.index') }}
                                 ">Tous les Buses</a></li>
                             <li><a href="
-                                {{-- {{ route('profils.create') }} --}}
+                                {{ route('buses.create') }}
                                  ">Ajouter un Buse</a></li>
                         </ul>
                     </li>
@@ -156,6 +156,21 @@
                             <li><a href="
                                 {{ route('trajets.create') }}
                                  ">Ajouter un Trajets</a></li>
+                        </ul>
+                    </li>
+                    <li class="submenu">
+                        <a href="#">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Frequences</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul class="submenu_class" style="display: none;">
+                            <li><a href="
+                                {{ route('frequences.index') }}
+                                ">Tous les Frequences</a></li>
+                            <li><a href="
+                                {{ route('frequences.create') }}
+                                 ">Ajouter une Frequence</a></li>
                         </ul>
                     </li>
                     <li class="submenu">

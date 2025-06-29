@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FrequenceTrajets;
+use App\Models\Trajets;
 use App\Http\Requests\StoreFrequenceTrajetsRequest;
 use App\Http\Requests\UpdateFrequenceTrajetsRequest;
 
@@ -14,6 +15,10 @@ class FrequenceTrajetsController extends Controller
     public function index()
     {
         //
+         //
+        $frequences=FrequenceTrajets::all();
+
+        return view("back.Frequences.index",['frequences'=>$frequences]);
     }
 
     /**
@@ -22,6 +27,9 @@ class FrequenceTrajetsController extends Controller
     public function create()
     {
         //
+       $trajets=Trajets::all();
+
+        return view("back.Frequences.create",['trajets'=>$trajets]);
     }
 
     /**
@@ -30,6 +38,12 @@ class FrequenceTrajetsController extends Controller
     public function store(StoreFrequenceTrajetsRequest $request)
     {
         //
+       // $dd('envoyer');
+        $data = $request->validated();
+        FrequenceTrajets::create($data);
+
+        return redirect()->route('frequences.index')->with('success', 'Frequence mis à jour avec succès.');
+        
     }
 
     /**
@@ -43,24 +57,34 @@ class FrequenceTrajetsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(FrequenceTrajets $frequenceTrajets)
+    public function edit(FrequenceTrajets $frequence)
     {
         //
+        $tajets=Trajets::all();
+        return view("back.Frequences.create",['frequence'=>$frequence,'trajets'=>$tajets]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateFrequenceTrajetsRequest $request, FrequenceTrajets $frequenceTrajets)
+    public function update(UpdateFrequenceTrajetsRequest $request, FrequenceTrajets $frequence)
     {
         //
+       // $dd('non hein');
+        $data = $request->validated();
+
+       $frequence->update($data);
+
+       return redirect()->route('frequences.index')->with('success', 'Frequence mis à jour avec succès.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(FrequenceTrajets $frequenceTrajets)
+    public function destroy(FrequenceTrajets $frequence)
     {
         //
+         $frequence->delete();
+        return redirect()->route('frequences.index')->with('success', 'Bus supprimer avec succès.');
     }
 }

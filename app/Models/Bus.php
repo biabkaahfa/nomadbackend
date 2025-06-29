@@ -9,11 +9,19 @@ class Bus extends Model
 {
     //
     protected $fillable=[
+        'numeroBus',
         'nombrePlaces',
+         'nombrePlaceDispo',
+        
+        "idCompagnie",
+        "status",
        // 'idVoyage', 
-        'nombrePlaceDispo'
+       
     ];
      public  function voyage(){
         return $this->belongsTo(Voyages::class,'idVoyage');
+    }
+    public  function compagnie(){
+        return $this->belongsTo(Compagnies::class,'idCompagnie');
     }
 }

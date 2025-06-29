@@ -2,13 +2,12 @@
 @section('title', 'Trajets')
 
 @section('dashboard-header')
-    <div class="row align-items-center">
-        <div class="col">
-            <h3 class="page-title mt-5">
-                {{ isset($trajets) ? 'Modifier' : 'Ajouter' }} un Trajet
-            </h3>
-        </div>
+<div class="row align-items-center">
+    <div class="col">
+        <h4 class="card-title mt-5">Listes des Trajets</h4>
+        <a href="{{ route('trajets.create') }}" class="btn btn-primary float-right">Ajouter un Trajet</a>
     </div>
+</div>
 @endsection
 @section('dashboard-content')
 <div class="card">

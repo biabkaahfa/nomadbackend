@@ -5,6 +5,7 @@
 @section('dashboard-header')
     <h3 class="page-title mt-5">
         {{ isset($trajet) ? 'Modifier' : 'Ajouter' }} un Trajet
+        
     </h3>
 @endsection
 
@@ -29,8 +30,15 @@
             <option value="INACTIF" {{ (old('status', $trajet->status ?? '') == 'INACTIF') ? 'selected' : '' }}>INACTIF</option>
         </select>
 
-        <input type="number" name="idCompagnie" placeholder="ID Compagnie" class="form-control mb-3"
-            value="{{ old('idCompagnie', $trajet->idCompagnie ?? '') }}">
+         <select name="idCompagnie" class="form-control mb-3" required>
+    <option value="">-- Choisir une compagnie --</option>
+    @foreach($compagnies as $compagnie)
+        <option value="{{ $compagnie->id }}"
+            {{ old('idCompagnie', $bus->idCompagnie ?? '') == $compagnie->id ? 'selected' : '' }}>
+            {{ $compagnie->name }}
+        </option>
+    @endforeach
+</select>
           <select name="idFrequence" class="form-control mb-3" required>
     <option value="">-- Choisir une fréquence --</option>
     @foreach($frequences as $frequence)

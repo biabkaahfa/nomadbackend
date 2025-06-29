@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Trajets;
 use App\Http\Controllers\Controller;
 use App\Models\Trajets;
 use App\Models\FrequenceTrajets;
+use App\Models\Compagnies;
 use App\Http\Requests\StoreTrajetsRequest;
 use App\Http\Requests\UpdateTrajetsRequest;
 
@@ -26,8 +27,9 @@ class TrajetsController extends Controller
     {
         //
          $frequences = FrequenceTrajets::all();
+          $compagnies=Compagnies::all();
     
-        return view("back.Trajets.create",["frequences"=>$frequences]);
+        return view("back.Trajets.create",["frequences"=>$frequences,'compagnies'=>$compagnies]);
     }
 
     /**
@@ -58,8 +60,9 @@ class TrajetsController extends Controller
     public function edit(Trajets $trajet)
     {
         //
+        $compagnies=Compagnies::all();
         $frequences = FrequenceTrajets::all();
-         return view("back.Trajets.create",["trajet"=>$trajet,"frequences"=>$frequences]);
+         return view("back.Trajets.create",["trajet"=>$trajet,"frequences"=>$frequences,'compagnies'=>$compagnies,]);
     }
 
     /**

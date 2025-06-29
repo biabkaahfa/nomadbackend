@@ -17,7 +17,11 @@ return new class extends Migration
              $table->foreign('idTrajet')->references('id')->on('trajets')->onDelete('CASCADE');
              $table->integer('nombrePlaceMinimum')->default(25);
             $table->Time('heureDepart');
-            $table->enum('jourSemaine',['LUNDI', 'MARDI', 'MERCREDI', 'JEUDI', 'VENDREDI', 'SAMEDI', 'DIMANCHE', 'TOUS_LES_JOURS']);
+            $table->enum('jourSemaine', [
+    'LUNDI', 'MARDI', 'MERCREDI', 'JEUDI',
+    'VENDREDI', 'SAMEDI', 'DIMANCHE', 'CHAQUEJOURS'
+]);
+
             $table->timestamps();
         });
         // 'idTrajet',

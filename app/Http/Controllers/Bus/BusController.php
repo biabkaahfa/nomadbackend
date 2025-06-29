@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Bus;
 
 use App\Models\Bus;
+use App\Models\Compagnies;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBusRequest;
 use App\Http\Requests\UpdateBusRequest;
 
@@ -14,6 +16,8 @@ class BusController extends Controller
     public function index()
     {
         //
+        $buses=Bus::all();
+        return view("back.buses.index",['buses'=>$buses]);
     }
 
     /**
@@ -22,6 +26,8 @@ class BusController extends Controller
     public function create()
     {
         //
+        $compagnies=Compagnies::all();
+        return view("back.buses.create",['compagnies'=>$compagnies]);
     }
 
     /**
@@ -30,6 +36,11 @@ class BusController extends Controller
     public function store(StoreBusRequest $request)
     {
         //
+        $data = $request->validated();
+
+    Bus::create($data);
+
+    return redirect()->route('buses.index')->with('success', 'Bus créé avec succès.');
     }
 
     /**
@@ -46,6 +57,9 @@ class BusController extends Controller
     public function edit(Bus $bus)
     {
         //
+         //
+        $compagnies=Compagnies::all();
+        return view("back.buses.create",['compagnies'=>$compagnies,"buses"=>$bus]);
     }
 
     /**
@@ -54,6 +68,11 @@ class BusController extends Controller
     public function update(UpdateBusRequest $request, Bus $bus)
     {
         //
+         $data = $request->validated();
+
+    $bus->update($data);
+
+    return redirect()->route('buses.index')->with('success', 'Bus mis à jour avec succès.');
     }
 
     /**
@@ -62,5 +81,8 @@ class BusController extends Controller
     public function destroy(Bus $bus)
     {
         //
+        $bus->delete();
+        return redirect()->route('buses.index')->with('success', 'Bus supprimer avec succès.');
+
     }
 }

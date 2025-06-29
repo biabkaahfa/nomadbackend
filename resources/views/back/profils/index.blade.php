@@ -45,7 +45,7 @@
                     <td class="actions">
                         <a href="#">👁️ Voir</a>
                         <a href="{{ route("profils.edit",$profil) }}">✏️ Modifier</a>
-                        <a href="#" class="delete">🗑️ Supprimer</a>
+                        <a href="{{ route("compagnies.destroy",$profil) }}" class="delete">🗑️ Supprimer</a>
                     </td>
                 </tr>
             @endforeach

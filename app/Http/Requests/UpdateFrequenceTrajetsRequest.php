@@ -11,7 +11,7 @@ class UpdateFrequenceTrajetsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,8 +21,11 @@ class UpdateFrequenceTrajetsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            //
-        ];
+         return [
+        'idTrajet' => ['required', 'exists:trajets,id'],
+        'jourSemaine' => ['required', 'in:LUNDI,MARDI,MERCREDI,JEUDI,VENDREDI,SAMEDI,DIMANCHE,CHAQUEJOURS'],
+        'heureDepart' => ['required', 'date_format:H:i'],
+        'nombrePlaceMinimum' => ['required', 'integer', 'min:1'],
+    ];
     }
 }
