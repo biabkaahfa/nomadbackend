@@ -13,50 +13,50 @@
 
                 <li class="submenu">
                     <a href="#">
-                        <i class="fas fa-edit"></i>
-                        <span>Logement</span>
+                        <i class="fas fa-bus-alt"></i>
+                        <span>Compagnie</span>
                         <span class="menu-arrow"></span>
                     </a>
                     <ul class="submenu_class" style="display: none;">
                         <li><a href="
-                            {{-- {{ route('') }} --}}
-                            ">Tous les logements</a></li>
+                            {{ route('compagnies.index') }}
+                            ">Tous les compagnies</a></li>
                         <li><a href="
-                            {{-- {{ route('') }} --}}
-                             ">Ajouter un logement</a></li>
+                            {{ route('compagnies.create') }}
+                             ">Ajouter une compagnie</a></li>
                     </ul>
                 </li>
                 {{-- @can('admin-access') --}}
                     <li class="submenu">
                         <a href="#">
-                            <i class="fas fa-book"></i>
-                            <span>Catégories</span>
+                            <i class="fas fa-user-shield"></i>
+                            <span>Permissions</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
                                  {{ route('permissions.index') }} 
-                                 ">Toutes les catégories</a></li>
+                                 ">Toutes les Permissions</a></li>
                             <li><a href="
                                 {{ route('permissions.create') }}
-                                ">Ajouter une catégorie</a></li>
+                                ">Ajouter une Permission</a></li>
                         </ul>
                     </li>
 
 
                     <li class="submenu">
                         <a href="#">
-                            <i class="fas fa-user"></i>
-                            <span>Personnels</span>
+                            <i class="fas fa-users-cog"></i>
+                            <span>Utilisateur</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
                                 {{-- {{ route('') }} --}}
-                                 ">Tout le personnel</a></li>
+                                 ">Tout les utilisateur</a></li>
                             <li><a href="
                                 {{-- {{ route('') }} --}}
-                                 ">Ajouter un personnel</a></li>
+                                 ">Ajouter un utilisateur</a></li>
                         </ul>
                     </li>
                 {{-- @endcan --}}
@@ -65,8 +65,8 @@
                     <a href="
                     {{-- {{ route('') }} --}}
                      ">
-                        <i class="fe fe-table"></i>
-                        <span>Commentaires</span>
+                        <i class="fas fa-sticky-note"></i>
+                        <span>Notes</span>
                     </a>
                 </li>
                 <li>
@@ -74,50 +74,112 @@
                     {{-- {{ route('') }} --}}
                      ">
                         <i class="fe fe-table"></i>
-                        <span>Location</span>
+                        <span>Notifications</span>
                     </a>
                 </li>
                 <li>
                     <a href="
                     {{-- {{ route('') }} --}}
                      ">
-                        <i class="fe fe-table"></i>
-                        <span>Vente</span>
+                        <i class="fas fa-money-check-alt"></i>
+                        <span>Paiements</span>
                     </a>
                 </li>
                 {{-- @can('admin-access') --}}
                     <li class="submenu">
                         <a href="#">
-                            <i class="far fa-money-bill-alt"></i>
-                            <span>Médias Sociaux</span>
+                            <i class="fas fa-warehouse"></i>
+                            <span>Garres</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
                                 {{-- {{ route('') }} --}}
-                                 ">Tous les médias</a></li>
+                                 ">Tous les Garres</a></li>
                             <li><a href="
                                 {{-- {{ route('') }} --}}
-                                 ">Ajouter un média</a></li>
+                                 ">Ajouter une Garre</a></li>
                         </ul>
                     </li>
                     <li class="submenu">
                         <a href="#">
                             <i class="far fa-money-bill-alt"></i>
-                            <span>Roles</span>
+                            <span>Profils</span>
                             <span class="menu-arrow"></span>
                         </a>
                         <ul class="submenu_class" style="display: none;">
-                            <li><a href="{{ route('profils.index') }}">Tous les Roles</a></li>
-                            <li><a href="{{ route('profils.create') }}">Ajouter un Role</a></li>
+                            <li><a href="{{ route('profils.index') }}">Tous les Profils</a></li>
+                            <li><a href="{{ route('profils.create') }}">Ajouter un Profil</a></li>
                         </ul>
                     </li>
+                     <li class="submenu">
+                        <a href="#">
+                            <i class="	fas fa-route"></i>
+                            <span>Voyages</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul class="submenu_class" style="display: none;">
+                            <li><a href="
+                                {{-- {{ route('profils.index') }} --}}
+                                ">Tous les Voyages</a></li>
+                            <li><a href="
+                                {{-- {{ route('profils.create') }} --}}
+                                 ">Ajouter un voyage</a></li>
+                        </ul>
+                    </li>
+                     </li>
+                     <li class="submenu">
+                        <a href="#">
+                            <i class="fas fa-bus"></i>
+                            <span>Buses</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul class="submenu_class" style="display: none;">
+                            <li><a href="
+                                {{-- {{ route('profils.index') }} --}}
+                                ">Tous les Buses</a></li>
+                            <li><a href="
+                                {{-- {{ route('profils.create') }} --}}
+                                 ">Ajouter un Buse</a></li>
+                        </ul>
+                    </li>
+                    <li class="submenu">
+                        <a href="#">
+                            <i class="fas fa-map-marked-alt"></i>
+                            <span>Trajets</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul class="submenu_class" style="display: none;">
+                            <li><a href="
+                                {{ route('trajets.index') }}
+                                ">Tous les Trajets</a></li>
+                            <li><a href="
+                                {{ route('trajets.create') }}
+                                 ">Ajouter un Trajets</a></li>
+                        </ul>
+                    </li>
+                    <li class="submenu">
+                        <a href="#">
+                            <i class="fas fa-ticket-alt"></i>
+                            <span>Tickets</span>
+                            <span class="menu-arrow"></span>
+                        </a>
+                        <ul class="submenu_class" style="display: none;">
+                            <li><a href="
+                                {{-- {{ route('profils.index') }} --}}
+                                ">Tous les Tickets</a></li>
+                            <li><a href="
+                                {{-- {{ route('profils.create') }} --}}
+                                 ">Ajouter un Ticket</a></li>
+                        </ul>
+                    </li>
+
 
                     <li>
                         <a href="
                         {{-- {{ route('') }} --}}
                          ">
-                            <i class="fe fe-table"></i>
+                            <i class="fas fa-envelope"></i>
                             <span>Contacts</span>
                         </a>
                     </li>

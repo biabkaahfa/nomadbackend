@@ -11,7 +11,7 @@ class UpdateTrajetsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,6 +22,12 @@ class UpdateTrajetsRequest extends FormRequest
     public function rules(): array
     {
         return [
+             'pointDepart' => ['required', 'string', 'max:255'],
+        'pointArrive' => ['required', 'string', 'max:255'],
+        'prix' => ['required', 'numeric', 'min:0'],
+        'status' => ['required', 'in:ACTIF,INACTIF'],
+        'idCompagnie' => ['required', 'exists:compagnies,id'],
+        'idFrequence' => ['required', 'exists:frequence_trajets,id'],
             //
         ];
     }

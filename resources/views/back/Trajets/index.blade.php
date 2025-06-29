@@ -1,7 +1,14 @@
 @extends('back.app')
 @section('title', 'Trajets')
+
 @section('dashboard-header')
-<h4 class="mt-5">Liste des trajets</h4>
+    <div class="row align-items-center">
+        <div class="col">
+            <h3 class="page-title mt-5">
+                {{ isset($trajets) ? 'Modifier' : 'Ajouter' }} un Trajet
+            </h3>
+        </div>
+    </div>
 @endsection
 @section('dashboard-content')
 <div class="card">
@@ -14,6 +21,7 @@
                     <th>Arrivée</th>
                     <th>Prix</th>
                     <th>Statut</th>
+                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -24,6 +32,13 @@
                     <td>{{ $trajet->pointArrive }}</td>
                     <td>{{ $trajet->prix }} F</td>
                     <td>{{ $trajet->status }}</td>
+                    <td>
+                        <a href="{{ route('trajets.edit', $trajet) }}" class="btn btn-sm btn-warning">Modifier</a>
+                        <form action="{{ route('trajets.destroy', $trajet) }}" method="POST" style="display:inline;">
+                            @csrf @method('DELETE')
+                            <button class="btn btn-sm btn-danger">Supprimer</button>
+                        </form>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

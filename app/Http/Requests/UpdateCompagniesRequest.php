@@ -11,7 +11,7 @@ class UpdateCompagniesRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,15 @@ class UpdateCompagniesRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+         return [
+            'name'=>['string','required','max:255'],
+            'email' => ['required', 'string', 'email', 'max:255'],
+            'description'=>['string','nullable','max:500'],
+            'telephone' => ['required', 'string', 'max:12', 'regex:/^[0-9+\-\s]+$/'],
+            'image'=>['image','nullable','mimes:png,jpg,jpeg','max:2048'],
+            
+           
+
             //
         ];
     }

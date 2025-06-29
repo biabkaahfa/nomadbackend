@@ -1,10 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+// namespace App\Http\Controllers;
+namespace App\Http\Controllers\Compagnies;
 
 use App\Models\Compagnies;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCompagniesRequest;
 use App\Http\Requests\UpdateCompagniesRequest;
+use Illuminate\Support\Facades\Storage;
 
 class CompagniesController extends Controller
 {
@@ -14,6 +17,8 @@ class CompagniesController extends Controller
     public function index()
     {
         //
+        $compagnies=Compagnies::all();
+        return view("back.compagnies.index",["compagnies"=>$compagnies]);
     }
 
     /**
@@ -22,6 +27,7 @@ class CompagniesController extends Controller
     public function create()
     {
         //
+        return view('back.compagnies.create');
     }
 
     /**
@@ -30,6 +36,34 @@ class CompagniesController extends Controller
     public function store(StoreCompagniesRequest $request)
     {
         //
+         //
+        $request->validated($request->all());
+
+        $image=$request->logo;
+
+        if($image != null && !$image->getError()){
+
+            $image=$request->logo->store('asset','public');
+
+               
+        }
+        
+
+        $compagnies= Compagnies::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'telephone'=>$request->telephone,
+            'description'=>$request->description,
+           
+            'logo'=>$image,
+
+           
+            
+
+           ] );
+           
+
+           return to_route('compagnies.index')->with('success','compagnies enregistrer avec success');
     }
 
     /**
@@ -43,24 +77,75 @@ class CompagniesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Compagnies $compagnies)
+    public function edit(Compagnies $compagny)
     {
         //
+        return view("back.compagnies.create",['compagny'=>$compagny]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateCompagniesRequest $request, Compagnies $compagnies)
-    {
-        //
+    public function update(UpdateCompagniesRequest $request, Compagnies $compagny)
+    {   //
+        $request->validated($request->all());
+
+        $image=$request->logo;
+
+        if($image != null && !$image->getError()){
+
+            if($compagny->logo){
+                Storage::disk('public')->delete($compagny->logo);
+            }
+
+            $image=$request->logo->store('asset','public');
+
+               
+        }
+
+      
+
+        if($image==null){
+
+            $compagny->update([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'telephone'=>$request->telephone,
+            'description'=>$request->description,
+           
+            //'logo'=>$image,
+                
+    
+               ] );
+
+        }else{
+
+        $compagny->update([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'telephone'=>$request->telephone,
+            'description'=>$request->description,
+           
+            'logo'=>$image,
+           
+            
+
+           ] );}
+    
+
+         
+
+
+           return to_route('compagnies.index')->with('success','Compagnies Modifier  avec success');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Compagnies $compagnies)
+    public function destroy(Compagnies $compagny)
     {
         //
+        $compagny->delete();
+          return to_route('compagnies.index')->with('success','Compagnies Supprimer  avec success');
     }
 }

@@ -31,11 +31,25 @@
 
         <input type="number" name="idCompagnie" placeholder="ID Compagnie" class="form-control mb-3"
             value="{{ old('idCompagnie', $trajet->idCompagnie ?? '') }}">
+          <select name="idFrequence" class="form-control mb-3" required>
+    <option value="">-- Choisir une fréquence --</option>
+    @foreach($frequences as $frequence)
+        <option value="{{ $frequence->id }}" 
+            {{ old('idFrequence', $trajet->idFrequence ?? '') == $frequence->id ? 'selected' : '' }}>
+            {{ $frequence->jourSemaine }} à {{ \Carbon\Carbon::parse($frequence->heureDepart)->format('H:i') }}
+        </option>
+    @endforeach
+</select>
+
+@error('idFrequence')
+    <p class="text-danger mt-1">{{ $message }}</p>
+@enderror
+
 
         <button class="btn btn-primary">
             {{ isset($trajet) ? 'Mettre à jour' : 'Créer' }}
         </button>
-
+{{-- 
         @if(isset($trajet))
             <a href="#" class="btn btn-danger ml-2" onclick="event.preventDefault(); if(confirm('Supprimer ce trajet ?')) document.getElementById('delete-form').submit();">
                 Supprimer
@@ -45,6 +59,6 @@
                 @csrf
                 @method('DELETE')
             </form>
-        @endif
+        @endif --}}
     </form>
 @endsection
