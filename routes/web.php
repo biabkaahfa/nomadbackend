@@ -5,10 +5,12 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\Profils\ProfilsController;
 use App\Http\Controllers\Permissions\PermissionsController;
 use App\Http\Controllers\Compagnies\CompagniesController;
+use App\Http\Controllers\Garres\GarresController;
 use App\Http\Controllers\Trajets\TrajetsController;
+use Database\Seeders\GarresSeeder;
 use Illuminate\Support\Facades\Route;
 //ProfilsController   PermissionsController
-Route::get('/user', [UserController::class, 'index'])->name('users.index');
+
 
 Route::resource('profils',ProfilsController::class);
 Route::resource('permissions', PermissionsController::class);
@@ -31,6 +33,7 @@ Route::middleware(['guest'])->group(function () {
     
    
     Route::resource('users', UserController::class);
+    Route::resource('garres', GarresController::class);
     //  // Routes supplémentaires pour les utilisateurs
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
          ->name('users.toggleStatus');
