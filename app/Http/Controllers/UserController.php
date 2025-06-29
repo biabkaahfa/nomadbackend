@@ -17,66 +17,81 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): View
+    public function index(Request $request)
     {
-        $query = User::with(['profil', 'garre', 'compagnie']);
+        try {
+            $query = User::with(['profil', 'garre', 'compagnie']);
 
-        // Filtrage par recherche
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('telephone', 'like', "%{$search}%");
-            });
+            // Filtrage par recherche
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('telephone', 'like', "%{$search}%");
+                });
+            }
+
+            // Filtrage par profil
+            if ($request->filled('profil')) {
+                $query->where('idProfil', $request->profil);
+            }
+
+            // Filtrage par statut
+            if ($request->filled('statut')) {
+                $query->where('statut', $request->statut);
+            }
+
+            // Filtrage par gare
+            if ($request->filled('garre')) {
+                $query->where('idGarre', $request->garre);
+            }
+
+            // Filtrage par compagnie
+            if ($request->filled('compagnie')) {
+                $query->where('idCompagnie', $request->compagnie);
+            }
+
+            $users = $query->paginate(15);
+            
+            // Récupérer les données pour les filtres (noms de modèles corrigés)
+            $profils = Profils::all();
+            $garres = Garres::all();
+            $compagnies = Compagnies::all();
+
+            return view('back.users.index', compact('users', 'profils', 'garres', 'compagnies'));
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la récupération des utilisateurs: ' . $e->getMessage());
         }
-
-        // Filtrage par profil
-        if ($request->filled('profil')) {
-            $query->where('idProfil', $request->profil);
-        }
-
-        // Filtrage par statut
-        if ($request->filled('statut')) {
-            $query->where('statut', $request->statut);
-        }
-
-        // Filtrage par gare
-        if ($request->filled('garre')) {
-            $query->where('idGarre', $request->garre);
-        }
-
-        // Filtrage par compagnie
-        if ($request->filled('compagnie')) {
-            $query->where('idCompagnie', $request->compagnie);
-        }
-
-        $users = $query->paginate(15);
-        
-        // Récupérer les données pour les filtres
-        $profils = Profils::all();
-        $garres = Garres::all();
-        $compagnies = Compagnies::all();
-
-        return view('back.users.index', compact('users', 'profils', 'garres', 'compagnies'));
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create(): View
+    public function create()
     {
-        $profils = Profils::all();
-        $garres = Garres::all();
-        $compagnies = Compagnies::all();
+        try {
+            $profils = Profils::all();
+            $garres = Garres::all();
+            $compagnies = Compagnies::all();
 
-        return view('back.users.create', compact('profils', 'garres', 'compagnies'));
+            return view('back.users.create', [
+                'mode' => 'create',
+                'profils' => $profils,
+                'garres' => $garres,
+                'compagnies' => $compagnies
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du chargement du formulaire de création: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -84,81 +99,128 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request): RedirectResponse
     {
-        $validated = $request->validated();
-        
-        // Hash du mot de passe
-        $validated['password'] = Hash::make($validated['password']);
+        try {
+            DB::beginTransaction();
+            
+            $validated = $request->validated();
+            
+            // Hash du mot de passe
+            $validated['password'] = Hash::make($validated['password']);
 
-        // Gestion de l'upload d'image
-        if ($request->hasFile('image')) {
-            $validated['image'] = $request->file('image')->store('users', 'public');
+            // Gestion de l'upload d'image
+            if ($request->hasFile('image')) {
+                $validated['image'] = $request->file('image')->store('users', 'public');
+            }
+
+            // Statut par défaut
+            $validated['statut'] = 'actif';
+
+            $user = User::create($validated);
+
+            DB::commit();
+
+            return redirect()->route('users.index')
+                ->with('success', 'Utilisateur créé avec succès.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur lors de la création de l\'utilisateur: ' . $e->getMessage());
+            
+            // Supprimer l'image uploadée en cas d'erreur
+            if (isset($validated['image'])) {
+                Storage::disk('public')->delete($validated['image']);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la création de l\'utilisateur.');
         }
-
-        $user = User::create($validated);
-
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur créé avec succès.');
     }
 
     /**
      * Display the specified resource.
      */
-   
+    public function show(User $user)
+    {
+        try {
+            $user->load(['profil', 'garre', 'compagnie']);
 
-   
+            return view('back.users.create', [
+                'mode' => 'show',
+                'user' => $user,
+                'profils' => Profils::all(),
+                'garres' => Garres::all(),
+                'compagnies' => Compagnies::all()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de l\'affichage de l\'utilisateur: ' . $e->getMessage());
+        }
+    }
 
-public function show(User $user): View
-{
-    $user->load(['profil', 'garre', 'compagnie']);
-
-    return view('back.users.create', [
-        'mode' => 'show',
-        'user' => $user,
-        'profils' => Profils::all(),
-        'garres' => Garres::all(),
-        'compagnies' => Compagnies::all()
-    ]);
-}
-
-public function edit(User $user): View
-{
-    return view('back.users.create', [
-        'mode' => 'edit',
-        'user' => $user,
-        'profils' => Profils::all(),
-        'garres' => Garres::all(),
-        'compagnies' => Compagnies::all()
-    ]);
-}
-
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(User $user)
+    {
+        try {
+            return view('back.users.create', [
+                'mode' => 'edit',
+                'user' => $user,
+                'profils' => Profils::all(),
+                'garres' => Garres::all(),
+                'compagnies' => Compagnies::all()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du chargement du formulaire d\'édition: ' . $e->getMessage());
+        }
+    }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(UpdateUserRequest $request, User $user): RedirectResponse
     {
-        $validated = $request->validated();
+        try {
+            DB::beginTransaction();
+            
+            $validated = $request->validated();
 
-        // Hash du mot de passe si fourni
-        if (!empty($validated['password'])) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
-        }
-
-        // Gestion de l'upload d'image
-        if ($request->hasFile('image')) {
-            // Supprimer l'ancienne image
-            if ($user->image) {
-                Storage::disk('public')->delete($user->image);
+            // Hash du mot de passe si fourni
+            if (!empty($validated['password'])) {
+                $validated['password'] = Hash::make($validated['password']);
+            } else {
+                unset($validated['password']);
             }
-            $validated['image'] = $request->file('image')->store('users', 'public');
+
+            // Gestion de l'upload d'image
+            if ($request->hasFile('image')) {
+                // Supprimer l'ancienne image
+                if ($user->image) {
+                    Storage::disk('public')->delete($user->image);
+                }
+                $validated['image'] = $request->file('image')->store('users', 'public');
+            }
+
+            $user->update($validated);
+
+            DB::commit();
+
+            return redirect()->route('users.index')
+                ->with('success', 'Utilisateur mis à jour avec succès.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur lors de la mise à jour de l\'utilisateur: ' . $e->getMessage());
+            
+            // Supprimer la nouvelle image en cas d'erreur
+            if (isset($validated['image']) && $validated['image'] !== $user->image) {
+                Storage::disk('public')->delete($validated['image']);
+            }
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Erreur lors de la mise à jour de l\'utilisateur.');
         }
-
-        $user->update($validated);
-
-        return redirect()->route('users.index')
-            ->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
     /**
@@ -167,16 +229,24 @@ public function edit(User $user): View
     public function destroy(User $user): RedirectResponse
     {
         try {
+            DB::beginTransaction();
+            
             // Supprimer l'image si elle existe
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
             }
 
             $user->delete();
+            
+            DB::commit();
 
             return redirect()->route('users.index')
                 ->with('success', 'Utilisateur supprimé avec succès.');
+                
         } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erreur lors de la suppression de l\'utilisateur: ' . $e->getMessage());
+            
             return redirect()->back()
                 ->with('error', 'Erreur lors de la suppression de l\'utilisateur.');
         }
@@ -187,14 +257,21 @@ public function edit(User $user): View
      */
     public function toggleStatus(User $user): RedirectResponse
     {
-        $user->update([
-            'statut' => $user->statut === 'actif' ? 'inactif' : 'actif'
-        ]);
+        try {
+            $user->update([
+                'statut' => $user->statut === 'actif' ? 'inactif' : 'actif'
+            ]);
 
-        $status = $user->statut === 'actif' ? 'activé' : 'désactivé';
-        
-        return redirect()->back()
-            ->with('success', "Utilisateur {$status} avec succès.");
+            $status = $user->statut === 'actif' ? 'activé' : 'désactivé';
+            
+            return redirect()->back()
+                ->with('success', "Utilisateur {$status} avec succès.");
+                
+        } catch (\Exception $e) {
+            Log::error('Erreur lors du changement de statut: ' . $e->getMessage());
+            return redirect()->back()
+                ->with('error', 'Erreur lors du changement de statut.');
+        }
     }
 
     /**
@@ -202,18 +279,24 @@ public function edit(User $user): View
      */
     public function search(Request $request): JsonResponse
     {
-        $query = $request->get('q');
-        
-        if (empty($query)) {
-            return response()->json([]);
-        }
-        
-        $users = User::where('name', 'like', "%{$query}%")
-                    ->orWhere('email', 'like', "%{$query}%")
-                    ->with('profil')
-                    ->limit(10)
-                    ->get();
+        try {
+            $query = $request->get('q');
+            
+            if (empty($query) || strlen($query) < 2) {
+                return response()->json([]);
+            }
+            
+            $users = User::where('name', 'like', "%{$query}%")
+                        ->orWhere('email', 'like', "%{$query}%")
+                        ->with('profil')
+                        ->limit(10)
+                        ->get();
 
-        return response()->json($users);
+            return response()->json($users);
+            
+        } catch (\Exception $e) {
+            Log::error('Erreur lors de la recherche: ' . $e->getMessage());
+            return response()->json(['error' => 'Erreur lors de la recherche'], 500);
+        }
     }
 }
