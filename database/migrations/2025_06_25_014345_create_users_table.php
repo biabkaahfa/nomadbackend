@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('telephone',12);
              $table->unsignedBigInteger('idGarre')->nullable();
             $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
-            
             $table->unsignedBigInteger('idCompagnie')->nullable();
               $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
             $table->string('image')->nullable();
