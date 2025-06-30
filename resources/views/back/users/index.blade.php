@@ -1,62 +1,26 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Utilisateurs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background: #f4f6f9;
-            font-family: 'Segoe UI', sans-serif;
-        }
-        .page-title {
-            font-weight: 700;
-            color: #343a40;
-        }
-        .card-glass {
-            background: rgba(255, 255, 255, 0.85);
-            border: none;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            backdrop-filter: blur(10px);
-        }
-        .btn-primary-gradient {
-            background: linear-gradient(to right, #6a11cb, #2575fc);
-            border: none;
-            color: #fff;
-        }
-        .btn-primary-gradient:hover {
-            filter: brightness(1.1);
-        }
-        .badge-status {
-            padding: 0.5em 0.75em;
-            border-radius: 1rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-        .badge-actif {
-            background: #28a745;
-            color: white;
-        }
-        .badge-inactif {
-            background: #dc3545;
-            color: white;
-        }
-        .table-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-    </style>
-</head>
-<body>
 
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+
+
+
+
+
+@extends('back.app')
+@section('title', 'Trajets')
+
+@section('dashboard-header')
+<div class="row align-items-center">
+    <div class="col">
+        <h4 class="card-title mt-5">Listes des Trajets</h4>
+        <a href="{{ route('trajets.create') }}" class="btn btn-primary float-right">Ajouter un Trajet</a>
+    </div>
+</div>
+@endsection
+@section('dashboard-content')
+<div class="card">
+    <div class="card-body table-responsive">
+        
+     <div class="container py-5">
+     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h2 class="page-title">Gestion des Utilisateurs</h2>
             <p class="text-muted">Liste et actions des utilisateurs</p>
@@ -66,9 +30,9 @@
                 <i class="fas fa-plus me-2"></i>Nouvel Utilisateur
             </a>
         </div>
-    </div>
+     </div>
 
-    <div class="card card-glass mb-4 p-4">
+     <div class="card card-glass mb-4 p-4">
         <form method="GET" action="{{ route('users.index') }}">
             <div class="row g-3">
                 <div class="col-md-4">
@@ -190,7 +154,10 @@
         </div>
     @endif
 </div>
+    </div>
+</div>
+@endsection
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+
+
+

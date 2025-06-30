@@ -11,7 +11,7 @@ class UpdateTicketRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,16 @@ class UpdateTicketRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'dateReservation' => ['required', 'date'],
+            'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE'],
+            'modeAchat' => ['required', 'in:sur place'],
+            'modeReception' => ['required', 'in:email,papier,application'],
+            'name' => ['required', 'string', 'max:255'],
+            'telephone' => ['required', 'string', 'max:20'],
+            'email' => ['required', 'email'],
+            'idVoyage' => ['required', 'exists:voyages,id'],
+            'idPaiement' => ['required', 'exists:paiements,id'],
+            'dateScan' => ['nullable', 'date'],
         ];
     }
 }

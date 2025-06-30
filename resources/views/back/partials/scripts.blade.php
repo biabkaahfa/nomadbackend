@@ -57,6 +57,58 @@
             }
         });
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('userForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.querySelector('.loading');
+    const btnText = document.querySelector('.btn-text');
+
+    // Gestion de la soumission du formulaire
+    if (form && submitBtn) {
+        form.addEventListener('submit', function(e) {
+            // Afficher le loading
+            loading.classList.add('show');
+            submitBtn.disabled = true;
+            btnText.textContent = 'Traitement en cours...';
+        });
+    }
+
+    // Prévisualisation de l'image
+    const imageInput = document.querySelector('input[name="image"]');
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    let preview = document.querySelector('.image-preview');
+                    if (!preview) {
+                        preview = document.createElement('img');
+                        preview.className = 'image-preview user-image mt-2';
+                        preview.width = 120;
+                        preview.height = 120;
+                        preview.style.objectFit = 'cover';
+                        imageInput.parentNode.appendChild(preview);
+                    }
+                    preview.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Auto-hide alerts
+    setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(function(alert) {
+            if (alert.classList.contains('alert-success')) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        });
+    }, 5000);
+});
 </script>
 
 <script>

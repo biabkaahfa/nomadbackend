@@ -21,6 +21,12 @@ class VoyagesSeeder extends Seeder
                 'idTrajet' => 1,
                 'dateDepart' => Carbon::now()->addDays(1)->format('Y-m-d'),
                 'idBus' => 1
+            ],
+            [
+                'heuresDepart' => '07:30:00',
+                'idTrajet' => 1,
+                'dateDepart' => Carbon::now()->addDays(1)->format('Y-m-d'),
+                'idBus' => 1
             ]
         ]);
     }

@@ -24,6 +24,14 @@ class PaiementsSeeder extends Seeder
                 'typeSource' => 'MOBILE',
                 'idUtilisateur' => 1,
                 'referenceTransaction' => 'TX12345678'
+            ], [
+                'montant' => 5000,
+                'datePaiement' => Carbon::now(),
+                'moyenPaiement' => 'OM',
+                'statut' => 'SUCCES',
+                'typeSource' => 'MOBILE',
+                'idUtilisateur' => 1,
+                'referenceTransaction' => 'BX12345678'
             ]
         ]);
     }

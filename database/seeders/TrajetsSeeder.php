@@ -21,6 +21,13 @@ class TrajetsSeeder extends Seeder
                 'prix' => 5000,
                 'status' => 'actif',
                 'idCompagnie' => 1
+            ],
+             [
+                'pointDepart' => 'Ouagadougou',
+                'pointArrive' => 'Banfora',
+                'prix' => 5000,
+                'status' => 'actif',
+                'idCompagnie' => 1
             ]
         ]);
     }

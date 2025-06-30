@@ -15,14 +15,19 @@ return new class extends Migration
             $table->id();
            
             $table->dateTime('dateReservation');
-           $table->enum('statut', ['CONFIRME', 'ANNULE', 'REPORTE', 'UTILISE']);
-            $table->unsignedBigInteger('idUtilisateur');
+            $table->enum('statut', ['CONFIRME', 'ANNULE', 'REPORTE', 'UTILISE']);
+            $table->unsignedBigInteger('idUtilisateur')->nullable();
             $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
+            $table->string('name',)->nullable();
+            $table->string('telephone',)->nullable();
+            $table->string('email',)->nullable();
+            $table->enum('typeAchat',['En_ligne','sur_place']);
+            $table->enum('modeReception',['email','papier','application']);
             $table->unsignedBigInteger('idVoyage');
-             $table->foreign('idVoyage')->references('id')->on('voyages')->onDelete('CASCADE');
+            $table->foreign('idVoyage')->references('id')->on('voyages')->onDelete('CASCADE');
             $table->unsignedBigInteger('idGarre')->nullable();
-             $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
-            $table->date('dateScan');
+            $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
+            $table->date('dateScan')->nullable();
             $table->unsignedBigInteger('idPaiement');
             $table->foreign('idPaiement')->references('id')->on('paiements')->onDelete('CASCADE');
 

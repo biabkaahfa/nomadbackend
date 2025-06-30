@@ -7,10 +7,11 @@ use App\Http\Controllers\Permissions\PermissionsController;
 use App\Http\Controllers\Voyages\VoyagesController;
 use App\Http\Controllers\Bus\BusController;
 use App\Http\Controllers\Compagnies\CompagniesController;
+use App\Http\Controllers\Tickets\TicketController;
 use App\Http\Controllers\Trajets\TrajetsController;
 use App\Http\Controllers\FrequenceTrajetsController;
 use Illuminate\Support\Facades\Route;
-//ProfilsController   PermissionsController FrequencesTrajetsController
+//ProfilsController   PermissionsController FrequencesTrajetsController TicketController
 Route::get('/user', [UserController::class, 'index'])->name('users.index');
 
 Route::resource('profils',ProfilsController::class);
@@ -24,6 +25,8 @@ Route::resource('buses', BusController::class);
 
 
 Route::resource('trajets', TrajetsController::class);
+
+Route::resource('tickets', TicketController::class);
 
 Route::middleware(['auth'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout'])->name('logout');

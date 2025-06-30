@@ -18,11 +18,11 @@
         <input type="time" name="heuresDepart" class="form-control mb-3"
             value="{{ old('heuresDepart', $voyage->heuresDepart ?? '') }}">
 
-        <input type="date" name="dateDepart" class="form-control mb-3"
+        <input type="date" name="dateDepart" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height: auto;"
     min="{{ date('Y-m-d') }}"
     value="{{ old('dateDepart', $voyage->dateDepart ?? '') }}">
 
-       <select name="idTrajet" class="form-control mb-3" required>
+       <select name="idTrajet" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height: auto;" required>
     <option value="">-- Choisir un trajet --</option>
     @foreach ($trajets as $trajet)
         <option value="{{ $trajet->id }}"
@@ -36,7 +36,7 @@
 @enderror
 
 
-         <select name="idBus" class="form-control mb-3">
+         <select name="idBus" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height: auto;">
     <option value="">-- Choisir un bus --</option>
     @foreach($buses as $bus)
         <option value="{{ $bus->id }}"

@@ -10,7 +10,12 @@ class Ticket extends Model
     protected $fillable=[
         'dateReservation',
         'statut',
-       // 'idUtilisateur',
+       'idUtilisateur',
+       'name',
+       'telephone',
+       'email',
+       'typeAchat',
+       'modeReceptions',
         'idVoyage',
         'idGarre',
         'dateScan',

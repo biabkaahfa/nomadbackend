@@ -52,10 +52,10 @@
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
-                                {{-- {{ route('') }} --}}
+                                {{ route('users.index') }}
                                  ">Tout les utilisateur</a></li>
                             <li><a href="
-                                {{-- {{ route('') }} --}}
+                                {{ route('users.create') }}
                                  ">Ajouter un utilisateur</a></li>
                         </ul>
                     </li>
@@ -181,10 +181,10 @@
                         </a>
                         <ul class="submenu_class" style="display: none;">
                             <li><a href="
-                                {{-- {{ route('profils.index') }} --}}
+                                {{ route('tickets.index') }}
                                 ">Tous les Tickets</a></li>
                             <li><a href="
-                                {{-- {{ route('profils.create') }} --}}
+                                {{ route('tickets.create') }}
                                  ">Ajouter un Ticket</a></li>
                         </ul>
                     </li>

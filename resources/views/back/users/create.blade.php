@@ -1,121 +1,18 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ isset($user) ? ($mode === 'show' ? 'Détails de l\'utilisateur' : 'Modifier l\'utilisateur') : 'Créer un utilisateur' }}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body { 
-            
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            min-height: 100vh;
-        }
-        .card-glass { 
-            background: rgba(255, 255, 255, 0.95); 
-            border-radius: 20px; 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            padding: 2.5rem; 
-        }
-        .btn-primary-gradient { 
-            background: linear-gradient(45deg, #6a11cb, #2575fc); 
-            border: none; 
-            color: #fff; 
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary-gradient:hover { 
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(106, 17, 203, 0.4);
-            color: #fff;
-        }
-        .btn-secondary-gradient {
-            background: linear-gradient(45deg, #6c757d, #495057);
-            border: none;
-            color: #fff;
-            padding: 12px 30px;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-secondary-gradient:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-            color: #fff;
-        }
-        .form-control, .form-select {
-            border-radius: 12px;
-            border: 2px solid #e9ecef;
-            padding: 12px 16px;
-            transition: all 0.3s ease;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #6a11cb;
-            box-shadow: 0 0 0 0.2rem rgba(106, 17, 203, 0.25);
-        }
-        .form-label {
-            font-weight: 600;
-            color: #495057;
-            margin-bottom: 8px;
-        }
-        .alert {
-            border-radius: 12px;
-            border: none;
-            padding: 15px 20px;
-        }
-        .user-image {
-            border-radius: 12px;
-            border: 3px solid #e9ecef;
-            transition: all 0.3s ease;
-        }
-        .user-image:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        .required {
-            color: #dc3545;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        .page-title {
-            color: #2c3e50;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        .loading {
-            display: none;
-        }
-        .loading.show {
-            display: inline-block;
-        }
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 500;
-        }
-        .status-actif {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status-inactif {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-    </style>
-</head>
-<body>
 
+
+@extends('back.app')
+
+@section('title', isset($trajet) ? 'Modifier un Trajet' : 'Ajouter un Trajet')
+
+@section('dashboard-header')
+    <h3 class="page-title mt-5">
+        {{ isset($trajet) ? 'Modifier' : 'Ajouter' }} un Utilisateur
+        
+    </h3>
+@endsection
+
+@section('dashboard-content')
+   
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -416,61 +313,6 @@
         </div>
     </div>
 </div>
+@endsection
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('userForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const loading = document.querySelector('.loading');
-    const btnText = document.querySelector('.btn-text');
 
-    // Gestion de la soumission du formulaire
-    if (form && submitBtn) {
-        form.addEventListener('submit', function(e) {
-            // Afficher le loading
-            loading.classList.add('show');
-            submitBtn.disabled = true;
-            btnText.textContent = 'Traitement en cours...';
-        });
-    }
-
-    // Prévisualisation de l'image
-    const imageInput = document.querySelector('input[name="image"]');
-    if (imageInput) {
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    let preview = document.querySelector('.image-preview');
-                    if (!preview) {
-                        preview = document.createElement('img');
-                        preview.className = 'image-preview user-image mt-2';
-                        preview.width = 120;
-                        preview.height = 120;
-                        preview.style.objectFit = 'cover';
-                        imageInput.parentNode.appendChild(preview);
-                    }
-                    preview.src = e.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // Auto-hide alerts
-    setTimeout(function() {
-        const alerts = document.querySelectorAll('.alert');
-        alerts.forEach(function(alert) {
-            if (alert.classList.contains('alert-success')) {
-                const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
-            }
-        });
-    }, 5000);
-});
-</script>
-
-</body>
-</html>
