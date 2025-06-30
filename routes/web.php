@@ -11,7 +11,15 @@ use App\Http\Controllers\Tickets\TicketController;
 use App\Http\Controllers\Trajets\TrajetsController;
 use App\Http\Controllers\FrequenceTrajetsController;
 use Illuminate\Support\Facades\Route;
-//ProfilsController   PermissionsController FrequencesTrajetsController TicketController
+
+
+
+use App\Http\Controllers\Garres\GarresController;
+
+use Database\Seeders\GarresSeeder;
+
+//ProfilsController   PermissionsController
+
 Route::get('/user', [UserController::class, 'index'])->name('users.index');
 
 Route::resource('profils',ProfilsController::class);
@@ -43,6 +51,7 @@ Route::middleware(['guest'])->group(function () {
     
    
     Route::resource('users', UserController::class);
+    Route::resource('garres', GarresController::class);
     //  // Routes supplémentaires pour les utilisateurs
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
          ->name('users.toggleStatus');
