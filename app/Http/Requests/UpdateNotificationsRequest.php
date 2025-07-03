@@ -11,7 +11,7 @@ class UpdateNotificationsRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -22,7 +22,10 @@ class UpdateNotificationsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
-        ];
+        'titre' => 'required|string|max:255',
+        'contenu' => 'required|string',
+        'type' => 'required|in:retard,annulation,report,accident,rappel',
+        'idVoyage' => 'required|exists:voyages,id',
+    ];
     }
 }

@@ -1,8 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Notes;
 
 use App\Models\Notes;
+use App\Models\Ticket;
+use App\Models\Trajets;
+use Illuminate\Support\Carbon;
+use App\Models\Voyages;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\UpdateTicketRequest;
+use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StoreNotesRequest;
 use App\Http\Requests\UpdateNotesRequest;
 
@@ -13,7 +20,54 @@ class NotesController extends Controller
      */
     public function index()
     {
+
+
+$latestNotes = DB::table('notes as n')
+    ->join('tickets as t', 'n.idTicket', '=', 't.id')
+    ->join('voyages as v', 't.idVoyage', '=', 'v.id')
+    ->join('trajets as tr', 'v.idTrajet', '=', 'tr.id')
+    ->select(
+        'n.*',
+        'v.id as idVoyage',
+        'v.dateDepart',
+        'tr.pointDepart',
+        'tr.pointArrive'
+    )
+    ->orderBy('n.dateNote', 'desc')
+    ->get()
+    ->map(function ($note) {
+        $note->nomVoyage = $note->pointDepart . ' → ' . $note->pointArrive . ' le ' . Carbon::parse($note->dateDepart)->format('d/m/Y');
+        return $note;
+    })
+    ->groupBy('idVoyage')
+    ->map(function ($group) {
+        return $group->take(5); // 5 dernières notes par voyage
+    });
+
+    // Statistiques globales
+   
+$stats = DB::table('notes')
+    ->join('tickets', 'notes.idTicket', '=', 'tickets.id')
+    ->join('voyages', 'tickets.idVoyage', '=', 'voyages.id')
+    ->join('trajets', 'voyages.idTrajet', '=', 'trajets.id')
+    ->select(
+        DB::raw("CONCAT(trajets.pointDepart, ' → ', trajets.pointArrive, ' le ', DATE_FORMAT(voyages.dateDepart, '%d/%m/%Y')) as voyage"),
+        DB::raw('COUNT(notes.id) as total_notes'),
+        DB::raw('AVG(notes.note) as moyenne'),
+        DB::raw('MAX(notes.note) as max_note'),
+        DB::raw('MIN(notes.note) as min_note')
+    )
+    ->groupBy('voyage')
+    ->get();
+
+    return view('back.notes.index', [
+        'latestNotes' => $latestNotes,
+        'stats' => $stats,
+    ]);
+        
         //
+        // $notes=Notes::all()->limit(5);
+        // return view('back.notes.index',['notes'=>$notes]);
     }
 
     /**

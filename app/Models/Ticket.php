@@ -15,16 +15,20 @@ class Ticket extends Model
        'telephone',
        'email',
        'typeAchat',
-       'modeReceptions',
+       'modeReception',
         'idVoyage',
         'idGarre',
         'dateScan',
-        'idPaiement'
+        'idPaiement',
+         'namePersonneAPrevenir',
+    'numeroPersonneAPrevenir',
+    'emailPersonneAPrevenir',
 
     ];
      public  function user(){
         return $this->belongsTo(User::class,'idUtilisateur');
     }
+    
      public  function voyage(){
         return $this->belongsTo(Voyages::class,'idVoyage');
     }

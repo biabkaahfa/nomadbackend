@@ -21,7 +21,7 @@ class GarresController extends Controller
 
           
         try {
-            $query = Garres::with([ 'compagnie']);
+           $query = Garres::with(['compagnie', 'trajets']);
 
             // Filtrage par recherche
             if ($request->filled('search')) {

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class Voyages extends Model
 {
     //
+    public $timestamps = true;
+
     protected $fillable=[
         'heuresDepart',
         'idTrajet',
@@ -19,5 +21,9 @@ class Voyages extends Model
      public  function bus(){
         return $this->belongsTo(Bus::class,'idBus');
     }
+    public function tickets()
+{
+    return $this->hasMany(Ticket::class, 'idVoyage');
+}
 
 }

@@ -33,6 +33,8 @@ class DatabaseSeeder extends Seeder
         TicketsSeeder::class,
          FrequenceTrajetsSeeder::class,
         PermissionProfilsSeeder::class,
+         NotesSeeder::class,
+           NotificationsSeeder::class,
         GarreTrajetsSeeder::class,
     ]);
     }

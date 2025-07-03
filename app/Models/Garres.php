@@ -16,4 +16,9 @@ class Garres extends Model
   public  function compagnie(){
         return $this->belongsTo(Compagnies::class,'idCompagnie');
     }
+    public function trajets()
+{
+    return $this->belongsToMany(Trajets::class, 'garre_trajets', 'idGarre', 'idTrajet');
+}
+
 }

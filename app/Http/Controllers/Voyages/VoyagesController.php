@@ -5,6 +5,10 @@ namespace App\Http\Controllers\Voyages;
 use App\Models\Voyages;
 use App\Models\Bus;
 use App\Models\Trajets;
+use App\Models\Tickets;
+use App\Models\FrequenceTrajets;
+use Illuminate\Http\Request;
+
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreVoyagesRequest;
 use App\Http\Requests\UpdateVoyagesRequest;
@@ -14,12 +18,31 @@ class VoyagesController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
         
-        $voyage=Voyages::all();
-        return view("back.voyages.index",["voyages"=>$voyage]);
+      $query = Voyages::with(['trajet.frequences', 'bus', 'tickets']);
+
+    // 🔎 Filtrage par recherche
+    if ($request->filled('search')) {
+        $search = strtolower($request->search);
+        $query->whereHas('trajet', function ($q) use ($search) {
+            $q->whereRaw('LOWER(pointDepart) LIKE ?', ["%$search%"])
+              ->orWhereRaw('LOWER(pointArrive) LIKE ?', ["%$search%"]);
+        });
+    }
+
+    // 🔄 Tri par date
+    if ($request->filled('sort') && in_array($request->sort, ['asc', 'desc'])) {
+        $query->orderBy('dateDepart', $request->sort);
+    } else {
+        $query->orderBy('dateDepart', 'asc');
+    }
+
+    $voyages = $query->get();
+
+    return view('back.Voyages.index', compact('voyages'));
     }
 
     /**

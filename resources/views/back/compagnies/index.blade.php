@@ -35,7 +35,7 @@
                     <td>{{ $compagnie->name }}</td>
                     <td>{{ $compagnie->email }}</td>
                     <td>{{ $compagnie->telephone }}</td>
-                    <td>{{ $compagnie->descriptions }}</td>
+                    <td>{{ $compagnie->description }}</td>
                     
                     <td>
                         <a href="{{ route('compagnies.edit', $compagnie) }}" class="btn btn-sm btn-warning">Modifier</a>

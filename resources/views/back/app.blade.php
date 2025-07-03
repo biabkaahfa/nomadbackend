@@ -110,6 +110,8 @@
         </script>
     @endpush
     @stack('scripts') --}}
+
+    @yield('scripts')
 </body>
 
 </html>

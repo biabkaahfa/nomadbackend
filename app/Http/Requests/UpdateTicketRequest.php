@@ -32,6 +32,10 @@ class UpdateTicketRequest extends FormRequest
             'idVoyage' => ['required', 'exists:voyages,id'],
             'idPaiement' => ['required', 'exists:paiements,id'],
             'dateScan' => ['nullable', 'date'],
+            'namePersonneAPrevenir' => 'required|string|max:255',
+'numeroPersonneAPrevenir' => 'required|string|max:20',
+'emailPersonneAPrevenir' => 'nullable|email',
+
         ];
     }
 }

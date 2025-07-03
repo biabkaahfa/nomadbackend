@@ -30,6 +30,9 @@ return new class extends Migration
             $table->date('dateScan')->nullable();
             $table->unsignedBigInteger('idPaiement');
             $table->foreign('idPaiement')->references('id')->on('paiements')->onDelete('CASCADE');
+            $table->string('namePersonneAPrevenir',)->nullable();
+            $table->string('numeroPersonneAPrevenir',)->nullable();
+            $table->string('emailPersonneAPrevenir',)->nullable();
 
 
             $table->timestamps();

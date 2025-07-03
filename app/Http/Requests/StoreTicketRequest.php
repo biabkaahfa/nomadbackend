@@ -24,14 +24,18 @@ class StoreTicketRequest extends FormRequest
         return [
             'dateReservation' => ['required', 'date'],
             'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE'],
-            'modeAchat' => ['required', 'in:sur place'],
+            'typeAchat' => ['nullable', 'in:sur_place'],
             'modeReception' => ['required', 'in:email,papier,application'],
             'name' => ['required', 'string', 'max:255'],
             'telephone' => ['required', 'string', 'max:20'],
             'email' => ['required', 'email'],
             'idVoyage' => ['required', 'exists:voyages,id'],
-            'idPaiement' => ['required', 'exists:paiements,id'],
+            'idPaiement' => ['nullable', 'exists:paiements,id'],
             'dateScan' => ['nullable', 'date'],
+            'namePersonneAPrevenir' => 'required|string|max:255',
+'numeroPersonneAPrevenir' => 'required|string|max:20',
+'emailPersonneAPrevenir' => 'nullable|email',
+
         ];
     }
 }

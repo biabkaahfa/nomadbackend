@@ -7,12 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Paiements extends Model
 {
     //
+     //
+    public $timestamps = true;
     protected $fillable=[
         'montant',
         'datePaiement',
         'moyenPaiement',
         'statut',
         'typeSource',
+        'telephone',
        'idUtilisateur',
        'referenceTransaction'
     ];

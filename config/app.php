@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Facade;
 
 return [
 
@@ -117,10 +118,14 @@ return [
     | Supported drivers: "file", "cache"
     |
     */
-
+    
     'maintenance' => [
         'driver' => env('APP_MAINTENANCE_DRIVER', 'file'),
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
+    'aliases' => Facade::defaultAliases()->merge([
+    // 'Image' => Intervention\Image\Facades\Image::class,
+    'QrCode' => SimpleSoftwareIO\QrCode\Facades\QrCode::class,])->toArray(),
+
 
 ];

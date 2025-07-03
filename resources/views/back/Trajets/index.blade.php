@@ -6,6 +6,7 @@
     <div class="col">
         <h4 class="card-title mt-5">Listes des Trajets</h4>
         <a href="{{ route('trajets.create') }}" class="btn btn-primary float-right">Ajouter un Trajet</a>
+        <a href="{{ route('affectation.create') }}" class="btn btn-primary float-left">Affecter un trajet a une garre</a>
     </div>
 </div>
 @endsection

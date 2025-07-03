@@ -16,8 +16,11 @@ return new class extends Migration
             $table->string('titre');
             $table->text('contenu');
             $table->date('DateEnvoie');
-            $table->unsignedBigInteger('idUtilisateur');
+            $table->string('type');
+            $table->unsignedBigInteger('idUtilisateur')->nullable();
             $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
+            $table->foreignId('idVoyage')->constrained('voyages')->onDelete('cascade');
+
             $table->timestamps();
         });
         //  'titre',

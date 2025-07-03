@@ -12,13 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('paiements', function (Blueprint $table) {
-            $table->id();
-            $table->float('montant');
-             $table->dateTime('datePaiement');
-            $table->enum('moyenPaiement',['OM', 'MOOV', 'CARTE', 'ESPECE', 'GRATUIT']);
-            $table->enum('statut',['EN_ATTENTE', 'SUCCES', 'ECHEC', 'MANUEL_VALIDE']);
-            $table->enum('typeSource',['MOBILE', 'GUICHET']);
-            $table->unsignedBigInteger('idUtilisateur');
+    $table->id();
+    $table->float('montant');
+    $table->dateTime('datePaiement')->default(DB::raw('CURRENT_TIMESTAMP')); // date automatique
+    $table->enum('moyenPaiement', ['OM', 'MOOV', 'CARTE', 'ESPECE']);
+    $table->enum('statut', ['EN_ATTENTE', 'SUCCES', 'ECHEC', 'MANUEL_VALIDE']);
+    $table->enum('typeSource', ['MOBILE', 'GUICHET'])->default('GUICHET'); // valeur par défaut
+    $table->string('telephone')->nullable(); // contact guichet
+   
+
+
+            $table->unsignedBigInteger('idUtilisateur')->nullable();
              $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
             $table->string('referenceTransaction')->nullable();
            

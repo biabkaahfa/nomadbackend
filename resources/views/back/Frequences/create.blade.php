@@ -18,7 +18,7 @@
 
     <!-- Sélection du trajet -->
     <label for="idTrajet">Trajet</label>
-    <select name="idTrajet" class="form-control mb-3" required>
+    <select name="idTrajet" class="form-control mb-3" required  style="font-size: 1.3rem; padding: 1rem; height:auto;">
         <option value="">-- Choisir un trajet --</option>
         @foreach($trajets as $trajet)
             <option value="{{ $trajet->id }}">
@@ -29,7 +29,7 @@
 
     <!-- Jour de la semaine -->
     <label for="jourSemaine">Jour de la semaine</label>
-    <select name="jourSemaine" class="form-control mb-3" required>
+    <select name="jourSemaine" class="form-control mb-3" required  style="font-size: 1.3rem; padding: 1rem; height:auto;">
         <option value="">-- Choisir un jour --</option>
         <option value="LUNDI">Lundi</option>
         <option value="MARDI">Mardi</option>
@@ -43,11 +43,11 @@
 
     <!-- Heure de départ -->
     <label for="heureDepart">Heure de départ</label>
-    <input type="time" name="heureDepart" class="form-control mb-3" required>
+    <input type="time" name="heureDepart" class="form-control mb-3" required  style="font-size: 1.3rem; padding: 1rem; height:auto;">
 
     <!-- Nombre minimum de places -->
     <label for="nombrePlaceMinimum" min:1>Nombre de places minimum</label>
-    <input type="number" name="nombrePlaceMinimum" class="form-control mb-3" required min="1">
+    <input type="number" name="nombrePlaceMinimum" class="form-control mb-3" required min="1"  style="font-size: 1.3rem; padding: 1rem; height:auto;">
 
      <button type="submit" class="btn btn-primary">
                     {{ isset($frequence) ? 'Mettre à jour' : 'Créer la Frequence' }}

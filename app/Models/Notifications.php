@@ -11,9 +11,22 @@ class Notifications extends Model
         'titre',
         'contenu',
         'DateEnvoie',
-        'idUtilisateur'
+        'type',
+        'idUtilisateur',
+        'idVoyage',
+        
+    
     ];
      public  function user(){
         return $this->belongsTo(User::class,'idUtilisateur');
     }
+      public function ticket()
+    {
+        return $this->belongsTo(Ticket::class, 'idTicket');
+    }
+    public function voyage()
+{
+    return $this->belongsTo(Voyages::class, 'idVoyage');
+}
+
 }

@@ -18,4 +18,14 @@ class Compagnies extends Model
     {
         return Storage::url($this->logo);
     }
+    public function trajets()
+{
+    return $this->hasMany('App\Models\Trajets', 'idCompagnie');
+}
+public function garres()
+{
+    return $this->hasMany(\App\Models\Garres::class, 'idCompagnie');
+}
+
+
 }

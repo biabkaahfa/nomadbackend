@@ -83,6 +83,5 @@ class BusController extends Controller
         //
         $bus->delete();
         return redirect()->route('buses.index')->with('success', 'Bus supprimer avec succès.');
-
     }
 }
