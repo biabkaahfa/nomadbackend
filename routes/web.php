@@ -168,12 +168,15 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['guest'])->group(function () {
-    Route::get('login', [AuthController::class, 'loginPage'])->name('login');
-    Route::post('login', [AuthController::class, 'authenticate']);
-});
- 
-        
+    Route::get('/', [AuthController::class, 'loginPage'])->name('login');
+    Route::post('login', [AuthController::class, 'authenticate']);  
+    Route::get('/forgot-password', [AuthController::class, 'forgotPassword'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLink'])->name('password.email');
     
+    Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.store');
+});
+
    
     Route::resource('users', UserController::class);
     Route::resource('garres', GarresController::class);
@@ -184,4 +187,5 @@ Route::middleware(['guest'])->group(function () {
     Route::get('users/search', [UserController::class, 'search'])
          ->name('users.search');
  // Routes pour la gestion des utilisateurs
-   
+
+ 
