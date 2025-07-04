@@ -145,4 +145,4 @@ class User extends Authenticatable
 //     {
 //         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
 //     }
-// }
+}
