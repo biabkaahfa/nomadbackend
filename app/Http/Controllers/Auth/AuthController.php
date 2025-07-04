@@ -7,10 +7,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Password as FacadesPassword;
+use App\Models\User;
 
 class AuthController extends Controller
 {
@@ -64,41 +66,43 @@ class AuthController extends Controller
     /**
      * Handle an incoming password reset link request.
      */
-    public function sendResetLink(Request $request): RedirectResponse
+    // Envoyer le lien de reset par email
+    public function sendResetLink(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
-        // Envoyer le lien de réinitialisation
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        // Vérifier si l'utilisateur existe et est actif
+        $user = User::where('email', $request->email)->first();
+        if (!$user || !$user->isActive()) {
+            return back()->with('status', 'Si cette adresse existe, vous recevrez un lien de réinitialisation.');
+        }
 
-        return $status === Password::RESET_LINK_SENT
-                    ? back()->with(['status' => 'Un lien de réinitialisation a été envoyé à votre adresse e-mail.'])
-                    : back()->withErrors(['email' => 'Impossible d\'envoyer le lien de réinitialisation.']);
+        // Envoyer l'email
+        $status = FacadesPassword::sendResetLink($request->only('email'));
+
+        return $status === FacadesPassword::RESET_LINK_SENT
+            ? back()->with('status', 'Lien de réinitialisation envoyé !')
+            : back()->withErrors(['email' => 'Erreur lors de l\'envoi.']);
     }
 
-    /**
-     * Display the password reset view.
-     */
-    public function resetPassword(string $token): View
+    // Afficher le formulaire de reset
+    public function resetPassword(string $token)
     {
-        return view('pages.auth.reset-password', ['token' => $token]);
+        return view('auth.reset-password', [
+            'token' => $token,
+            'email' => request('email')
+        ]);
     }
 
-    /**
-     * Handle an incoming new password request.
-     */
-    public function updatePassword(Request $request): RedirectResponse
+    // Traiter le nouveau mot de passe
+    public function updatePassword(Request $request)
     {
         $request->validate([
             'token' => 'required',
-            'email' => 'required|email',
-            'password' => 'required|min:8|confirmed',
+            'password' => ['required', 'confirmed', Password::defaults()],
         ]);
 
-        // Réinitialiser le mot de passe
-        $status = Password::reset(
+        $status = FacadesPassword::reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
                 $user->forceFill([
@@ -106,13 +110,12 @@ class AuthController extends Controller
                 ])->setRememberToken(Str::random(60));
 
                 $user->save();
-
                 event(new PasswordReset($user));
             }
         );
 
-        return $status === Password::PASSWORD_RESET
-                    ? redirect()->route('login')->with('status', 'Votre mot de passe a été réinitialisé avec succès.')
-                    : back()->withErrors(['email' => 'Une erreur s\'est produite lors de la réinitialisation.']);
+        return $status === FacadesPassword::PASSWORD_RESET
+            ? redirect()->route('login')->with('status', 'Mot de passe réinitialisé avec succès !')
+            : back()->withErrors(['email' => 'Le lien est invalide ou expiré.']);
     }
 }

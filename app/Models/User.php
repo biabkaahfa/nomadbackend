@@ -140,9 +140,8 @@ class User extends Authenticatable
         return $this->image ? asset('storage/' . $this->image) : asset('images/default-avatar.png');
     }
 
-    // Personnaliser l'email de reset
-//     public function sendPasswordResetNotification($token)
-//     {
-//         $this->notify(new \App\Notifications\ResetPasswordNotification($token));
-//     }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }
