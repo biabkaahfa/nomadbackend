@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('logo')->nullable();
+            $table->enum('type',['PUBLIC','PRIVE']);
             $table->text('description')->nullable();
             $table->string('telephone',8)->nullable();
             $table->string('email')->unique();

@@ -68,7 +68,7 @@
         @foreach($voyages as $voyage)
             @php
                 $placesRestantes = $voyage->bus
-                    ? $voyage->bus->placesDisponible
+                    ? $voyage->bus->nombrePlaceDispo
                     : max(0, $voyage->trajet->frequences
                         ->where('heureDepart', $voyage->heuresDepart)
                         ->first()?->nombrePlaceMinimum - $voyage->tickets->count() ?? 0);

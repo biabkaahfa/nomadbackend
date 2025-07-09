@@ -19,6 +19,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Mail\TicketMail;
 //use App\Models\Ticket;
 //use App\Models\Paiements;
+use Illuminate\Support\Facades\Log;
 
 
 class TicketController extends Controller
@@ -39,7 +40,7 @@ class TicketController extends Controller
      */
     public function create()
 {
-    
+
 
 $now = Carbon::now(); // Date et heure actuelles
 
@@ -64,7 +65,7 @@ return view("back.Tickets.create", compact('voyages'));
     //     $data= $request->validated();
     //      $data['typeAchat'] = 'sur_place';
     //     Ticket::create($data);
-        
+
     //     return redirect()->route('tickets.index')->with('success', 'Ticket enregistré avec succès.');
 
 
@@ -73,10 +74,11 @@ return view("back.Tickets.create", compact('voyages'));
     DB::beginTransaction();
 
     try {
+       // dd($request);
         $voyage = Voyages::with(['trajet.frequences', 'bus'])->findOrFail($request->idVoyage);
 
         // Vérification des places
-        if ($voyage->idBus && $voyage->bus->placesDisponible <= 0) {
+        if ($voyage->idBus && $voyage->bus->nombrePlaceDispo <= 0) {
             return back()->with('error', 'Aucune place disponible pour ce voyage.');
         }
 
@@ -103,14 +105,14 @@ return view("back.Tickets.create", compact('voyages'));
             'telephone' => $request->telephone,
             'referenceTransaction' => $request->referenceTransaction,
         ]);
-
+      // dd($paiement);
         // Création du ticket
         $ticket = Ticket::create([
             'dateReservation' => $request->dateReservation,
             'statut' => $request->statut,
             'modeReception' => $request->modeReception,
             'typeAchat' => 'sur_place',
-            'modeAchat' => 'sur place',
+           // 'modeAchat' => 'sur place',
             'name' => $request->name,
             'telephone' => $request->telephone,
             'email' => $request->email,
@@ -121,10 +123,11 @@ return view("back.Tickets.create", compact('voyages'));
             'numeroPersonneAPrevenir' => $request->numeroPersonneAPrevenir,
             'emailPersonneAPrevenir' => $request->emailPersonneAPrevenir,
         ]);
+       // dd($ticketData);
 
         // Décrémenter les places
         if ($voyage->idBus) {
-            $voyage->bus->decrement('placesDisponible');
+            $voyage->bus->decrement('nombrePlaceDispo');
         }
 
         // Générer QR Code
@@ -165,8 +168,14 @@ return view("back.Tickets.create", compact('voyages'));
             'garres' => $garres,
         ]);
 
+        Log::info('Mode de réception : ' . $ticket->modeReception);
         if ($ticket->modeReception === 'email' && $ticket->email) {
-            Mail::to($ticket->email)->send(new TicketMail($client, $compagnie, $date, $pdf->output(), $garres));
+
+             try {
+      Mail::to($ticket->email)->send(new TicketMail($client, $compagnie, $date, $pdf->output(), $garres));
+    } catch (\Exception $e) {
+        Log::error('Erreur envoi email : ' . $e->getMessage());
+    }
         }
 
         DB::commit();
@@ -174,7 +183,7 @@ return view("back.Tickets.create", compact('voyages'));
 
     } catch (\Exception $e) {
         DB::rollBack();
-        \Log::error('Erreur ticket : ' . $e->getMessage());
+        Log::error('Erreur ticket : ' . $e->getMessage());
         return back()->with('error', 'Erreur : ' . $e->getMessage());
     }
 }
@@ -208,7 +217,7 @@ return view("back.Tickets.create", compact('voyages'));
     {
         //
        // dd('envoyer');
-      
+
     $data = $request->validated();
     $ticket->update($data);
 

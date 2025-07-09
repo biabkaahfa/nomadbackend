@@ -18,9 +18,18 @@ class CompagniesSeeder extends Seeder
         [
             'name' => 'TransFaso',
             'logo' => 'transfaso.png',
-            'description' => 'Transport national',
+            'type'=>'PRIVE',
+            'description' => 'Transport et sous regional national',
             'telephone' => '70112233',
             'email' => 'contact@transfaso.com'
+        ],
+    [
+            'name' => 'SOTRACO',
+            'logo' => 'transfaso.png',
+            'type'=>'PUBLIC',
+            'description' => 'Transport urbains',
+            'telephone' => '50112233',
+            'email' => 'contact@sotraco.com'
         ]]);
     }
 }

@@ -20,6 +20,7 @@ class TrajetsSeeder extends Seeder
                 'pointArrive' => 'Bobo-Dioulasso',
                 'prix' => 5000,
                 'status' => 'actif',
+                'distance' => 356,
                 'idCompagnie' => 1
             ],
              [
@@ -27,7 +28,16 @@ class TrajetsSeeder extends Seeder
                 'pointArrive' => 'Banfora',
                 'prix' => 5000,
                 'status' => 'actif',
+                'distance' => 441,
                 'idCompagnie' => 1
+             ],
+              [
+                'pointDepart' => 'Goughin',
+                'pointArrive' => 'Saaba',
+                'prix' => 500,
+                'status' => 'actif',
+                'distance' => 15,
+                'idCompagnie' => 2
             ]
         ]);
     }

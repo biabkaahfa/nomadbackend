@@ -18,6 +18,7 @@ return new class extends Migration
              $table->float('prix');
              $table->enum('status',['actif', 'inactif']);
              $table->unsignedBigInteger('idCompagnie');
+              $table->float('distance');
               $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
 
         //     $'pointDepart',

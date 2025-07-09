@@ -24,6 +24,7 @@ class StoreCompagniesRequest extends FormRequest
         return [
             'name'=>['string','required','max:255'],
             'email' => ['required', 'string', 'email', 'max:255'],
+             'type' => ['required', 'in:PUBLIC,PRIVE'],
             'description'=>['string','nullable','max:500'],
             'telephone' => ['required', 'string', 'max:12', 'regex:/^[0-9+\-\s]+$/'],
             'image'=>['image','nullable','mimes:png,jpg,jpeg','max:2048'],

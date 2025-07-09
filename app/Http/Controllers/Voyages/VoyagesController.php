@@ -21,7 +21,7 @@ class VoyagesController extends Controller
     public function index(Request $request)
     {
         //
-        
+
       $query = Voyages::with(['trajet.frequences', 'bus', 'tickets']);
 
     // 🔎 Filtrage par recherche
@@ -69,7 +69,7 @@ class VoyagesController extends Controller
     $voyage->idTrajet = $data['idTrajet'];
     $voyage->dateDepart = $data['dateDepart'];
     $voyage->heuresDepart = $data['heuresDepart'];
-    // $voyage->status = $data['status'] ?? 'ACTIF';       
+    // $voyage->status = $data['status'] ?? 'ACTIF';
     $voyage->save();
 
     return redirect()->route('voyages.index')->with('success', 'Voyage créé avec succès.');
@@ -92,30 +92,49 @@ class VoyagesController extends Controller
        // $voyages=Voyages::all();
        $bus=Bus::all();
        $trajets=Trajets::all();
-        return view("back.voyages.create",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
+        return view("back.voyages.update",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
     }
+
+    public function affectation(Voyages $voyage)
+    {
+        //
+       // $voyages=Voyages::all();
+       $bus=Bus::all();
+       $trajets=Trajets::all();
+        return view("back.voyages.affectation",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
+    }
+    public function affecterBus(Request $request, Voyages $voyage)
+{
+    $request->validate([
+        'idBus' => 'required|exists:buses,id',
+    ]);
+
+    $voyage->idBus = $request->idBus;
+    $voyage->save();
+
+    return redirect()->route('voyages.index')->with('success', 'Bus affecté avec succès.');
+}
+
+
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVoyagesRequest $request, Voyages $voyage)
-    {
-
-       // dd('Requête reçue', $request->all());
-        // dd('Formulaire bien envoyé');
-        
-         $data = $request->validated();
+   public function update(UpdateVoyagesRequest $request, Voyages $voyage)
+{
+    $data = $request->validated();
 
     $voyage->update([
         'idBus' => $data['idBus'],
         'idTrajet' => $data['idTrajet'],
         'dateDepart' => $data['dateDepart'],
         'heuresDepart' => $data['heuresDepart'],
-        // 'status' => $data['status'],
     ]);
 
     return redirect()->route('voyages.index')->with('success', 'Voyage mis à jour avec succès.');
-    }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -123,7 +142,7 @@ class VoyagesController extends Controller
     public function destroy(Voyages $voyage)
     {
         //
-       
+
          $voyage->delete();
           return to_route('voyages.index')->with('success','Voyages Supprimer  avec success');
     }

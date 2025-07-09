@@ -12,6 +12,7 @@ class Trajets extends Model
         'pointArrive',
         "prix",
         "status",
+        "distance",
         "idCompagnie"
     ];
      public  function compagnie(){
@@ -30,8 +31,15 @@ public function frequences()
 }
 public function garresDepart()
 {
-    return $this->belongsTo(\App\Models\Garres::class, 'idGareDepart');
+    return $this->belongsTo(Garres::class, 'idGareDepart');
 }
+public function voyages()
+{
+    return $this->hasMany(Voyages::class, 'idTrajet');
+}
+
+
+
 
 public function garresArrivee()
 {
@@ -39,5 +47,5 @@ public function garresArrivee()
 }
 
 
-    
+
 }

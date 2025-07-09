@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTrajetsRequest extends FormRequest
+class UpdatereservationsRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,13 +22,6 @@ class StoreTrajetsRequest extends FormRequest
     public function rules(): array
     {
         return [
-             'pointDepart' => ['required', 'string', 'max:255'],
-        'pointArrive' => ['required', 'string', 'max:255'],
-        'prix' => ['required', 'numeric', 'min:0'],
-        'status' => ['required', 'in:ACTIF,INACTIF'],
-        'distance' => ['required', 'numeric', 'min:0'],
-        'idCompagnie' => ['required', 'exists:compagnies,id'],
-        'idFrequence' => ['required', 'exists:frequence_trajets,id'],
             //
         ];
     }

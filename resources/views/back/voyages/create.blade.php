@@ -9,11 +9,23 @@
 @endsection
 
 @section('dashboard-content')
+@php
+    $actionUrl = isset($voyage) ? route('voyages.update', $voyage->id) : route('voyages.store');
+@endphp
+
+<div class="alert alert-info">
+    Méthode : <strong>POST</strong><br>
+    Action du formulaire : <strong>{{ $actionUrl }}</strong><br>
+    Formulaire de type : <strong>{{ isset($voyage) ? 'UPDATE' : 'CREATE' }}</strong>
+</div>
+
     <form action="{{ isset($voyage) ? route('voyages.update', $voyage->id) : route('voyages.store') }}" method="POST">
         @csrf
-        @if(isset($voyage))
-            @method('PUT')
-        @endif
+      @if(isset($voyage))
+    <input type="text" class="form-control mb-3" readonly value="PUT => update()" />
+    @method('PUT')
+@endif
+
 
         <input type="time" name="heuresDepart" class="form-control mb-3"
             value="{{ old('heuresDepart', $voyage->heuresDepart ?? '') }}">
@@ -49,11 +61,11 @@
         <button type="submit" class="btn btn-primary">
             {{ isset($voyage) ? 'Mettre à jour' : 'Valider' }}
         </button>
-{{-- 
+{{--
        <a href="{{ route('voyages.update', $voyage->id) }}" class="btn btn-sm btn-primary">
         Modifier
     </a> --}}
 
-           
+
     </form>
 @endsection

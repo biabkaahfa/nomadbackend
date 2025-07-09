@@ -26,6 +26,7 @@ class UpdateTrajetsRequest extends FormRequest
         'pointArrive' => ['required', 'string', 'max:255'],
         'prix' => ['required', 'numeric', 'min:0'],
         'status' => ['required', 'in:ACTIF,INACTIF'],
+        'distance' => ['required', 'numeric', 'min:0'],
         'idCompagnie' => ['required', 'exists:compagnies,id'],
         'idFrequence' => ['required', 'exists:frequence_trajets,id'],
             //

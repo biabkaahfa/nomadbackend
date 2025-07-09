@@ -17,7 +17,8 @@ use App\Http\Controllers\FrequenceTrajetsController;
 use Illuminate\Support\Facades\Route;
 use App\Models\Voyages;
 
-//use Illuminate\Support\Facades\Route; 
+
+//use Illuminate\Support\Facades\Route;
 //use Intervention\Image\Facades\Image;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 // use Intervention\Image\Facades\Image;
@@ -29,7 +30,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 
 
 use App\Http\Controllers\Garres\GarresController;
-
+use App\Http\Controllers\ReservationsController;
 use Database\Seeders\GarresSeeder;
 
 //ProfilsController   PermissionsController PaiementsController
@@ -40,7 +41,7 @@ use App\Mail\TicketMail;
 //use Illuminate\Support\Facades\Mail;
 use Barryvdh\DomPDF\Facade\Pdf;
 //use App\Mail\TicketMail;
-//use SimpleSoftwareIO\QrCode\Facades\QrCode; 
+//use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 
 
@@ -57,7 +58,7 @@ Route::get('/test-mail', function () {
     $arrivee = 'Bobo-Dioulasso';
     $ticket_id = 123456;
 
-    // Génération du QR Code encodé en base64
+    // Génération du QR Code encodé en base6403
     $qrData = [
         'ticket_id' => $ticket_id,
         'client' => $client,
@@ -135,6 +136,11 @@ Route::resource('compagnies', CompagniesController::class);
 Route::resource('voyages', VoyagesController::class);
 Route::resource('affectation', GarreTrajetsController::class);
 
+//affectations des Bus
+
+Route::get('/voyages/{voyage}/affectation',[VoyagesController::class,'affectation'])->name('voyages.affectation');
+Route::put('/voyages/{voyage}/affecter-bus', [VoyagesController::class, 'affecterBus'])->name('voyages.affecterBus');
+
 
 Route::get('/voyages/{id}/prix', function ($id) {
     $voyage = Voyages::with('trajet')->findOrFail($id); // relation "trajet"
@@ -171,17 +177,16 @@ Route::middleware(['guest'])->group(function () {
     Route::get('login', [AuthController::class, 'loginPage'])->name('login');
     Route::post('login', [AuthController::class, 'authenticate']);
 });
- 
-        
-    
-   
+
+
+
+
     Route::resource('users', UserController::class);
     Route::resource('garres', GarresController::class);
     //  // Routes supplémentaires pour les utilisateurs
     Route::patch('users/{user}/toggle-status', [UserController::class, 'toggleStatus'])
          ->name('users.toggleStatus');
-    
+
     Route::get('users/search', [UserController::class, 'search'])
          ->name('users.search');
  // Routes pour la gestion des utilisateurs
-   

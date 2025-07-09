@@ -23,7 +23,12 @@ class JWTAuthController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->respondWithToken($token);
+        // return $this->respondWithToken($token);
+        return response()->json([
+    'token' => $token,
+    'user' => Auth::guard('jwt')->user()
+]);
+
     }
 
     /**
@@ -55,7 +60,8 @@ class JWTAuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(Auth::guard('jwt')->refresh());
+        $token = app('tymon.jwt.auth')->refresh();
+        return $this->respondWithToken($token);
     }
 
     /**
@@ -70,7 +76,7 @@ class JWTAuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => Auth::guard('jwt')->factory()->getTTL() * 60
+            'expires_in' => config('jwt.ttl') * 60
         ]);
     }
 }

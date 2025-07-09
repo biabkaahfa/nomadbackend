@@ -10,6 +10,7 @@ class Compagnies extends Model
     protected $fillable=[
         'name',
         'logo',
+        'type',
         'description',
         'telephone',
         'email'

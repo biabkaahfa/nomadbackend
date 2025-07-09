@@ -43,7 +43,7 @@ class GenererVoyages extends Command
                                     'idBus' => null
                                 ]);
 
-                                $this->info("✅ Voyage créé : {$compagnie->nom} | Trajet ID {$trajet->id} | {$date->toDateString()} à {$frequence->heureDepart}");
+                                $this->info("✅ Voyage créé : {$compagnie->name} | Trajet ID {$trajet->id} | {$date->toDateString()} à {$frequence->heureDepart}");
                             }
                         }
                     }

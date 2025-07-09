@@ -52,6 +52,7 @@ class CompagniesController extends Controller
         $compagnies= Compagnies::create([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
            
@@ -110,6 +111,7 @@ class CompagniesController extends Controller
             $compagny->update([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
            
@@ -123,6 +125,7 @@ class CompagniesController extends Controller
         $compagny->update([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
            
