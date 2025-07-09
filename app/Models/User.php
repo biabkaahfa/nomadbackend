@@ -160,4 +160,12 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->image ? asset('storage/' . $this->image) : asset('images/default-avatar.png');
     }
+
+
+
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new \App\Notifications\ResetPasswordNotification($token));
+    }
 }
+
