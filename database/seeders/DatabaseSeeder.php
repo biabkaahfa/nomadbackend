@@ -23,7 +23,11 @@ class DatabaseSeeder extends Seeder
          $this->call([
         ProfilsSeeder::class,
         PermissionsSeeder::class,
+        TypeAbonementSeeder::class,
         CompagniesSeeder::class,
+        ParametresSeeder::class,
+        AbonementSeeder::class,
+        MessagesSeeder::class,
         UsersSeeder::class,
         GarresSeeder::class,
         TrajetsSeeder::class,

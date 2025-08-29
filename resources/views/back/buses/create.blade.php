@@ -15,16 +15,16 @@
             @method('PUT')
         @endif
 
-        <input type="number" name="numeroBus" class="form-control mb-3" placeholder="Numéro du bus"
-            value="{{ old('numeroBus', $bus->numeroBus ?? '') }}" required>
+        <input type="number" name="numeroBus" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" placeholder="Numéro du bus"
+            value="{{ old('numeroBus', $bus->numeroBus ?? '') }}" min="1" required>
 
-        <input type="number" name="nombrePlaces" class="form-control mb-3" placeholder="Nombre total de places"
-            value="{{ old('nombrePlaces', $bus->nombrePlaces ?? '') }}" required>
+        <input type="number" name="nombrePlaces" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" placeholder="Nombre total de places"
+            value="{{ old('nombrePlaces', $bus->nombrePlaces ?? '') }}" min="0" required>
 
-        <input type="number" name="nombrePlaceDispo" class="form-control mb-3" placeholder="Places disponibles"
-            value="{{ old('nombrePlaceDispo', $bus->nombrePlaceDispo ?? '') }}" required>
+        <input type="number" name="nombrePlaceDispo" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" placeholder="Places disponibles"
+            value="{{ old('nombrePlaceDispo', $bus->nombrePlaceDispo ?? '') }}" min="1" required>
 
-        <select name="idCompagnie" class="form-control mb-3" required>
+        <select name="idCompagnie" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" required>
     <option value="">-- Choisir une compagnie --</option>
     @foreach($compagnies as $compagnie)
         <option value="{{ $compagnie->id }}"
@@ -36,7 +36,7 @@
 
 
 
-        <select name="status" class="form-control mb-3" required>
+        <select name="status" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" required>
             <option value="">-- Statut du bus --</option>
             <option value="Actif" {{ old('status', $bus->status ?? '') == 'Actif' ? 'selected' : '' }}>Actif</option>
             <option value="Inactifs" {{ old('status', $bus->status ?? '') == 'Inactifs' ? 'selected' : '' }}>Inactif</option>

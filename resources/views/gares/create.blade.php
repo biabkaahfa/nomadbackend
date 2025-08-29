@@ -13,7 +13,7 @@
 @section('title', $pageTitle)
 
 @section('dashboard-header')
-    
+
 <div class="container my-5">
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb">
@@ -165,7 +165,7 @@
 
                 @else
                     <!-- Mode Création/Édition -->
-                    <form action="{{ $mode === 'create' ? route('garres.store') : route('garres.update', $garre) }}" 
+                    <form action="{{ $mode === 'create' ? route('garres.store') : route('garres.update', $garre) }}"
                           method="POST" novalidate>
                         @csrf
                         @if($mode === 'edit')
@@ -181,10 +181,10 @@
                                 <!-- Nom de la gare -->
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
-                                        <input type="text" 
-                                               class="form-control @error('name') is-invalid @enderror" 
-                                               id="name" 
-                                               name="name" 
+                                        <input type="text"
+                                               class="form-control @error('name') is-invalid @enderror"
+                                               id="name"
+                                               name="name"
                                                placeholder="Nom de la gare"
                                                value="{{ old('name', isset($garre) ? $garre->name : '') }}"
                                                required>
@@ -199,37 +199,52 @@
 
                                 <!-- Compagnie -->
                                 <div class="col-md-6 mb-3">
-                                    <div class="form-floating">
-                                        <select class="form-select @error('idCompagnie') is-invalid @enderror" 
-                                                id="idCompagnie" 
-                                                name="idCompagnie" 
-                                                required>
-                                            <option value="">Sélectionner une compagnie</option>
-                                            @if(isset($compagnies))
-                                                @foreach($compagnies as $compagnie)
-                                                    <option value="{{ $compagnie->id }}" 
-                                                            {{ old('idCompagnie', isset($garre) ? $garre->idCompagnie : '') == $compagnie->id ? 'selected' : '' }}>
-                                                        {{ $compagnie->name }}
-                                                    </option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                        <label for="idCompagnie" class="required">
-                                            <i class="fas fa-building me-2"></i>Compagnie
-                                        </label>
-                                        @error('idCompagnie')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
+    <div class="form-floating">
+
+        @php
+            $user = Auth::user();
+            $isAdminCompagnie = $user->profil->name === 'Admin compagnie';
+            $isAdminGeneral = $user->profil->name === 'Admin général';
+        @endphp
+
+        @if($isAdminCompagnie)
+            {{-- Champ caché pour forcer la compagnie du user --}}
+            <input type="hidden" name="idCompagnie" value="{{ $user->idCompagnie }}">
+            <input type="text" class="form-control" value="{{ $user->compagnie->name ?? 'Ma compagnie' }}" readonly>
+            <label><i class="fas fa-building me-2"></i>Compagnie</label>
+        @elseif($isAdminGeneral)
+            {{-- Affichage du select pour admin général --}}
+            <select class="form-select @error('idCompagnie') is-invalid @enderror"
+                    id="idCompagnie"
+                    name="idCompagnie"
+                    required>
+                <option value="">Sélectionner une compagnie</option>
+                @foreach($compagnies as $compagnie)
+                    <option value="{{ $compagnie->id }}"
+                        {{ old('idCompagnie', isset($garre) ? $garre->idCompagnie : '') == $compagnie->id ? 'selected' : '' }}>
+                        {{ $compagnie->name }}
+                    </option>
+                @endforeach
+            </select>
+            <label for="idCompagnie" class="required">
+                <i class="fas fa-building me-2"></i>Compagnie
+            </label>
+            @error('idCompagnie')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        @endif
+
+    </div>
+</div>
+
 
                                 <!-- Ville -->
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
-                                        <input type="text" 
-                                               class="form-control @error('ville') is-invalid @enderror" 
-                                               id="ville" 
-                                               name="ville" 
+                                        <input type="text"
+                                               class="form-control @error('ville') is-invalid @enderror"
+                                               id="ville"
+                                               name="ville"
                                                placeholder="Ville"
                                                value="{{ old('ville', isset($garre) ? $garre->ville : '') }}"
                                                required>
@@ -245,10 +260,10 @@
                                 <!-- Localisation -->
                                 <div class="col-md-6 mb-3">
                                     <div class="form-floating">
-                                        <input type="text" 
-                                               class="form-control @error('localisation') is-invalid @enderror" 
-                                               id="localisation" 
-                                               name="localisation" 
+                                        <input type="text"
+                                               class="form-control @error('localisation') is-invalid @enderror"
+                                               id="localisation"
+                                               name="localisation"
                                                placeholder="Localisation"
                                                value="{{ old('localisation', isset($garre) ? $garre->localisation : '') }}">
                                         <label for="localisation">

@@ -8,7 +8,7 @@
         <h1>Connexion</h1>
         <p>Accédez à votre compte</p>
     </div>
-    
+
     <div class="auth-body">
         @if (session('status'))
             <div class="alert alert-success mb-4" role="alert">
@@ -16,21 +16,21 @@
                 {{ session('status') }}
             </div>
         @endif
-        
-        <form method="POST" action="{{ route('login') }}">
+
+        <form method="POST" action="{{ route('loga') }}">
             @csrf
-            
+
             <!-- Email -->
             <div class="mb-3">
                 <label for="email" class="form-label">
                     <i class="fas fa-envelope me-2"></i>Adresse e-mail
                 </label>
-                <input type="email" 
-                       class="form-control @error('email') is-invalid @enderror" 
-                       id="email" 
-                       name="email" 
-                       value="{{ old('email') }}" 
-                       required 
+                <input type="email"
+                       class="form-control @error('email') is-invalid @enderror"
+                       id="email"
+                       name="email"
+                       value="{{ old('email') }}"
+                       required
                        autofocus
                        placeholder="votre@email.com">
                 @error('email')
@@ -46,13 +46,13 @@
                     <i class="fas fa-lock me-2"></i>Mot de passe
                 </label>
                 <div class="position-relative">
-                    <input type="password" 
-                           class="form-control @error('password') is-invalid @enderror" 
-                           id="password" 
-                           name="password" 
+                    <input type="password"
+                           class="form-control @error('password') is-invalid @enderror"
+                           id="password"
+                           name="password"
                            required
                            placeholder="••••••••">
-                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2" 
+                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-2"
                             onclick="togglePassword()" id="togglePasswordBtn">
                         <i class="fas fa-eye" id="togglePasswordIcon"></i>
                     </button>
@@ -67,9 +67,9 @@
             <!-- Remember Me -->
             <div class="mb-4">
                 <div class="form-check">
-                    <input type="checkbox" 
-                           class="form-check-input" 
-                           id="remember" 
+                    <input type="checkbox"
+                           class="form-check-input"
+                           id="remember"
                            name="remember">
                     <label class="form-check-label" for="remember">
                         Se souvenir de moi
@@ -85,7 +85,7 @@
             </div>
         </form>
     </div>
-    
+
     <div class="auth-footer">
         <div class="auth-links">
             <a href="{{ route('password.request') }}">
@@ -101,7 +101,7 @@
 function togglePassword() {
     const password = document.getElementById('password');
     const toggleBtn = document.getElementById('togglePasswordIcon');
-    
+
     if (password.type === 'password') {
         password.type = 'text';
         toggleBtn.classList.remove('fa-eye');

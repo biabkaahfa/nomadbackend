@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('voyages:generer')->dailyAt('01:00');
         $schedule->command('voyages:rappel-bus')->dailyAt('06:00');
+        $schedule->command('rappels:envoyer')->dailyAt('08:00');
     }
 
     protected function commands()

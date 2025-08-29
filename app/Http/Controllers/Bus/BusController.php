@@ -7,18 +7,41 @@ use App\Models\Compagnies;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBusRequest;
 use App\Http\Requests\UpdateBusRequest;
+use Illuminate\Support\Facades\Auth;
 
 class BusController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+    // public function index()
+    // {
+    //     //
+    //     $buses=Bus::all();
+    //     return view("back.buses.index",['buses'=>$buses]);
+    // }
     public function index()
-    {
-        //
-        $buses=Bus::all();
-        return view("back.buses.index",['buses'=>$buses]);
+{
+    $user = Auth::user();
+
+    // Vérifie le nom du profil
+    $profil = $user->profil?->name; // ou ->libelle si ton champ s'appelle comme ça
+
+    // Si admin général → tous les bus
+    if ($profil === 'Admin général') {
+        $buses = Bus::all();
     }
+    // Si admin compagnie → uniquement les bus de sa compagnie
+    elseif ($profil === 'Admin compagnie') {
+        $buses = Bus::where('idCompagnie', $user->idCompagnie)->get();
+    }
+    // Sinon → aucun bus ou comportement par défaut
+    else {
+        $buses = collect(); // liste vide
+    }
+
+    return view("back.buses.index", ['buses' => $buses]);
+}
 
     /**
      * Show the form for creating a new resource.
@@ -26,7 +49,29 @@ class BusController extends Controller
     public function create()
     {
         //
+
+    $user = Auth::user();
+
+    // Vérifie le nom du profil
+    $profil = $user->profil?->name; // ou ->libelle si ton champ s'appelle comme ça
+
+    // Si admin général → tous les bus
+    if ($profil === 'Admin général') {
         $compagnies=Compagnies::all();
+    }
+    // Si admin compagnie → uniquement les bus de sa compagnie
+    elseif ($profil === 'Admin compagnie') {
+       $compagnies=Compagnies::where('idCompagnie', $user->idCompagnie)->get();
+    }
+    // Sinon → aucun bus ou comportement par défaut
+    else {
+       $compagnies = collect(); // liste vide
+    }
+
+    // return view("back.buses.index", ['buses' => $buses]);
+
+
+    //     $compagnies=Compagnies::all();
         return view("back.buses.create",['compagnies'=>$compagnies]);
     }
 

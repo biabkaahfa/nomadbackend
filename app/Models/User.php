@@ -70,6 +70,10 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Profils::class, 'idProfil');
     }
+     public function isAdmin(): bool
+    {
+        return $this->profil->name === 'Admin général';
+    }
 
     /**
      * Relation avec la gare
@@ -151,6 +155,9 @@ class User extends Authenticatable implements JWTSubject
         return $query->whereHas('profil', function ($q) use ($profileName) {
             $q->where('libelle', $profileName);
         });
+    }
+     public  function profils(){
+        return $this->belongsTo(Profils::class,'idprofils');
     }
 
     /**

@@ -28,7 +28,7 @@ class Ticket extends Model
      public  function user(){
         return $this->belongsTo(User::class,'idUtilisateur');
     }
-    
+
      public  function voyage(){
         return $this->belongsTo(Voyages::class,'idVoyage');
     }
@@ -36,4 +36,5 @@ class Ticket extends Model
      public  function paiement(){
         return $this->belongsTo(Paiements::class,'idPaiement');
     }
+    
 }

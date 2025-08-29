@@ -26,4 +26,5 @@ class Voyages extends Model
     return $this->hasMany(Ticket::class, 'idVoyage');
 }
 
+
 }

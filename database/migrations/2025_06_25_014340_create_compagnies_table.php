@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('compagnies', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            //  $table->unsignedBigInteger('idAbonement')->nullable();
+            //   $table->foreign('idAbonement')->references('id')->on('abonement')->onDelete('CASCADE');
             $table->string('logo')->nullable();
             $table->enum('type',['PUBLIC','PRIVE']);
             $table->text('description')->nullable();

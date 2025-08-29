@@ -22,4 +22,9 @@ class Paiements extends Model
      public  function user(){
         return $this->belongsTo(User::class,'idUtilisateur');
     }
+    public function ticket()
+{
+    return $this->belongsTo(\App\Models\Ticket::class, 'idTicket');
+}
+
 }

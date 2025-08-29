@@ -3,23 +3,27 @@
 //namespace App\Http\Controllers;
 namespace App\Http\Controllers\Tickets;
 
-use Illuminate\Http\Request;
 use App\Models\Ticket;
 use App\Models\Voyages;
-use Illuminate\Support\Carbon;
+use App\Mail\TicketMail;
 use App\Models\Paiements;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreTicketRequest;
-use App\Http\Requests\UpdateTicketRequest;
+use App\Models\parametres;
+use App\Models\GarreTrajets;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 //use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Barryvdh\DomPDF\Facade\Pdf;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use App\Mail\TicketMail;
 //use App\Models\Ticket;
 //use App\Models\Paiements;
-use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreTicketRequest;
+use App\Http\Requests\UpdateTicketRequest;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Http\Response;
 
 
 class TicketController extends Controller
@@ -30,9 +34,29 @@ class TicketController extends Controller
     public function index()
     {
 
-        //
-        $ticket=Ticket::all();
-        return view("back.Tickets.index",['tickets'=>$ticket]);
+     $user = Auth::user();
+    $tickets = collect(); // Par défaut, vide
+
+    if ($user->profil->name === 'Admin général') {
+        $tickets = Ticket::with(['voyage.trajet', 'voyage.bus'])->get();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        // Obtenir les tickets liés aux trajets de sa compagnie
+        $tickets = Ticket::whereHas('voyage.trajet', function ($q) use ($user) {
+            $q->where('idCompagnie', $user->idCompagnie);
+        })->with(['voyage.trajet', 'voyage.bus'])->get();
+
+    } elseif (in_array($user->profil->name, ['Chef de gare', 'Réceptionniste'])) {
+        // Obtenir les idTrajet liés à sa gare via la table garre_trajets
+        $idTrajets = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+
+        $tickets = Ticket::whereHas('voyage.trajet', function ($q) use ($idTrajets, $user) {
+            $q->whereIn('id', $idTrajets)
+              ->where('idCompagnie', $user->idCompagnie);
+        })->with(['voyage.trajet', 'voyage.bus'])->get();
+    }
+
+    return view("back.Tickets.index", ['tickets' => $tickets]);
     }
 
     /**
@@ -41,19 +65,24 @@ class TicketController extends Controller
     public function create()
 {
 
+$user = auth()->user();
 
-$now = Carbon::now(); // Date et heure actuelles
+    // Autoriser uniquement les réceptionnistes
+    if ($user->profil->name !== 'Réceptionniste') {
+        abort(403, 'Seuls les réceptionnistes peuvent créer des tickets.');
+    }
 
-$voyages = Voyages::whereRaw("
-        STR_TO_DATE(CONCAT(dateDepart, ' ', heuresDepart), '%Y-%m-%d %H:%i:%s') >= ?
-    ", [$now])
-    ->with(['trajet.frequences', 'bus', 'tickets'])
-    ->orderBy('dateDepart')
-    ->orderBy('heuresDepart')
-    ->get();
+    $now = \Carbon\Carbon::now();
 
-return view("back.Tickets.create", compact('voyages'));
+    $voyages = Voyages::whereRaw("
+            STR_TO_DATE(CONCAT(dateDepart, ' ', heuresDepart), '%Y-%m-%d %H:%i:%s') >= ?
+        ", [$now])
+        ->with(['trajet.frequences', 'bus', 'tickets'])
+        ->orderBy('dateDepart')
+        ->orderBy('heuresDepart')
+        ->get();
 
+    return view("back.Tickets.create", compact('voyages'));
 }
 
     /**
@@ -129,6 +158,7 @@ return view("back.Tickets.create", compact('voyages'));
         if ($voyage->idBus) {
             $voyage->bus->decrement('nombrePlaceDispo');
         }
+           $compagnie = $ticket->voyage->trajet->compagnie ?? null;
 
         // Générer QR Code
         $qrData = [
@@ -139,13 +169,43 @@ return view("back.Tickets.create", compact('voyages'));
             'moyenPaiement' => $paiement->moyenPaiement,
             'reference' => $paiement->referenceTransaction,
         ];
-        $qrCode = QrCode::format('png')->size(200)->generate(json_encode($qrData));
+        $idCompagnie=$compagnie->idCompagnie;
+
+       if ($idCompagnie) {
+            $theme = Parametres::where('idCompagnie', $idCompagnie)->first();
+        } else {
+            // No company ID provided, use the global theme.
+            $theme = Parametres::whereNull('idCompagnie')->first();
+        }
+
+        // Handle the case where the theme is not found.
+        if (!$theme) {
+            return Response::make('Theme not found.', 404);
+        }
+
+        // 2. Determine the logo path.
+        // Use the company-specific logo if it exists, otherwise use the default.
+        $logoPath = $theme->logo ? public_path('storage/' . $theme->logo) : public_path('back_auth/assets/img/Movyx.png');
+
+        // Check if the logo file actually exists to prevent errors.
+        if (!file_exists($logoPath)) {
+            // Fallback to the default logo if the company's logo is missing.
+            $logoPath = public_path('back_auth/assets/img/Movyx.png');
+        }
+
+                // Générer le QR Code avec le logo fusionné
+                // La méthode 'merge' prend le chemin de l'image, et en option, le ratio de taille (0.2 = 20%) et si la transparence est activée.
+                $qrCode = QrCode::format('png')
+                                ->size(200)
+                                ->merge($logoPath, 0.2, true)
+                                ->generate(json_encode($qrData));
+                // --- FIN DE LA MODIFICATION ---
 
         $client = $ticket->name;
         $date = $ticket->voyage->dateDepart;
         $depart = $ticket->voyage->trajet->pointDepart;
         $arrivee = $ticket->voyage->trajet->pointArrive;
-        $compagnie = $ticket->voyage->trajet->compagnie ?? null;
+
 
         $garres = $compagnie
             ? $compagnie->garres()

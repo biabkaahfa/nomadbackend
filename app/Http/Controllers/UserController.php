@@ -29,6 +29,7 @@ class UserController extends Controller
     {
         try {
             $query = User::with(['profil', 'garre', 'compagnie']);
+           // $user=auth()->user();
 
             // Filtrage par recherche
             if ($request->filled('search')) {
@@ -61,7 +62,43 @@ class UserController extends Controller
             }
 
             $users = $query->paginate(15);
-            
+
+
+        //      if ($user->profil->name === 'Admin général') {
+        //     // Peut tout voir
+        //     $profils = Profils::all();
+        //     $garres = Garres::all();
+        //     $users=User::all();
+        //     $compagnies = Compagnies::all();
+        // }
+
+        // elseif ($user->profil->name === 'Admin compagnie') {
+        //     // Peut créer profils en dessous de lui
+        //     $profils = Profils::whereNotIn('name','Admin général')->get();
+
+        //     // Peut affecter uniquement à sa compagnie
+        //     $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+
+        //     // Peut voir toutes les gares de sa compagnie
+        //     $garres = Garres::where('idCompagnie', $user->idCompagnie)->get();
+        //     $users = User::where('idCompagnie', $user->idCompagnie)->get();
+        // }
+
+        // elseif ($user->profil->name === 'Chef de gare') {
+        //     // Peut créer uniquement des profils en dessous
+        //     $profils = Profils::whereNotIn('name', ['Admin général','Client'])->get();
+        //      //$profils = Profils::where('name', ['Réceptionniste', 'Contrôleur'])->get();
+
+        //     // Ne peut pas affecter à une compagnie
+        //      $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+        //    // $compagnies = collect(); // Vide ou tu peux omettre ce champ côté vue
+
+        //     // Peut affecter uniquement à sa gare
+        //     $garres = Garres::where('id', $user->idGarre)->get();
+        //      $users = User::where('idGarre', $user->idGarre)->get();
+        // }
+
+
             // Récupérer les données pour les filtres (noms de modèles corrigés)
             $profils = Profils::all();
             $garres = Garres::all();
@@ -78,20 +115,56 @@ class UserController extends Controller
      */
     public function create()
     {
-        try {
+         try {
+        $user = auth()->user();
+
+        // Tous les profils, compagnies et gares par défaut
+        $profils = collect();
+        $garres = collect();
+        $compagnies = collect();
+
+        if ($user->profil->name === 'Admin général') {
+            // Peut tout voir
             $profils = Profils::all();
             $garres = Garres::all();
-            $compagnies = Compagnies::all();
 
-            return view('back.users.create', [
-                'mode' => 'create',
-                'profils' => $profils,
-                'garres' => $garres,
-                'compagnies' => $compagnies
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Erreur lors du chargement du formulaire de création: ' . $e->getMessage());
+            $compagnies = Compagnies::all();
         }
+
+        elseif ($user->profil->name === 'Admin compagnie') {
+            // Peut créer profils en dessous de lui
+            $profils = Profils::whereNotIn('name', ['Admin général', 'Admin compagnie'])->get();
+
+            // Peut affecter uniquement à sa compagnie
+            $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+
+            // Peut voir toutes les gares de sa compagnie
+            $garres = Garres::where('idCompagnie', $user->idCompagnie)->get();
+        }
+
+        elseif ($user->profil->name === 'Chef de gare') {
+            // Peut créer uniquement des profils en dessous
+            $profils = Profils::whereNotIn('name', ['Admin général', 'Admin compagnie', 'Chef de gare','Client'])->get();
+             //$profils = Profils::where('name', ['Réceptionniste', 'Contrôleur'])->get();
+
+            // Ne peut pas affecter à une compagnie
+             $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+           // $compagnies = collect(); // Vide ou tu peux omettre ce champ côté vue
+
+            // Peut affecter uniquement à sa gare
+            $garres = Garres::where('id', $user->idGarre)->get();
+        }
+
+        return view('back.users.create', [
+            'mode' => 'create',
+            'profils' => $profils,
+            'garres' => $garres,
+            'compagnies' => $compagnies
+        ]);
+    } catch (\Exception $e) {
+        \Log::error('Erreur lors du chargement du formulaire de création: ' . $e->getMessage());
+        abort(500, 'Erreur interne.');
+    }
     }
 
     /**
@@ -101,9 +174,9 @@ class UserController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $validated = $request->validated();
-            
+
             // Hash du mot de passe
             $validated['password'] = Hash::make($validated['password']);
 
@@ -119,18 +192,21 @@ class UserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('user.index')
                 ->with('success', 'Utilisateur créé avec succès.');
-                
+
+    //         return redirect('/user')
+    // ->with('success', 'Utilisateur créé avec succès.');
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur lors de la création de l\'utilisateur: ' . $e->getMessage());
-            
+
             // Supprimer l'image uploadée en cas d'erreur
             if (isset($validated['image'])) {
                 Storage::disk('public')->delete($validated['image']);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la création de l\'utilisateur.');
@@ -182,7 +258,7 @@ class UserController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             $validated = $request->validated();
 
             // Hash du mot de passe si fourni
@@ -205,18 +281,18 @@ class UserController extends Controller
 
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('user.index')
                 ->with('success', 'Utilisateur mis à jour avec succès.');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur lors de la mise à jour de l\'utilisateur: ' . $e->getMessage());
-            
+
             // Supprimer la nouvelle image en cas d'erreur
             if (isset($validated['image']) && $validated['image'] !== $user->image) {
                 Storage::disk('public')->delete($validated['image']);
             }
-            
+
             return redirect()->back()
                 ->withInput()
                 ->with('error', 'Erreur lors de la mise à jour de l\'utilisateur.');
@@ -230,23 +306,23 @@ class UserController extends Controller
     {
         try {
             DB::beginTransaction();
-            
+
             // Supprimer l'image si elle existe
             if ($user->image) {
                 Storage::disk('public')->delete($user->image);
             }
 
             $user->delete();
-            
+
             DB::commit();
 
-            return redirect()->route('users.index')
+            return redirect()->route('user.index')
                 ->with('success', 'Utilisateur supprimé avec succès.');
-                
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Erreur lors de la suppression de l\'utilisateur: ' . $e->getMessage());
-            
+
             return redirect()->back()
                 ->with('error', 'Erreur lors de la suppression de l\'utilisateur.');
         }
@@ -263,10 +339,10 @@ class UserController extends Controller
             ]);
 
             $status = $user->statut === 'actif' ? 'activé' : 'désactivé';
-            
+
             return redirect()->back()
                 ->with('success', "Utilisateur {$status} avec succès.");
-                
+
         } catch (\Exception $e) {
             Log::error('Erreur lors du changement de statut: ' . $e->getMessage());
             return redirect()->back()
@@ -281,11 +357,11 @@ class UserController extends Controller
     {
         try {
             $query = $request->get('q');
-            
+
             if (empty($query) || strlen($query) < 2) {
                 return response()->json([]);
             }
-            
+
             $users = User::where('name', 'like', "%{$query}%")
                         ->orWhere('email', 'like', "%{$query}%")
                         ->with('profil')
@@ -293,7 +369,7 @@ class UserController extends Controller
                         ->get();
 
             return response()->json($users);
-            
+
         } catch (\Exception $e) {
             Log::error('Erreur lors de la recherche: ' . $e->getMessage());
             return response()->json(['error' => 'Erreur lors de la recherche'], 500);

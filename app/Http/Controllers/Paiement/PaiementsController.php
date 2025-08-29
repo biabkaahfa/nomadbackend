@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Paiement;
 
 use App\Models\Paiements;
+use App\Models\GarreTrajets;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StorePaiementsRequest;
 use App\Http\Requests\UpdatePaiementsRequest;
 
@@ -14,13 +16,35 @@ class PaiementsController extends Controller
      */
     public function index()
 {
-    $paiements = \App\Models\Paiements::whereNotNull('created_at')->get();
 
-    // Grouper par date
+    $user = Auth::user();
+    $profil = $user->profils?->name; // Assure-toi que la relation s'appelle `profils`
+
+    $paiements = Paiements::with(['ticket.voyage.trajet']); // Précharge les relations
+
+    if ($profil === 'Admin compagnie') {
+        // Filtrer les paiements liés aux voyages/trajets de la même compagnie
+        $paiements = $paiements->whereHas('ticket.voyage.trajet', function ($q) use ($user) {
+            $q->where('idCompagnie', $user->idCompagnie);
+        });
+    } elseif (in_array($profil, ['Chef gare', 'Réceptionniste'])) {
+        // Récupère les trajets associés à la gare du chef de gare ou réceptionniste
+        $trajetIds = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+
+        $paiements = $paiements->whereHas('ticket.voyage', function ($q) use ($trajetIds) {
+            $q->whereIn('idTrajet', $trajetIds);
+        });
+    }
+
+    // Exécuter la requête
+    $paiements = $paiements->whereNotNull('created_at')->get();
+
+    // Grouper les paiements par date
     $grouped = $paiements->groupBy(function ($item) {
         return $item->created_at->format('Y-m-d');
     });
 
+    // Préparer les données pour le graphique
     $labels = [];
     $dataOM = [];
     $dataMOOV = [];
@@ -42,7 +66,6 @@ class PaiementsController extends Controller
         'ESPECE' => $dataESPECE,
         'CARTE' => $dataCARTE,
     ];
-   // dd($chartData);
 
     return view('back.paiements.index', [
         'paiements' => $paiements,
@@ -90,7 +113,7 @@ class PaiementsController extends Controller
         //
          return view("back.paiements.create",['paiements'=>$paiements]);
     }
-    
+
 
     /**
      * Update the specified resource in storage.

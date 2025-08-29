@@ -1,7 +1,7 @@
 
-@extends('back.app')  
+@extends('back.app')
 
-@section('title', 'Liste des Permissions')
+@section('title',isset($profil) ? 'Modifier un profil' : 'Ajouter un profil')
 
 @section('dashboard-header')
     <div class="row align-items-center">
@@ -11,8 +11,8 @@
                     {{ isset($profil) && $profil ? 'Modifier' : 'Ajouter' }} Profil
                 </h4>
                  {{-- <h2> @if($profil) Modifier  @else Ajouter @endif  Profil</h2> --}}
-                
-                <a href="{{ route('profils.create') }}" class="btn btn-primary float-right viewbutton">@if($profil) Modifier  @else Ajouter @endif Profil</a>
+
+                {{-- <a href="{{ route('profils.create') }}" class="btn btn-primary float-right viewbutton">@if($profil) Modifier  @else Ajouter @endif Profil</a> --}}
             </div>
         </div>
     </div>

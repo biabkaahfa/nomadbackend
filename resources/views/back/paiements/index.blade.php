@@ -13,10 +13,10 @@
 
 @section('dashboard-content')
 <div class="mb-4">
-    <form method="GET" class="form-inline d-flex gap-2 flex-wrap">
+    <form method="GET" class="form-inline d-flex gap-2 flex-wrap" style="font-size: 1.3rem; padding: 1rem; height:auto;">
         <input type="text" name="search" value="{{ request('search') }}" placeholder="Référence ou Téléphone" class="form-control">
 
-        <select name="periode" class="form-control">
+        <select name="periode" class="form-control" style="font-size: 1.3rem; padding: 1rem; height:auto;">
             <option value="jour" {{ request('periode') == 'jour' ? 'selected' : '' }}>Aujourd'hui</option>
             <option value="semaine" {{ request('periode') == 'semaine' ? 'selected' : '' }}>Cette semaine</option>
             <option value="mois" {{ request('periode') == 'mois' ? 'selected' : '' }}>Ce mois</option>

@@ -3,13 +3,14 @@
 namespace App\Http\Controllers;
 
 //use App\Models\reservations;
-use App\Http\Requests\StorereservationsRequest;
-use App\Http\Requests\UpdatereservationsRequest;
-use App\Models\Reservations;
-use App\Models\Voyages;
 use App\Models\User;
+use App\Models\Voyages;
+use App\Models\Reservations;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StorereservationsRequest;
+use App\Http\Requests\UpdatereservationsRequest;
 
 class ReservationsController extends Controller
 {
@@ -27,6 +28,76 @@ class ReservationsController extends Controller
     public function create()
     {
         //
+    }
+
+    public function getUserReservations()
+    {
+        // 1. Récupérer l'utilisateur authentifié.
+        $user = Auth::user();
+
+        // 2. Si aucun utilisateur n'est authentifié, renvoyer une erreur 401.
+        if (!$user) {
+            return response()->json([
+                'message' => 'Non authentifié. Veuillez vous connecter.'
+            ], 401);
+        }
+
+        // 3. Récupérer les réservations de l'utilisateur, en triant par date de voyage
+        // pour que les plus récentes apparaissent en premier.
+        // On charge aussi les relations nécessaires pour éviter les requêtes N+1.
+        $reservations = Reservations::where('idUtilisateur', $user->id)
+                                ->with([
+                                    'voyage.trajet.compagnie',
+                                    'voyage.bus',
+                                    'paiement'
+                                ])
+                                ->orderByDesc(
+                                    Voyages::select('dateDepart')
+                                        ->whereColumn('voyages.id', 'reservations.idVoyage')
+                                )
+                                ->get();
+
+        // 4. Formater les données pour une réponse JSON claire.
+        // On itère sur chaque réservation pour construire une structure de données
+        // simple et facile à utiliser côté client Flutter.
+        $formattedReservations = $reservations->map(function ($reservation) {
+            $voyage = $reservation->voyage;
+            $trajet = $voyage->trajet;
+            $compagnie = $trajet->compagnie;
+
+            return [
+                'id' => $reservation->id,
+                'nombrePlaces' => $reservation->nombrePlaces,
+                'montantTotal' => $reservation->montantTotal,
+                'statut' => $reservation->statut,
+                'created_at' => $reservation->created_at,
+                'updated_at' => $reservation->updated_at,
+                'voyage' => [
+                    'id' => $voyage->id,
+                    'dateDepart' => $voyage->dateDepart,
+                    'heureDepart' => $voyage->heureDepart,
+                    'trajet' => [
+                        'id' => $trajet->id,
+                        'pointDepart' => $trajet->pointDepart,
+                        'pointArrive' => $trajet->pointArrive,
+                        'compagnie' => [
+                            'name' => $compagnie->name,
+                        ],
+                    ],
+                ],
+                'paiement' => [
+                    'id' => $reservation->paiement->id ?? null,
+                    'montant' => $reservation->paiement->montant ?? null,
+                ],
+                // Étant donné que 'passagers' est un JSON, il est déjà décodé
+                'passagers' => $reservation->passagers,
+            ];
+        });
+
+        // 5. Renvoyer la liste des réservations formatées en JSON.
+        return response()->json([
+            'reservations' => $formattedReservations
+        ], 200);
     }
 
 

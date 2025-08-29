@@ -7,7 +7,9 @@
     <div class="col">
         <div class="mt-5 d-flex justify-content-between align-items-center">
             <h4 class="card-title">Départs programmés</h4>
-            <a href="{{ route('voyages.create') }}" class="btn btn-primary">Ajouter un Voyage</a>
+            @if(Auth::user()->profil->name === 'Admin général' || Auth::user()->profil->name === 'Admin compagnie')
+    <a href="{{ route('voyages.create') }}" class="btn btn-primary">Ajouter un Voyage</a>
+@endif
         </div>
     </div>
 </div>
@@ -44,6 +46,7 @@
                     <th>Heure</th>
                     <th>Trajet</th>
                     <th>Bus</th>
+                    <th>Compagnie</th>
                     <th>Occupation</th>
                     <th>Actions</th>
                 </tr>
@@ -68,6 +71,7 @@
                         <td>{{ $datetimeVoyage->format('H:i') }}</td>
                         <td>{{ $voyage->trajet->pointDepart }} → {{ $voyage->trajet->pointArrive }}</td>
                         <td>{{ $voyage->bus->numeroBus ?? 'Non assigné' }}</td>
+                        <td>{{ $voyage->bus->compagnie->name ?? 'Non assignée' }}</td>
                         <td style="min-width: 200px;">
                             <div class="progress" style="height: 20px;">
                                 <div class="progress-bar

@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Trajets;
-use App\Http\Controllers\Controller;
 use App\Models\Trajets;
-use App\Models\FrequenceTrajets;
 use App\Models\Compagnies;
+use App\Models\FrequenceTrajets;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreTrajetsRequest;
 use App\Http\Requests\UpdateTrajetsRequest;
 
@@ -15,9 +16,21 @@ class TrajetsController extends Controller
      */
     public function index()
     {
-        //
-        $trajets=Trajets::all();
-        return view("back.Trajets.index",["trajets"=>$trajets]);
+         $user = Auth::user();
+    $trajets = collect(); // initialisation vide
+
+    if ($user->profil->name === 'Admin général') {
+        $trajets = Trajets::all();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        $trajets = Trajets::where('idCompagnie', $user->idCompagnie)->get();
+
+    } elseif ($user->profil->name === 'chef gare') {
+        $idTrajets = \App\Models\GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet')->unique();
+        $trajets = Trajets::whereIn('id', $idTrajets)->get();
+    }
+
+    return view("back.Trajets.index", ["trajets" => $trajets]);
     }
 
     /**
@@ -25,11 +38,30 @@ class TrajetsController extends Controller
      */
     public function create()
     {
-        //
-         $frequences = FrequenceTrajets::all();
-          $compagnies=Compagnies::all();
-    
-        return view("back.Trajets.create",["frequences"=>$frequences,'compagnies'=>$compagnies]);
+      $user = Auth::user();
+    $frequences = collect();
+    $compagnies = collect();
+
+    if ($user->profil->name === 'Admin général') {
+        $frequences = FrequenceTrajets::all();
+        $compagnies = Compagnies::all();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+
+        // On récupère les gares de la compagnie
+        $idGarres = \App\Models\Garres::where('idCompagnie', $user->idCompagnie)->pluck('id');
+        $frequences = FrequenceTrajets::whereIn('idGarre', $idGarres)->get();
+
+    } elseif ($user->profil->name === 'chef de gare') {
+        $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+        $frequences = FrequenceTrajets::where('idGarre', $user->idGarre)->get();
+    }
+
+    return view("back.Trajets.create", [
+        "frequences" => $frequences,
+        'compagnies' => $compagnies
+    ]);
     }
 
     /**
@@ -40,7 +72,7 @@ class TrajetsController extends Controller
     $data = $request->validated(); // Validation depuis StoreTrajetsRequest
 
     Trajets::create($data);
-    
+
 
     return redirect()->route('trajets.index')->with('success', 'Trajet ajouté avec succès.');
 }

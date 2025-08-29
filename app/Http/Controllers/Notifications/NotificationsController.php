@@ -6,25 +6,27 @@ namespace App\Http\Controllers\Notifications;
 
 //use App\Http\Controllers\Notifications;
 
-use App\Models\Trajets;
-use Illuminate\Support\Carbon;
-use App\Models\Voyages;
 use App\Models\Bus;
-use App\Models\FrequenceTrajets;
-use App\Http\Controllers\Controller;
-
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use App\Models\Tickets;
+use App\Models\Trajets;
+use App\Models\Voyages;
+use App\Models\GarreTrajets;
 
 use Illuminate\Http\Request;
 use App\Models\Notifications;
-use App\Models\Tickets;
 
-use App\Http\Controllers\Notifications\NotificationsController;
+use Illuminate\Support\Carbon;
+use App\Models\FrequenceTrajets;
+use Illuminate\Support\Facades\DB;
 
-use App\Models\User;
+use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Requests\StoreNotificationsRequest;
 use App\Http\Requests\UpdateNotificationsRequest;
+use App\Http\Controllers\Notifications\NotificationsController;
 
 class NotificationsController extends Controller
 {
@@ -33,9 +35,19 @@ class NotificationsController extends Controller
      */
     public function index()
 {
-    $notifications = Notifications::with(['voyage.tickets.user'])
-        ->orderBy('DateEnvoie', 'desc')
-        ->get();
+     $user = Auth::user();
+
+    $query = Notifications::with(['voyage.tickets.user'])
+        ->orderBy('DateEnvoie', 'desc');
+
+    // Si ce n'est pas un admin général, on filtre les notifications
+    if ($user->profil?->name !== 'Admin général') {
+        $query->whereHas('voyage.trajet', function ($q) use ($user) {
+            $q->where('idCompagnie', $user->idCompagnie);
+        });
+    }
+
+    $notifications = $query->get();
 
     return view('back.notifications.index', compact('notifications'));
 }
@@ -45,8 +57,22 @@ class NotificationsController extends Controller
      * Show the form for creating a new resource.
      */
  public function create()
-{
-    $voyages = Voyages::with(['trajet.garresDepart', 'trajet.garresArrivee', 'trajet.frequences', 'bus', 'tickets'])->orderBy('dateDepart', 'desc')->get();
+{$user = Auth::user();
+    $query = Voyages::with(['trajet.garresDepart', 'trajet.garresArrivee', 'trajet.frequences', 'bus', 'tickets'])
+        ->orderBy('dateDepart', 'desc');
+
+    if ($user->profil?->name === 'Admin compagnie') {
+        $query->whereHas('trajet', function ($q) use ($user) {
+            $q->where('idCompagnie', $user->idCompagnie);
+        });
+    } elseif (in_array($user->profil?->name, ['Chef de gare', 'Réceptionniste'])) {
+        // Récupérer les trajets liés à la gare de l'utilisateur
+        $trajetIds = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+        $query->whereIn('idTrajet', $trajetIds);
+    }
+
+    $voyages = $query->get();
+
     return view('back.notifications.create', compact('voyages'));
 }
 

@@ -15,6 +15,173 @@ use Illuminate\Support\Facades\Log;
 
 class PaiementCallbackController extends Controller
 {
+
+
+    public function confirmerPaiement(Request $request)
+{
+    DB::beginTransaction();
+
+    try {
+        // Valider les données de la requête
+        $request->validate([
+            'reservationId' => 'required|integer|exists:reservations,id',
+            'referenceTransaction' => 'required|string',
+            'montant' => 'required|numeric',
+            'telephone' => 'required|string',
+            'moyenPaiement' => 'required|string',
+        ]);
+
+        $reservationId = $request->input('reservationId');
+        $reservation = Reservations::with(['voyage.trajet.compagnie', 'voyage.bus'])
+                                 ->findOrFail($reservationId);
+
+        // Vérifier si la réservation est déjà confirmée
+        if ($reservation->statut === 'confirmé') {
+            DB::rollBack();
+            return response()->json([
+                'message' => 'Cette réservation est déjà payée et confirmée.'
+            ], 400);
+        }
+
+        // 1. Créer le paiement dans la base de données
+        $paiement = Paiements::create([
+            'montant' => $request->montant,
+            'moyenPaiement' => $request->moyenPaiement,
+            'statut' => 'SUCCES', // Le paiement est considéré comme réussi
+            'typeSource' => 'MOBILE',
+            'telephone' => $request->telephone,
+            'referenceTransaction' => $request->referenceTransaction,
+        ]);
+
+        // 2. Créer les tickets pour chaque passager
+        $passagers = $reservation->passagers;
+        $ticketsData = [];
+
+        // Définition des variables nécessaires pour l'envoi du mail
+        $compagnie = $reservation->voyage->trajet->compagnie ?? null;
+        $depart = $reservation->voyage->trajet->pointDepart;
+        $arrivee = $reservation->voyage->trajet->pointArrive;
+
+        $garres = $compagnie
+            ? $compagnie->garres()
+                ->where(function ($query) use ($depart, $arrivee) {
+                    $query->whereRaw('LOWER(ville) = ?', [strtolower($depart)])
+                            ->orWhereRaw('LOWER(ville) = ?', [strtolower($arrivee)]);
+                })
+                ->get(['name', 'ville', 'localisation'])
+            : collect();
+
+        foreach ($passagers as $passager) {
+            $ticket = Ticket::create([
+                'dateReservation' => now()->toDateString(),
+                'statut' => 'CONFIRME',
+                'idUtilisateur' => $reservation->idUtilisateur,
+                'modeReception' => $passager['modeReception'] ?? 'email',
+                'typeAchat' => 'en_ligne',
+                'name' => $passager['name'],
+                'telephone' => $passager['telephone'],
+                'email' => $passager['email'],
+                'idVoyage' => $reservation->idVoyage,
+                'dateScan' => null,
+                'idPaiement' => $paiement->id,
+                'namePersonneAPrevenir' => $passager['namePersonneAPrevenir'] ?? null,
+                'numeroPersonneAPrevenir' => $passager['numeroPersonneAPrevenir'] ?? null,
+                'emailPersonneAPrevenir' => $passager['emailPersonneAPrevenir'] ?? null,
+            ]);
+
+            // Préparer les données pour le QR Code
+            $qrData = [
+                'ticket_id' => $ticket->id,
+                'client' => $ticket->name,
+                'email' => $ticket->email,
+                'montant' => $paiement->montant,
+                'reference' => $paiement->referenceTransaction,
+            ];
+             $logoPath = public_path('back_auth/assets/img/Movyx.png');
+
+                // Générer le QR Code avec le logo fusionné
+                // La méthode 'merge' prend le chemin de l'image, et en option, le ratio de taille (0.2 = 20%) et si la transparence est activée.
+                $qrCode = QrCode::format('png')
+                                ->size(200)
+                                ->merge($logoPath, 0.2, true)
+                                ->generate(json_encode($qrData));
+                // --- FIN DE LA MODIFICATION ---
+
+            // Gérer l'envoi des tickets
+            if ($ticket->modeReception === 'email' && $ticket->email) {
+                // Nous passons explicitement toutes les variables nécessaires à la vue
+                $pdf = PDF::loadView('back.pdf.ticket', [
+                    'ticket'    => $ticket,
+                    'qrCode'    => $qrCode,
+                    'voyage'    => $reservation->voyage,
+                    'compagnie' => $compagnie,
+                    'client'    => $ticket->name,
+                    'date'      => $ticket->dateReservation,
+                    'ticket_id' => $ticket->id,
+                    'depart'    => $depart,
+                    'arrivee'   => $arrivee,
+                    'garres'    => $garres,
+                ]);
+
+                try {
+                    // CORRECTION: Envoi de l'email avec les 5 arguments corrects
+                    Mail::to($ticket->email)->send(new TicketMail(
+                        $ticket->name,
+                        $compagnie,
+                        $ticket->dateReservation,
+                        $pdf->output(),
+                        $garres
+                    ));
+                } catch (\Exception $e) {
+                    Log::error('Erreur envoi email : ' . $e->getMessage());
+                }
+            } else {
+                // Si modeReception est 'application', on ajoute les données pour le retour JSON
+                $ticketsData[] = [
+                    'id' => $ticket->id,
+                    'client' => $ticket->name,
+                    'voyage' => [
+                        'date' => $reservation->voyage->dateDepart,
+                        'depart' => $depart,
+                        'arrivee' => $arrivee,
+                        'heure' => $reservation->voyage->heuresDepart,
+                    ],
+                    'compagnie' => $compagnie->name ?? 'N/A',
+                    'montant' => $paiement->montant,
+                    'modeReception' => 'application',
+                    'qrCode' => 'data:image/png;base64,' . base64_encode($qrCode),
+                ];
+            }
+        }
+
+        // 3. Mettre à jour la réservation
+        $reservation->update([
+            'statut' => 'payée',
+            'idPaiement' => $paiement->id,
+        ]);
+
+        // 4. Décrémenter les places
+        if ($reservation->voyage->idBus) {
+            $reservation->voyage->bus->decrement('nombrePlaceDispo', $reservation->nombrePlaces);
+        }
+
+        DB::commit();
+
+        return response()->json([
+            'message' => 'Paiement confirmé et tickets générés avec succès.',
+            'tickets' => $ticketsData, // Retourne les tickets à afficher dans l'application si nécessaire
+        ], 200);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erreur confirmation de paiement : ' . $e->getMessage());
+        return response()->json([
+            'message' => 'Erreur serveur lors de la confirmation du paiement.',
+            'error' => $e->getMessage(),
+        ], 500);
+    }
+}
+
     public function confirm(Request $request)
     {
         $request->validate([

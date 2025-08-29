@@ -5,12 +5,12 @@
 <form action="{{ route('notifications.store') }}" method="POST">
     @csrf
     <input type="text" name="titre" placeholder="Titre"
-    class="form-control mb-3" style="font-size: 1.2rem; padding: 1rem;" required>
+    class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" required>
 
 <textarea name="contenu" placeholder="Contenu"
     class="form-control mb-3" style="font-size: 1.2rem; padding: 1rem;" required></textarea>
 
-<select name="type" class="form-control mb-3" style="font-size: 1.2rem; padding: 1rem;" required>
+<select name="type" class="form-control mb-3" style="font-size: 1.3rem; padding: 1rem; height:auto;" required>
     <option value="retard">Retard</option>
     <option value="annulation">Annulation</option>
     <option value="report">Report</option>

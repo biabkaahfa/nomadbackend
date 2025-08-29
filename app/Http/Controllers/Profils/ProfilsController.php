@@ -15,10 +15,12 @@ class ProfilsController extends Controller
      */
     public function index()
     {
-        //
+        // //
+        // $profils = Profils::with('permissions')->get();
+        // $profils=Profils::all();
+        // return view('back.profils.index',compact('profils'));
         $profils = Profils::with('permissions')->get();
-        $profils=Profils::all();
-        return view('back.profils.index',compact('profils'));
+        return view('back.profils.index', compact('profils'));
     }
 
     /**

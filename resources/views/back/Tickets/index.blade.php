@@ -8,7 +8,7 @@
         <div class="col">
             <div class="mt-5">
                 <h4 class="card-title float-left mt-2">Liste des tickets achetés</h4>
-                
+
                 <a href="{{ route('tickets.create') }}" class="btn btn-primary float-right viewbutton">Acheter un ticket</a>
             </div>
         </div>
@@ -21,6 +21,7 @@
             <thead>
                 <tr>
                     <th>Client</th>
+                    <th>Compagnie</th>
                     <th>Mode d'achat</th>
                     <th>Trajet</th>
                     <th>Date réservation</th>
@@ -33,6 +34,7 @@
                 @foreach($tickets as $ticket)
                 <tr>
                     <td>{{ $ticket->user->name ?? $ticket->name ?? '-' }}</td>
+                     <td>{{ $ticket->voyage->trajet->compagnie->name ?? '-' }}</td>
                     <td>{{ ucfirst($ticket->typeAchat) }}</td>
                     <td>{{ $ticket->voyage->trajet->pointDepart ?? '' }} → {{ $ticket->voyage->trajet->pointArrive ?? '' }}</td>
                     <td>{{ \Carbon\Carbon::parse($ticket->dateReservation)->format('d/m/Y H:i') }}</td>
