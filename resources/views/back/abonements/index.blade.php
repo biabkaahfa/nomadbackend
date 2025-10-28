@@ -1,3 +1,5 @@
+
+
 @extends('back.app')
 
 @section('title', 'Liste des Abonnements')
@@ -14,12 +16,9 @@
 @endsection
 
 @section('dashboard-content')
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="card card-table">
-                <div class="card-body booking_card">
-                    <div class="table-responsive">
-                        <table class="datatable table table-striped table-hover table-center mb-0">
+<div class="card">
+    <div class="card-body table-responsive">
+        <table class="table table-striped">
                             <thead>
                                 <tr>
                                     <th>ID</th>
@@ -48,9 +47,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
+</div>
 @endsection

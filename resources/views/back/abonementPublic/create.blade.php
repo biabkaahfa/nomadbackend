@@ -3,107 +3,123 @@
 @section('title', 'Créer un Abonnement Public')
 
 @section('dashboard-header')
-    <div class="row align-items-center">
-        <div class="col">
-            <div class="mt-5">
-                {{-- Afficher le titre dynamiquement --}}
-                <h4 class="card-title float-left mt-2">{{ isset($abonementPublic) ? 'Modifier l\'Abonnement Public' : 'Créer un Abonnement Public' }}</h4>
-                <a href="{{ route('abonementPublic.index') }}" class="btn btn-secondary float-right viewbutton">
-                    Retour à la liste
-                </a>
-            </div>
-        </div>
-    </div>
+    <h3 class="page-title mt-5">
+        {{ isset($abonementPublic) ? "Modifier l'Abonnement Public" : "Création d’un Abonnement Public" }}
+    </h3>
 @endsection
 
 @section('dashboard-content')
-    <div class="row">
-        <div class="col-sm-12">
+<form action="{{ isset($abonementPublic) ? route('abonementPublic.update', $abonementPublic->id) : route('abonementPublic.store') }}"
+      method="POST" enctype="multipart/form-data">
+    @csrf
+    @if(isset($abonementPublic))
+        @method('PUT')
+    @endif
 
-            {{-- ✅ Messages de succès ou erreur --}}
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+    {{-- ✅ Sélection Compagnie --}}
+    <label>Compagnie associée</label>
+    <select name="idCompagnie" id="idCompagnie" class="form-control form-control-lg fs-5 mb-3" required>
+        <option value="">-- Sélectionner une compagnie --</option>
+        @foreach ($compagnies as $compagnie)
+            <option value="{{ $compagnie->id }}"
+                data-prix="{{ $compagnie->personalisationCard->prix ?? 0 }}"
+                {{ (old('idCompagnie', $abonementPublic->idCompagnie ?? '') == $compagnie->id) ? 'selected' : '' }}>
+                {{ $compagnie->name }}
+            </option>
+        @endforeach
+    </select>
 
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
+    {{-- ✅ Infos Abonné --}}
+    <label>Nom</label>
+    <input type="text" name="nom" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('nom', $abonementPublic->nom ?? '') }}" required>
 
-            {{-- ✅ Formulaire de création / modification --}}
-            <div class="card">
-                <div class="card-body">
-                    {{-- L'attribut enctype est essentiel pour les formulaires de téléchargement de fichiers --}}
-                    <form action="{{ isset($abonementPublic) ? route('abonementPublic.update', $abonementPublic->id) : route('abonementPublic.store') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @if(isset($abonementPublic))
-                            @method('PUT')
-                        @endif
+    <label>Prénom</label>
+    <input type="text" name="prenom" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('prenom', $abonementPublic->prenom ?? '') }}" required>
 
-                        <div class="form-group mb-3">
-                            <label for="idCompagnie">Compagnie associée</label>
-                            <select name="idCompagnie" id="idCompagnie" class="form-control" required>
-                                <option value="">-- Sélectionner une compagnie --</option>
-                                @foreach ($compagnies as $compagnie)
-                                    <option value="{{ $compagnie->id }}" {{ (old('idCompagnie', $abonementPublic->idCompagnie ?? '') == $compagnie->id) ? 'selected' : '' }}>
-                                        {{ $compagnie->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
+    <label>Profession</label>
+    <input type="text" name="profession" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('profession', $abonementPublic->profession ?? '') }}">
 
-                        <div class="form-group mb-3">
-                            <label for="nom">Nom</label>
-                            <input type="text" name="nom" id="nom" class="form-control" value="{{ old('nom', $abonementPublic->nom ?? '') }}" required>
-                        </div>
+    <label>Établissement</label>
+    <input type="text" name="etablissement" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('etablissement', $abonementPublic->etablissement ?? '') }}">
 
-                        <div class="form-group mb-3">
-                            <label for="prenom">Prénom</label>
-                            <input type="text" name="prenom" id="prenom" class="form-control" value="{{ old('prenom', $abonementPublic->prenom ?? '') }}" required>
-                        </div>
+    <label>Date de naissance</label>
+    <input type="date" name="dateNaiss" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('dateNaiss', $abonementPublic->dateNaiss ?? '') }}" required>
 
-                        <div class="form-group mb-3">
-                            <label for="profession">Profession</label>
-                            <input type="text" name="profession" id="profession" class="form-control" value="{{ old('profession', $abonementPublic->profession ?? '') }}" required>
-                        </div>
+    <label>Durée (jours)</label>
+    <input type="number" name="duree" id="duree" class="form-control form-control-lg fs-5 mb-3"
+           value="{{ old('duree', $abonementPublic->duree ?? 30) }}" required>
 
-                        <div class="form-group mb-3">
-                            <label for="etablissement">Établissement</label>
-                            <input type="text" name="etablissement" id="etablissement" class="form-control" value="{{ old('etablissement', $abonementPublic->etablissement ?? '') }}" required>
-                        </div>
+    <label>Photo</label>
+    <input type="file" name="Photo" class="form-control form-control-lg fs-5 mb-3">
+    @if(isset($abonementPublic) && $abonementPublic->Photo)
+        <img src="{{ asset('storage/' . $abonementPublic->Photo) }}" class="img-thumbnail mt-2" style="max-width:150px;">
+    @endif
 
-                        <div class="form-group mb-3">
-                            <label for="dateNaiss">Date de naissance</label>
-                            <input type="date" name="dateNaiss" id="dateNaiss" class="form-control" value="{{ old('dateNaiss', $abonementPublic->dateNaiss ?? '') }}" required>
-                        </div>
+    {{-- ✅ Paiement --}}
+    <h4 class="mt-4">Informations de paiement</h4>
 
-                        <div class="form-group mb-3">
-                            <label for="duree">Durée (en jours)</label>
-                            <input type="number" name="duree" id="duree" class="form-control" value="{{ old('duree', $abonementPublic->duree ?? 30) }}" required>
-                        </div>
+    <label>Montant</label>
+    <input type="number" name="montant" id="montant" readonly
+           class="form-control form-control-lg fs-5 mb-3">
 
-                        <div class="form-group mb-3">
-                            <label for="Photo">Fichier Photo</label>
-                            {{-- Changement du type d'input pour permettre le téléchargement de fichier --}}
-                            <input type="file" name="Photo" id="Photo" class="form-control">
-                            @if(isset($abonementPublic) && $abonementPublic->Photo)
-                                <small class="form-text text-muted mt-2">Photo actuelle:</small>
-                                <img src="{{ asset('storage/' . $abonementPublic->Photo) }}" alt="Photo actuelle" class="img-thumbnail mt-2" style="max-width: 150px;">
-                            @endif
-                        </div>
+    <label>Moyen de paiement</label>
+    <select name="moyenPaiement" id="moyenPaiement" class="form-control form-control-lg fs-5 mb-3">
+        <option value="OM">Orange Money</option>
+        <option value="MOOV">MOOV Money</option>
+        <option value="CARTE">CARTE</option>
+        <option value="ESPECE">ESPECE</option>
+    </select>
 
-                        {{-- Le champ idUser n'est plus nécessaire ici car il est géré dans le contrôleur --}}
-
-                        <button type="submit" class="btn btn-primary">{{ isset($abonementPublic) ? 'Mettre à jour' : 'Créer l\'abonnement' }}</button>
-                        <a href="{{ route('abonementPublic.index') }}" class="btn btn-secondary">Annuler</a>
-                    </form>
-                </div>
-            </div>
-        </div>
+    <div id="refPaiementDiv" style="display: none;">
+        <label>Référence transaction</label>
+        <input type="text" name="referenceTransaction"
+               class="form-control form-control-lg fs-5 mb-3">
     </div>
+
+    <label>Statut du paiement</label>
+    <select name="statutPaiement" class="form-control form-control-lg fs-5 mb-3">
+        <option value="SUCCES">SUCCES</option>
+        <option value="EN_ATTENTE">EN ATTENTE</option>
+        <option value="ECHEC">ECHEC</option>
+    </select>
+
+    <label>Téléphone du payeur (facultatif)</label>
+    <input type="text" name="telephone_paiement"
+           class="form-control form-control-lg fs-5 mb-3"
+           placeholder="Téléphone pour le reçu"
+           value="{{ old('telephone_paiement') }}">
+
+    <button type="submit" class="btn btn-primary mt-3">
+        {{ isset($abonementPublic) ? "Mettre à jour" : "Créer l'abonnement" }}
+    </button>
+    <a href="{{ route('abonementPublic.index') }}" class="btn btn-secondary mt-3">Annuler</a>
+</form>
+@endsection
+
+@section('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const idCompagnie = document.getElementById('idCompagnie');
+    const montant = document.getElementById('montant');
+    const moyenPaiement = document.getElementById('moyenPaiement');
+    const refPaiementDiv = document.getElementById('refPaiementDiv');
+
+    // 🎯 Quand on change de compagnie -> montant mis à jour
+    idCompagnie.addEventListener('change', function () {
+        const selected = this.options[this.selectedIndex];
+        const prix = selected.getAttribute('data-prix');
+        montant.value = prix || '';
+    });
+
+    // 🎯 Si paiement ≠ espèce -> afficher champ référence
+    moyenPaiement.addEventListener('change', function () {
+        refPaiementDiv.style.display = (this.value !== 'ESPECE') ? 'block' : 'none';
+    });
+});
+</script>
 @endsection

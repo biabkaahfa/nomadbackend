@@ -15,15 +15,24 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('idTicket');
             $table->foreign('idTicket')->references('id')->on('tickets')->onDelete('CASCADE');
-            $table->integer('note');
-            $table->text('commentaire');
+
+            // Notes par critères (échelle 1-5 ou 1-10)
+            $table->integer('securite')->nullable(); // Note pour la sécurité
+            $table->integer('confort')->nullable();  // Note pour le confort
+            $table->integer('ponctualite')->nullable(); // Note pour la ponctualité
+            $table->integer('accueil')->nullable();  // Note pour l'accueil du personnel
+            $table->integer('proprete')->nullable(); // Note pour la propreté du véhicule
+
+            // Note globale (peut être calculée automatiquement)
+            $table->integer('note_globale')->nullable();
+
+            $table->text('commentaire')->nullable();
             $table->dateTime('dateNote');
             $table->timestamps();
+
+            // Une seule note par ticket
+            $table->unique('idTicket');
         });
-        //    'idTicket',
-        // 'note',
-        // 'commentaire',
-        // 'dateNote'
     }
 
     /**

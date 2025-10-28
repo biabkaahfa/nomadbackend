@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('pointDepart');
              $table->string('pointArrive');
              $table->float('prix');
+             $table->float('prixAllerRetour');
              $table->enum('status',['actif', 'inactif']);
              $table->unsignedBigInteger('idCompagnie');
               $table->float('distance');

@@ -19,6 +19,8 @@ return new class extends Migration
 
             $table->unsignedBigInteger('idVoyage');
             $table->foreign('idVoyage')->references('id')->on('voyages')->onDelete('cascade');
+            $table->unsignedBigInteger('idVoyageRetour')->nullable();
+            $table->foreign('idVoyageRetour')->references('id')->on('voyages')->onDelete('cascade');
 
             $table->integer('nombrePlaces');
             $table->decimal('montantTotal', 10, 2);
@@ -32,7 +34,7 @@ return new class extends Migration
 
             $table->timestamps();
         });
-    
+
     }
 
     /**

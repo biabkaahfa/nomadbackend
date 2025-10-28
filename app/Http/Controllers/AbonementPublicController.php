@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Paiements;
 use App\Models\Compagnies;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\AbonementPublic;
+use Illuminate\Support\Facades\DB;
 use App\Models\PersonalisationCard;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AbonementPublicController extends Controller
@@ -14,18 +16,69 @@ class AbonementPublicController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        // Récupère la date d'aujourd'hui
-        $today = Carbon::today();
+   public function index()
+{
+    $today = Carbon::today();
 
-        // Récupère les abonnements où la date de fin est supérieure ou égale à aujourd'hui
-        $activeSubscriptions = AbonementPublic::where('dateFin', '>=', $today)
-                                                ->get();
+    // Charger les relations "compagnie" et "personalisationCard"
+    $activeSubscriptions = AbonementPublic::where('dateFin', '>=', $today)
+        ->with(['compagnie.personalisationCard']) // eager loading
+        ->get();
 
-        // Retourne la vue avec les abonnements actifs
-        return view('back.abonementPublic.index', compact('activeSubscriptions'));
+      //  dd($activeSubscriptions);
+
+    return view('back.abonementPublic.index', compact('activeSubscriptions'));
+}
+
+public function indexe(){
+    $personalisations = PersonalisationCard::with('compagnie')->get();
+
+    return view('back.abonementPublic.allPerso', compact('personalisations'));
+}
+public function modifier(PersonalisationCard $perso)
+{
+    $user = auth()->user();
+    if($user->profil->name == 'Admin général'){
+        $compagnies = Compagnies::where('type', 'PUBLIC')->get();
+       return view('back.abonementPublic.modifier', compact('perso', 'compagnies'));
     }
+     $compagnies = Compagnies::where('type', 'PUBLIC')
+                    ->where('id', $user->idCompagnie)
+                    ->get();
+    return view('back.abonementPublic.modifier', compact('perso', 'compagnies'));
+}
+
+public function updateCarde(Request $request, PersonalisationCard $perso)
+{
+    $request->validate([
+        'pays' => 'required|string|max:255',
+        'devise' => 'required|string|max:255',
+        'numero' => 'required|string|max:255',
+        'couleur_principale' => 'required|string|max:20',
+        'prix' => 'required|numeric|min:0',
+        'idCompagnie' => 'required|exists:compagnies,id',
+    ]);
+
+    $perso->update($request->all());
+
+    return redirect()->route('personalisationCard.indexe')
+                     ->with('success', 'La personnalisation de carte a été mise à jour avec succès.');
+}
+
+public function destroyPersonalisationCard(PersonalisationCard $personalisationCard)
+{
+    try {
+        $personalisationCard->delete();
+
+        return redirect()->route('personalisationCard.indexe')
+                         ->with('success', 'La personnalisation de carte a été supprimée avec succès.');
+    } catch (\Exception $e) {
+        return redirect()->back()
+                         ->with('error', 'Erreur lors de la suppression : ' . $e->getMessage());
+    }
+}
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -48,96 +101,118 @@ class AbonementPublicController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
-    {
-        try {
-            // Validation des données avec Request
-            $request->validate([
-                'nom' => 'required|string|max:255',
-                'prenom' => 'required|string|max:255',
-                'duree' => 'required|integer|min:1',
-                'dateNaiss' => 'required|date',
-                'profession' => 'nullable|string|max:255',
-                'etablissement' => 'nullable|string|max:255',
-                'idCompagnie' => 'required|exists:compagnies,id',
-                'Photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validation pour le fichier photo
-            ]);
+   public function store(Request $request)
+{
+    try {
+        // ✅ Validation des données
+        $request->validate([
+            'nom' => 'required|string|max:255',
+            'prenom' => 'required|string|max:255',
+            'duree' => 'required|integer|min:1',
+            'dateNaiss' => 'required|date',
+            'profession' => 'nullable|string|max:255',
+            'etablissement' => 'nullable|string|max:255',
+            'idCompagnie' => 'required|exists:compagnies,id',
+            'Photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'montant' => 'required|numeric|min:0', // ✅ montant obligatoire
+            'moyenPaiement' => 'required|string', // ex: "MOBILE", "CARTE"
+            'telephone' => 'nullable|string',
+            'referenceTransaction' => 'required|string|unique:paiements,referenceTransaction',
+        ]);
 
-            // Vérifier si une personnalisation existe déjà pour cette compagnie
-            $personalisationCard = PersonalisationCard::where('idCompagnie', $request->input('idCompagnie'))->first();
+        DB::beginTransaction();
 
-            if (!$personalisationCard) {
-                return redirect()->back()
-                                 ->with('error', 'Veuillez personnaliser la carte pour cette compagnie avant de créer un abonnement.');
-            }
-
-            // Gérer le téléchargement de la photo
-            $photoPath = null;
-            if ($request->hasFile('Photo')) {
-                $photoPath = $request->file('Photo')->store('photos', 'public');
-            }
-
-            // Calcul de la date de début et de fin
-            $dateDebut = Carbon::now();
-            $dureeEnJours = (int) $request->input('duree');
-            $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
-
-            // Création de l'abonnement public
-            AbonementPublic::create([
-                'duree' => $dureeEnJours,
-                'nom' => $request->input('nom'),
-                'prenom' => $request->input('prenom'),
-                'statut' => 'actif',
-                'Photo' => $photoPath, // Enregistre le chemin de la photo
-                'dateNaiss' => $request->input('dateNaiss'),
-                'profession' => $request->input('profession'),
-                'etablissement' => $request->input('etablissement'),
-                'idCompagnie' => $personalisationCard->idCompagnie,
-                'dateDebut' => $dateDebut,
-                'dateFin' => $dateFin,
-            ]);
-
-            return redirect()->route('abonementPublic.index')
-                             ->with('success', 'Abonnement public créé avec succès.');
-
-        } catch (\Exception $e) {
+        // ✅ Vérifier personnalisation de la carte
+        $personalisationCard = PersonalisationCard::where('idCompagnie', $request->input('idCompagnie'))->first();
+        if (!$personalisationCard) {
             return redirect()->back()
-                             ->with('error', 'Erreur lors de la création de l\'abonnement : ' . $e->getMessage());
+                ->with('error', 'Veuillez personnaliser la carte pour cette compagnie avant de créer un abonnement.');
         }
+
+        // ✅ Gérer la photo
+        $photoPath = null;
+        if ($request->hasFile('Photo')) {
+            $photoPath = $request->file('Photo')->store('photos', 'public');
+        }
+
+        // ✅ Calcul dates
+        $dateDebut = Carbon::now();
+        $dureeEnJours = (int) $request->input('duree');
+        $dateFin = $dateDebut->copy()->addDays($dureeEnJours);
+
+        // ✅ 1. Créer le paiement
+        $paiement = Paiements::create([
+            'montant' => $request->montant,
+            'moyenPaiement' => $request->moyenPaiement,
+            'statut' => 'SUCCES', // par défaut, à confirmer si tu veux gérer ECHEC aussi
+            'typeSource' => 'MOBILE',
+            'telephone' => $request->telephone,
+            'referenceTransaction' => $request->referenceTransaction,
+        ]);
+
+        // ✅ 2. Créer l’abonnement et associer le paiement
+        AbonementPublic::create([
+            'duree' => $dureeEnJours,
+            'nom' => $request->input('nom'),
+            'prenom' => $request->input('prenom'),
+            'statut' => 'actif',
+            'photo' => $photoPath,
+            'dateNaiss' => $request->input('dateNaiss'),
+            'profession' => $request->input('profession'),
+            'etablissement' => $request->input('etablissement'),
+            'idCompagnie' => $personalisationCard->idCompagnie,
+            'dateDebut' => $dateDebut,
+            'dateFin' => $dateFin,
+            'idPaiement' => $paiement->id, // ✅ lien abonnement-paiement
+        ]);
+
+        DB::commit();
+
+        return redirect()->route('abonementPublic.index')
+            ->with('success', 'Abonnement public créé avec succès et paiement enregistré.');
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Erreur lors de la création de l\'abonnement : ' . $e->getMessage());
     }
+}
+
 
 
     /**
      * Store a newly created resource in storage.
      */
     public function storePersonalisationCard(Request $request)
-    {
-        try {
-            // Validation des données pour la personnalisation de la carte
-            $request->validate([
-                'pays' => 'required|string|max:255',
-                'devise' => 'required|string|max:255',
-                'numero' => 'required|string|max:255',
-                'couleur_principale' => 'required|string|max:255',
-                'idCompagnie' => 'required|exists:compagnies,id',
-            ]);
+{
+    try {
+        // Validation des données
+        $request->validate([
+            'pays' => 'required|string|max:255',
+            'devise' => 'required|string|max:255',
+            'numero' => 'required|string|max:255',
+            'prix' => 'required|numeric|min:0',
+            'couleur_principale' => 'required|string|max:255',
+            'idCompagnie' => 'required|exists:compagnies,id',
+        ]);
 
-            PersonalisationCard::create([
-                'pays' => $request->input('pays'),
-                'devise' => $request->input('devise'),
-                'numero' => $request->input('numero'),
-                'couleur_principale' => $request->input('couleur_principale'),
-                'idCompagnie' => $request->input('idCompagnie'),
-            ]);
+        PersonalisationCard::create([
+            'pays' => $request->input('pays'),
+            'devise' => $request->input('devise'),
+            'prix' => $request->input('prix'),
+            'numero' => $request->input('numero'),
+            'couleur_principale' => $request->input('couleur_principale'),
+            'idCompagnie' => $request->input('idCompagnie'),
+        ]);
 
-            return redirect()->route('abonementPublic.index')
-                             ->with('success', 'Personnalisation de la carte créée avec succès.');
+        return redirect()->route('abonementPublic.index')
+                         ->with('success', 'Personnalisation de la carte créée avec succès.');
 
-        } catch (\Exception $e) {
-            return redirect()->back()
-                             ->with('error', 'Erreur lors de la création de la personnalisation : ' . $e->getMessage());
-        }
+    } catch (\Exception $e) {
+        return redirect()->back()
+                         ->with('error', 'Erreur lors de la création de la personnalisation : ' . $e->getMessage());
     }
+}
 
 
     /**

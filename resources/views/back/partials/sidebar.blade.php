@@ -85,9 +85,11 @@
                         <span>Abonnements</span>
                         <span class="menu-arrow"></span>
                     </a>
+                    {{-- personalisationCard.indexe --}}
                     <ul class="submenu_class" style="display: none;">
                         <li><a href="{{ route('abonementPublic.index') }}"><i class="fas fa-list"></i> Tous les abonnements public</a></li>
                         <li><a href="{{ route('abonementPublic.createPerso') }}"><i class="fas fa-plus-circle"></i> Ajouter</a></li>
+                         <li><a href="{{ route('personalisationCard.indexe') }}"><i class="fas fa-plus-circle"></i> Listes Cards</a></li>
                     </ul>
                 </li>
                 @endif

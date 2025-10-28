@@ -99,7 +99,7 @@ class CompagniesController extends Controller
                 Storage::disk('public')->delete($compagny->logo);
             }
 
-            $image=$request->logo->store('asset','public');
+            $image=$request->logo->store('abonnements','public');
 
 
         }

@@ -26,7 +26,9 @@ return new class extends Migration
                 $table->string('nom');
                 $table->string('prenom');
                 $table->string('profession');
-                $table->string('etablissement');
+                 $table->unsignedBigInteger('idPaiement');
+            $table->foreign('idPaiement')->references('id')->on('paiements')->onDelete('CASCADE');
+                $table->string('etablissement')->nullable();
                 $table->string('photo')->nullable();
                 $table->enum('statut',['actif','inactif']);
                 $table->integer('duree'); // <-- Correction ici

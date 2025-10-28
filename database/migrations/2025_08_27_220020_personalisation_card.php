@@ -19,6 +19,7 @@ return new class extends Migration
     $table->string('numero');
     $table->string('couleur_principale');
     $table->unsignedBigInteger('idCompagnie');
+    $table->float('prix');
     $table->foreign('idCompagnie')
           ->references('id')
           ->on('compagnies')

@@ -24,6 +24,9 @@
 
         <input type="number" name="prix" placeholder="Prix" class="form-control mb-3" min="1"
             value="{{ old('prix', $trajet->prix ?? '') }}" style="font-size: 1.3rem; padding: 1rem; height:auto;">
+            
+            <input type="number" name="prixAllerRetour" placeholder="Prix Aller-Retour" class="form-control mb-3" min="1"
+            value="{{ old('prixAllerRetour', $trajet->prixAllerRetour ?? '') }}" style="font-size: 1.3rem; padding: 1rem; height:auto;">
 
 
 

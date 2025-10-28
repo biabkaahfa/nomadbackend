@@ -27,24 +27,26 @@ use App\Http\Controllers\AbonementPublicController;
 // use Intervention\Image\Facades\Image;
 //use Image;
 // use Intervention\Image\Facades\Image;
+use App\Http\Controllers\AnalyseFeedbackController;
+
+
+
+
 use App\Http\Controllers\Profils\ProfilsController;
-
-
-
-
 use App\Http\Controllers\Trajets\TrajetsController;
 use App\Http\Controllers\Voyages\VoyagesController;
-use Intervention\Image\ImageManagerStatic as Image;
 
 //ProfilsController   PermissionsController PaiementsController
 
 //use App\Http\Controllers\Messages\MessageController;
-use App\Http\Controllers\FrequenceTrajetsController;
+use Intervention\Image\ImageManagerStatic as Image;
 //use Illuminate\Support\Facades\Route;
 //use Illuminate\Support\Facades\Mail;
+use App\Http\Controllers\FrequenceTrajetsController;
 use App\Http\Controllers\Messages\MessageController;
 use App\Http\Controllers\Paiement\PaiementsController;
 use App\Http\Controllers\Abonements\AbonementController;
+use App\Http\Controllers\ValidationAbonnementController;
 use App\Http\Controllers\Compagnies\CompagniesController;
 use App\Http\Controllers\Permissions\PermissionsController;
 use App\Http\Controllers\Notifications\NotificationsController;
@@ -78,6 +80,20 @@ Route::group(['middleware' => 'auth'], function() {
 
 // Affiche la liste des personnalisations de cartes
 Route::get('/personalisationcards', [AbonementPublicController::class, 'index'])->name('personalisationCard.index');
+
+// Routes pour les personnalisations de carte
+Route::get('/personalisationcards', [AbonementPublicController::class, 'indexe'])
+    ->name('personalisationCard.indexe');
+
+Route::get('/personalisationcards/{perso}/modifier', [AbonementPublicController::class, 'modifier'])
+    ->name('personalisationCard.modifier');
+
+Route::put('/personalisationcards/{perso}', [AbonementPublicController::class, 'updateCarde'])
+    ->name('personalisationCard.update');
+
+
+Route::delete('/personalisationcards/{personalisationCard}', [AbonementPublicController::class, 'destroyPersonalisationCard'])
+    ->name('personalisationCard.destroy');
 
 // Affiche le formulaire de création d'une nouvelle personnalisation
 //Route::get('/personalisationcards/create', [AbonementPublicController::class, 'c/reate'])->name('personalisationCard.create');
@@ -249,7 +265,7 @@ Route::get('/test-mail', function () {
 });
 
 
-
+ Route::get('validations-abonnement/statistiques', [ValidationAbonnementController::class, 'statistiques']);
 
 });
 
@@ -271,6 +287,13 @@ Route::get('/test-mail', function () {
 //     Route::get('/reset-password/{token}', [AuthController::class, 'resetPassword'])->name('password.reset');
 //     Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.store');
 // });
+
+// routes/web.php (pour l'administration)
+Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/feedback-analytics', [AnalyseFeedbackController::class, 'dashboard'])
+         ->name('admin.feedback.analytics');
+});
+
 
 Route::middleware(['guest'])->group(function () {
     Route::get('/', [AuthController::class, 'loginPage'])->name('login'); // <--- AJOUTE CETTE LIGNE

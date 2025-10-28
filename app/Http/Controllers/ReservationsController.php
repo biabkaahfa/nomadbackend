@@ -169,47 +169,80 @@ class ReservationsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-   public function store(StorereservationsRequest $request)
+public function store(StoreReservationsRequest $request)
 {
     DB::beginTransaction();
 
     try {
         $data = $request->validated();
-        $idVoyage = $data['idVoyage'];
+
+        // ✅ CORRECTION : Utiliser 'idVoyage' au lieu de 'idVoyageAller'
+        $idVoyageAller = $data['idVoyage'];
+        $idVoyageRetour = $data['idVoyageRetour'] ?? null;
         $nombrePlaces = $data['nombrePlaces'];
 
-        $voyage = Voyages::with(['bus', 'trajet.frequences'])->findOrFail($idVoyage);
+        // ✅ Vérifier que le voyage aller existe
+        $voyageAller = Voyages::with(['bus', 'trajet.frequences'])->find($idVoyageAller);
+        if (!$voyageAller) {
+            return response()->json(['message' => 'Voyage aller introuvable.'], 404);
+        }
 
-        // 🧮 Vérification des places disponibles
-        if ($voyage->idBus && $voyage->bus) {
-            if ($voyage->bus->placesDisponible < $nombrePlaces) {
-                return response()->json(['message' => 'Pas assez de places dans le bus.'], 400);
+        $voyages = collect([$voyageAller]);
+
+        // ✅ Ajouter le voyage retour s'il existe
+        if ($idVoyageRetour) {
+            $voyageRetour = Voyages::with(['bus', 'trajet.frequences'])->find($idVoyageRetour);
+            if (!$voyageRetour) {
+                return response()->json(['message' => 'Voyage retour introuvable.'], 404);
             }
-        } else {
-            $frequence = $voyage->trajet->frequences
-                ->where('heureDepart', $voyage->heuresDepart)->first();
+            $voyages->push($voyageRetour);
+        }
 
-            if (!$frequence) {
-                return response()->json(['message' => 'Fréquence introuvable pour ce voyage.'], 400);
-            }
+        // ✅ Vérifier la disponibilité des places
+        foreach ($voyages as $voyage) {
+            if ($voyage->bus) {
+                if ($voyage->bus->nombrePlaceDispo < $nombrePlaces) {
+                    return response()->json([
+                        'message' => "Pas assez de places dans le bus pour le voyage {$voyage->id}."
+                    ], 400);
+                }
+            } else {
+                $frequence = $voyage->trajet->frequences
+                    ->where('heureDepart', $voyage->heuresDepart)->first();
 
-            $nbTickets = $voyage->tickets()->count();
+                if (!$frequence) {
+                    return response()->json([
+                        'message' => "Fréquence introuvable pour le voyage {$voyage->id}."
+                    ], 400);
+                }
 
-            if (($frequence->nombrePlaceMinimum - $nbTickets) < $nombrePlaces) {
-                return response()->json(['message' => 'Pas assez de places disponibles (sans bus).'], 400);
+                $nbTickets = $voyage->tickets()->count();
+                $placesRestantes = $frequence->nombrePlaceMinimum - $nbTickets;
+
+                if ($placesRestantes < $nombrePlaces) {
+                    return response()->json([
+                        'message' => "Pas assez de places disponibles pour le voyage {$voyage->id}. Places restantes: {$placesRestantes}"
+                    ], 400);
+                }
             }
         }
 
-        // 💾 Enregistrement de la réservation
+        // ✅ CORRECTION : Ne PAS encoder en JSON - Laravel le fait automatiquement
         $reservation = Reservations::create([
             'idUtilisateur' => auth()->id(),
-            'idVoyage' => $idVoyage,
+            'idVoyage' => $idVoyageAller,
+            'idVoyageRetour' => $idVoyageRetour,
             'nombrePlaces' => $nombrePlaces,
             'montantTotal' => $data['montantTotal'],
-            'passagers' => $data['passagers'],
+            'passagers' => $data['passagers'], // ✅ SUPPRIMER json_encode() ici
             'statut' => 'en_attente_paiement',
             'idPaiement' => null,
         ]);
+
+        // ✅ DEBUG : Vérifier ce qui est stocké
+        Log::info('Réservation créée - ID: ' . $reservation->id);
+        Log::info('Passagers stockés: ' . json_encode($reservation->passagers));
+        Log::info('Type des passagers: ' . gettype($reservation->passagers));
 
         DB::commit();
 
@@ -217,15 +250,19 @@ class ReservationsController extends Controller
             'message' => 'Réservation enregistrée. Veuillez effectuer le paiement.',
             'reservation_id' => $reservation->id,
             'montant' => $reservation->montantTotal,
-            'paiement_url' => 'https://paiement.exemple.com/reservations/' . $reservation->id,
         ], 201);
 
     } catch (\Exception $e) {
         DB::rollBack();
         Log::error("Erreur création réservation : " . $e->getMessage());
-        return response()->json(['message' => 'Erreur serveur'], 500);
+        Log::error("Stack trace: " . $e->getTraceAsString());
+        return response()->json([
+            'message' => 'Erreur serveur lors de la création de la réservation',
+            'error' => $e->getMessage()
+        ], 500);
     }
 }
+
 
 
     /**

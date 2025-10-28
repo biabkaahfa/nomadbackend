@@ -18,6 +18,7 @@ class StorereservationsRequest extends FormRequest
             'idVoyage' => 'required|exists:voyages,id',
             'nombrePlaces' => 'required|integer|min:1',
             'montantTotal' => 'required|numeric|min:1',
+            'idVoyageRetour' => 'nullable|integer|exists:voyages,id',
 
             'passagers' => 'required|array|min:1',
             'passagers.*.name' => 'required|string|max:255',

@@ -11,7 +11,7 @@
                     {{ isset($personalisationCard) ? 'Modifier la Personnalisation' : 'Créer une Personnalisation' }}
                 </h4>
                 {{-- Lien vers la liste des personnalisations de cartes. La route a été corrigée pour plus de cohérence. --}}
-                <a href="{{ route('personalisationCard.index') }}" class="btn btn-secondary float-right viewbutton">
+                <a href="{{ route('personalisationCard.indexe') }}" class="btn btn-secondary float-right viewbutton">
                     Retour à la liste
                 </a>
             </div>
@@ -87,13 +87,19 @@
                             </select>
                         </div>
 
+                        {{-- Nouveau champ pour le prix --}}
+                        <div class="form-group mb-3">
+                            <label for="prix">Prix (FCFA)</label>
+                            <input type="number" name="prix" id="prix" class="form-control" step="0.01" value="{{ old('prix', $personalisationCard->prix ?? '') }}" required>
+                        </div>
+
                         {{-- Boutons du formulaire --}}
                         <button type="submit" class="btn btn-primary">
                             {{-- Le texte du bouton est aussi dynamique --}}
                             {{ isset($personalisationCard) ? 'Modifier' : 'Créer' }}
                         </button>
                         {{-- Lien d'annulation, avec la route corrigée --}}
-                        <a href="{{ route('personalisationCard.index') }}" class="btn btn-secondary">Annuler</a>
+                        <a href="{{ route('personalisationCard.indexe') }}" class="btn btn-secondary">Annuler</a>
                     </form>
                 </div>
             </div>

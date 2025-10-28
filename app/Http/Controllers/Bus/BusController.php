@@ -55,13 +55,17 @@ class BusController extends Controller
     // Vérifie le nom du profil
     $profil = $user->profil?->name; // ou ->libelle si ton champ s'appelle comme ça
 
+    // dd($profil);
+
     // Si admin général → tous les bus
     if ($profil === 'Admin général') {
         $compagnies=Compagnies::all();
     }
     // Si admin compagnie → uniquement les bus de sa compagnie
     elseif ($profil === 'Admin compagnie') {
-       $compagnies=Compagnies::where('idCompagnie', $user->idCompagnie)->get();
+
+       $compagnies=Compagnies::where('id', $user->idCompagnie)->get();
+      // dd($compagnies);
     }
     // Sinon → aucun bus ou comportement par défaut
     else {
@@ -71,7 +75,7 @@ class BusController extends Controller
     // return view("back.buses.index", ['buses' => $buses]);
 
 
-    //     $compagnies=Compagnies::all();
+        //$compagnies=Compagnies::all();
         return view("back.buses.create",['compagnies'=>$compagnies]);
     }
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
   use Illuminate\Support\Facades\Auth; // Importez la façade Auth
@@ -11,6 +12,44 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class TicketController extends Controller
 {
     //
+
+    public function markAsDeleted($ticketId): JsonResponse
+    {
+        try {
+            $user = request()->user();
+
+            $ticket = Ticket::where('id', $ticketId)
+                ->where('idUtilisateur', $user->id)
+                ->first();
+
+            if (!$ticket) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ticket non trouvé'
+                ], 404);
+            }
+
+
+            // Simple changement de statut
+            $ticket->update([
+                'statut' => 'CLASSIFIE'
+
+            ]);
+            $messages = "Ticket  supprimé.";
+
+
+            return response()->json([
+                'success' => true,
+                'message' => $messages
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
 
      public function recuperationTickets()
@@ -28,7 +67,8 @@ class TicketController extends Controller
         // Récupère les tickets de cet utilisateur en chargeant les relations
         // 'voyage', 'voyage.trajet', 'voyage.trajet.compagnie' et 'paiement'
         $tickets = Ticket::with(['voyage.trajet.compagnie', 'voyage.trajet', 'paiement'])
-                         ->where('idUtilisateur', $user->id)
+                         ->where('idUtilisateur', $user->id,)
+                         ->where('statut', '!=', 'CLASSIFIE')
                          ->get();
 
         // Transforme les tickets pour inclure les informations supplémentaires et le QR code
@@ -48,11 +88,11 @@ class TicketController extends Controller
             // }
 
             // Préparer les données pour le QR Code
-            $qrData = [
+           $qrData = [
                 'ticket_id' => $ticket->id,
                 'client' => $ticket->name,
                 'email' => $ticket->email,
-                'montant' => $paiement->montant,
+                'montant' => (float) $paiement->montant,
                 'moyenPaiement' => $paiement->moyenPaiement,
                 'reference' => $paiement->referenceTransaction,
                 'compagnie' => $compagnie->name ?? 'N/A',
@@ -61,11 +101,15 @@ class TicketController extends Controller
                 'pointArrive' => $trajet->pointArrive ?? 'N/A',
             ];
 
-            // Générer le QR Code avec le logo fusionné et le convertir en Base64
+            // ⚠️ Nettoyer la chaîne JSON avant de la convertir en QR
+            $qrString = json_encode($qrData, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            $qrString = preg_replace('/\s+/', ' ', trim($qrString));
+
             $qrCode = QrCode::format('png')
-                            ->size(200)
-                            ->merge($logoPath, 0.2, true)
-                            ->generate(json_encode($qrData));
+                ->size(400)
+                ->errorCorrection('H')
+                ->merge($logoPath, 0.2, true)
+                ->generate($qrString);
 
             $qrCodeBase64 = base64_encode($qrCode);
 
@@ -102,7 +146,9 @@ class TicketController extends Controller
 
         // Renvoie les tickets modifiés sous forme de réponse JSON
         return response()->json([
-            'tickets' => $ticketsWithDetails
-        ], 200);
+    'tickets' => $ticketsWithDetails->values()
+   ], 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
     }
+
 }

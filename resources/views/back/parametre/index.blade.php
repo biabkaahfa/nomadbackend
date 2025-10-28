@@ -15,8 +15,8 @@
             <thead>
                 <tr>
                     <th>Logo</th>
-                    <th>Couleur principale</th>
-                    <th>Couleur secondaire</th>
+                    {{-- <th>Couleur principale</th>
+                    <th>Couleur secondaire</th> --}}
                     <th>Slogan</th>
                     <th>Actions</th>
                 </tr>
@@ -25,8 +25,8 @@
                 @forelse($globalParametres as $p)
                     <tr>
                         <td><img src="{{ asset('storage/' . $p->logo) }}" width="60" /></td>
-                        <td style="background: {{ $p->couleur_principale }}">{{ $p->couleur_principale }}</td>
-                        <td style="background: {{ $p->couleur_secondaire }}">{{ $p->couleur_secondaire }}</td>
+                        {{-- <td style="background: {{ $p->couleur_principale }}">{{ $p->couleur_principale }}</td>
+                        <td style="background: {{ $p->couleur_secondaire }}">{{ $p->couleur_secondaire }}</td> --}}
                         <td>{{ $p->slogan }}</td>
                         <td><a href="{{ route('parametres.edit', $p) }}">Modifier</a></td>
                     </tr>
@@ -45,8 +45,8 @@
                 <tr>
                     <th>Compagnie</th>
                     <th>Logo</th>
-                    <th>Couleur principale</th>
-                    <th>Couleur secondaire</th>
+                    {{-- <th>Couleur principale</th>
+                    <th>Couleur secondaire</th> --}}
                     <th>Slogan</th>
                     <th>Actions</th>
                 </tr>
@@ -56,8 +56,8 @@
                     <tr>
                         <td>{{ $p->compagnie->nom ?? '-' }}</td>
                         <td><img src="{{ asset('storage/' . $p->logo) }}" width="60" /></td>
-                        <td style="background: {{ $p->couleur_principale }}">{{ $p->couleur_principale }}</td>
-                        <td style="background: {{ $p->couleur_secondaire }}">{{ $p->couleur_secondaire }}</td>
+                        {{-- <td style="background: {{ $p->couleur_principale }}">{{ $p->couleur_principale }}</td>
+                        <td style="background: {{ $p->couleur_secondaire }}">{{ $p->couleur_secondaire }}</td> --}}
                         <td>{{ $p->slogan }}</td>
                         <td><a href="{{ route('parametres.edit', $p) }}">Modifier</a></td>
                     </tr>

@@ -25,6 +25,7 @@ class StoreTrajetsRequest extends FormRequest
              'pointDepart' => ['required', 'string', 'max:255'],
         'pointArrive' => ['required', 'string', 'max:255'],
         'prix' => ['required', 'numeric', 'min:0'],
+        'prixAllerRetour' => ['required', 'numeric', 'min:0'],
         'status' => ['required', 'in:ACTIF,INACTIF'],
         'distance' => ['required', 'numeric', 'min:0'],
         'idCompagnie' => ['required', 'exists:compagnies,id'],

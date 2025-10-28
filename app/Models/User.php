@@ -9,38 +9,80 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Tymon\JWTAuth\Contracts\JWTSubject;
+
 class User extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $guarded = [];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            // ✅ AJOUT: Cast pour le JSON des tokens FCM
+            'fcm_tokens' => 'array',
         ];
+    }
+
+    // ... vos méthodes JWT existantes ...
+
+    /**
+     * ✅ AJOUT: Ajouter un token FCM à l'utilisateur
+     */
+    public function addFcmToken(string $token): void
+    {
+        $tokens = $this->fcm_tokens ?? [];
+
+        if (!in_array($token, $tokens)) {
+            $tokens[] = $token;
+            $this->update(['fcm_tokens' => $tokens]);
+        }
+    }
+
+    /**
+     * ✅ AJOUT: Supprimer un token FCM
+     */
+    public function removeFcmToken(string $token): void
+    {
+        $tokens = $this->fcm_tokens ?? [];
+        $tokens = array_diff($tokens, [$token]);
+
+        $this->update(['fcm_tokens' => array_values($tokens)]);
+    }
+
+    /**
+     * ✅ AJOUT: Vérifier si l'utilisateur a des tokens FCM
+     */
+    public function hasFcmTokens(): bool
+    {
+        return !empty($this->fcm_tokens);
+    }
+
+    /**
+     * ✅ AJOUT: Nettoyer les tokens invalides
+     */
+    public function cleanFcmTokens(array $validTokens): void
+    {
+        $currentTokens = $this->fcm_tokens ?? [];
+        $cleanedTokens = array_intersect($currentTokens, $validTokens);
+
+        $this->update(['fcm_tokens' => array_values($cleanedTokens)]);
     }
 
        /**

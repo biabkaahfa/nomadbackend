@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-           
+
             $table->dateTime('dateReservation');
-            $table->enum('statut', ['CONFIRME', 'ANNULE', 'REPORTE', 'UTILISE']);
+            $table->enum('statut', ['CONFIRME', 'ANNULE', 'REPORTE', 'UTILISE', 'CLASSIFIE']);
             $table->unsignedBigInteger('idUtilisateur')->nullable();
             $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
-            $table->string('name',)->nullable();
-            $table->string('telephone',)->nullable();
-            $table->string('email',)->nullable();
+            $table->string('name')->nullable();
+            $table->string('telephone')->nullable();
+            $table->string('email')->nullable();
             $table->enum('typeAchat',['En_ligne','sur_place']);
             $table->enum('modeReception',['email','papier','application']);
             $table->unsignedBigInteger('idVoyage');
@@ -30,20 +30,16 @@ return new class extends Migration
             $table->date('dateScan')->nullable();
             $table->unsignedBigInteger('idPaiement');
             $table->foreign('idPaiement')->references('id')->on('paiements')->onDelete('CASCADE');
-            $table->string('namePersonneAPrevenir',)->nullable();
-            $table->string('numeroPersonneAPrevenir',)->nullable();
-            $table->string('emailPersonneAPrevenir',)->nullable();
+            $table->string('namePersonneAPrevenir')->nullable();
+            $table->string('numeroPersonneAPrevenir')->nullable();
+            $table->string('emailPersonneAPrevenir')->nullable();
 
+            // ✅ SIMPLE : Pas de clause AFTER
+       
+            $table->string('qr_code_version', 20)->default('v1');
 
             $table->timestamps();
         });
-        //  'dateReservation',
-        // 'statut',
-        // 'idUtilisateur',
-        // 'idVoyage',
-        // 'idGarre',
-        // 'dateScan',
-        // 'idPaiement'
     }
 
     /**

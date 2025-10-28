@@ -20,6 +20,7 @@
                     <th>Départ</th>
                     <th>Arrivée</th>
                     <th>Prix</th>
+                    <th>Prix Aller-Retour</th>
                     <th>Statut</th>
                      <th>Actions</th>
                 </tr>
@@ -30,7 +31,8 @@
                     <td>{{ $trajet->compagnie->name ?? '-' }}</td>
                     <td>{{ $trajet->pointDepart }}</td>
                     <td>{{ $trajet->pointArrive }}</td>
-                    <td>{{ $trajet->prix }} F</td>
+                    <td>{{ $trajet->prix }} CFA</td>
+                    <td>{{ $trajet->prixAllerRetour }} CFA</td>
                     <td>{{ $trajet->status }}</td>
                     <td>
                         <a href="{{ route('trajets.edit', $trajet) }}" class="btn btn-sm btn-warning">Modifier</a>

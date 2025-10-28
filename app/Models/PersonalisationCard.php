@@ -13,10 +13,16 @@ class PersonalisationCard extends Model
         'devise',
         'idCompagnie',
         'numero',
-        'couleur_principale'
+        'couleur_principale',
+        'prix'
     ];
 
-     public function compagnie(): BelongsTo
+
+    //  public function compagnie(): BelongsTo
+    // {
+    //     return $this->belongsTo(Compagnies::class, 'idCompagnie');
+    // }
+ public function compagnie(): BelongsTo
     {
         return $this->belongsTo(Compagnies::class, 'idCompagnie');
     }

@@ -11,6 +11,7 @@ class Trajets extends Model
         'pointDepart',
         'pointArrive',
         "prix",
+        'prixAllerRetour',
         "status",
         "distance",
         "idCompagnie"

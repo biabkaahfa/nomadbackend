@@ -28,6 +28,17 @@ class Compagnies extends Model
 {
     return $this->hasMany('App\Models\Trajets', 'idCompagnie');
 }
+public function voyages()
+    {
+        return $this->hasManyThrough(
+            Voyages::class,
+            Trajets::class,
+            'idCompagnie', // Clé étrangère sur Trajets
+            'idTrajet',    // Clé étrangère sur Voyages
+            'id',          // Clé locale sur Compagnies
+            'id'           // Clé intermédiaire sur Trajets
+        );
+    }
 
 
 public function abonementActuel()
@@ -45,10 +56,18 @@ public function abonementActuel()
     /**
      * Obtenir les cartes de personnalisation pour la compagnie.
      */
-    public function personalisationCards(): HasMany
-    {
-        return $this->hasMany(PersonalisationCard::class, 'idCompagnie');
-    }
+
+    public function personalisationCard()
+{
+    return $this->hasOne(\App\Models\PersonalisationCard::class, 'idCompagnie');
+}
+
+
+
+    // public function personalisationCards(): HasMany
+    // {
+    //     return $this->hasOne(PersonalisationCard::class, 'idCompagnie');
+    // }
 
 public function garres()
 {

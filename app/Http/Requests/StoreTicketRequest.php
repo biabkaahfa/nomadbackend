@@ -23,7 +23,7 @@ class StoreTicketRequest extends FormRequest
     {
         return [
             'dateReservation' => ['required', 'date'],
-            'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE'],
+            'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE,CLASSIFIE'],
             'typeAchat' => ['nullable', 'in:sur_place'],
             'modeReception' => ['required', 'in:email,papier,application'],
             'name' => ['required', 'string', 'max:255'],
