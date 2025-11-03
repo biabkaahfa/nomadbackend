@@ -20,6 +20,7 @@ return new class extends Migration
             $table->unsignedBigInteger('idUtilisateur')->nullable();
             $table->foreign('idUtilisateur')->references('id')->on('users')->onDelete('CASCADE');
             $table->foreignId('idVoyage')->constrained('voyages')->onDelete('cascade');
+            $table->boolean('isRead')->default(false);
 
             $table->timestamps();
         });

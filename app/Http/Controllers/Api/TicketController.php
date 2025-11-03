@@ -13,7 +13,7 @@ class TicketController extends Controller
 {
     //
 
-    public function markAsDeleted($ticketId): JsonResponse
+     public function markAsDeleted($ticketId): JsonResponse
     {
         try {
             $user = request()->user();
@@ -29,14 +29,11 @@ class TicketController extends Controller
                 ], 404);
             }
 
-
             // Simple changement de statut
             $ticket->update([
                 'statut' => 'CLASSIFIE'
-
             ]);
-            $messages = "Ticket  supprimé.";
-
+            $messages = "Ticket supprimé.";
 
             return response()->json([
                 'success' => true,
@@ -51,8 +48,7 @@ class TicketController extends Controller
         }
     }
 
-
-     public function recuperationTickets()
+    public function recuperationTickets()
     {
         // Récupère l'utilisateur actuellement authentifié
         $user = Auth::user();
@@ -67,7 +63,7 @@ class TicketController extends Controller
         // Récupère les tickets de cet utilisateur en chargeant les relations
         // 'voyage', 'voyage.trajet', 'voyage.trajet.compagnie' et 'paiement'
         $tickets = Ticket::with(['voyage.trajet.compagnie', 'voyage.trajet', 'paiement'])
-                         ->where('idUtilisateur', $user->id,)
+                         ->where('idUtilisateur', $user->id)
                          ->where('statut', '!=', 'CLASSIFIE')
                          ->get();
 
@@ -80,15 +76,13 @@ class TicketController extends Controller
 
             // Définir le chemin du logo pour le QR code
             $logoPath = public_path('back_auth/assets/img/Movyx.png');
-            // if ($compagnie && $compagnie->logo) {
-            //     $companyLogoPath = public_path('storage/' . $compagnie->logo);
-            //     if (file_exists($companyLogoPath)) {
-            //         $logoPath = $companyLogoPath;
-            //     }
-            // }
 
-            // Préparer les données pour le QR Code
-           $qrData = [
+            // ✅ NOUVEAU : Récupérer les données de localisation
+            $localisationGareDepart = $ticket->localisation_gare_depart;
+            $nomGareDepart = $ticket->nom_gare_depart;
+
+            // ✅ NOUVEAU : Ajouter les données de localisation au QR Code
+            $qrData = [
                 'ticket_id' => $ticket->id,
                 'client' => $ticket->name,
                 'email' => $ticket->email,
@@ -99,6 +93,9 @@ class TicketController extends Controller
                 'dateDepart' => $voyage->dateDepart ?? 'N/A',
                 'pointDepart' => $trajet->pointDepart ?? 'N/A',
                 'pointArrive' => $trajet->pointArrive ?? 'N/A',
+                // ✅ NOUVEAU : Ajout des données de localisation
+                'localisation_gare_depart' => $localisationGareDepart,
+                'nom_gare_depart' => $nomGareDepart,
             ];
 
             // ⚠️ Nettoyer la chaîne JSON avant de la convertir en QR
@@ -129,6 +126,9 @@ class TicketController extends Controller
                 'emailPersonneAPrevenir' => $ticket->emailPersonneAPrevenir,
                 'created_at' => $ticket->created_at,
                 'updated_at' => $ticket->updated_at,
+                // ✅ NOUVEAU : Ajout des données de localisation
+                'localisation_gare_depart' => $localisationGareDepart,
+                'nom_gare_depart' => $nomGareDepart,
                 // Nouvelles données
                 'compagnie' => [
                     'name' => $compagnie->name ?? 'N/A',
@@ -146,9 +146,8 @@ class TicketController extends Controller
 
         // Renvoie les tickets modifiés sous forme de réponse JSON
         return response()->json([
-    'tickets' => $ticketsWithDetails->values()
-   ], 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
+            'tickets' => $ticketsWithDetails->values()
+        ], 200, [], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
 }

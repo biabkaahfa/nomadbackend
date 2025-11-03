@@ -33,9 +33,11 @@ return new class extends Migration
             $table->string('namePersonneAPrevenir')->nullable();
             $table->string('numeroPersonneAPrevenir')->nullable();
             $table->string('emailPersonneAPrevenir')->nullable();
+            $table->string('localisation_gare_depart')->nullable();
+            $table->string('nom_gare_depart')->nullable();
 
             // ✅ SIMPLE : Pas de clause AFTER
-       
+
             $table->string('qr_code_version', 20)->default('v1');
 
             $table->timestamps();

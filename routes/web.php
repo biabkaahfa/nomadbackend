@@ -74,7 +74,8 @@ Route::group(['middleware' => 'auth'], function() {
 
 
 
-
+Route::get('/notes/voyages/{voyage}', [NotesController::class, 'showVoyage'])->name('notes.voyage.show');
+Route::get('/notes/voyages', [NotesController::class, 'listVoyages'])->name('notes.voyages');
 
 
 

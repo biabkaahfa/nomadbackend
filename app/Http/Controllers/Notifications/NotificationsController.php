@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Notifications;
 
+use Log;
 use App\Models\Bus;
 use App\Models\User;
 use App\Models\Tickets;
@@ -13,6 +14,7 @@ use App\Models\Notifications;
 use Illuminate\Support\Carbon;
 use App\Models\FrequenceTrajets;
 use Illuminate\Support\Facades\DB;
+use App\Services\FirebaseServiceV1;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -26,8 +28,145 @@ class NotificationsController extends Controller
 
     public function __construct()
     {
-        // ✅ AJOUT: Initialiser le service Firebase
+        // Utilisez le nouveau service FCM v1
         $this->firebaseService = new FirebaseService();
+    }
+
+    /**
+     * Récupérer les notifications de l'utilisateur mobile
+     */
+    public function getUserNotifications()
+    {
+        try {
+            $user = Auth::user();
+
+            $notifications = Notifications::with(['voyage.trajet'])
+                ->whereHas('voyage.tickets', function($query) use ($user) {
+                    $query->where('idUtilisateur', $user->id);
+                })
+                ->orderBy('DateEnvoie', 'desc')
+                ->get()
+                ->map(function($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'titre' => $notification->titre,
+                        'contenu' => $notification->contenu,
+                        'DateEnvoie' => $notification->DateEnvoie,
+                        'type' => $notification->type,
+                        'idVoyage' => $notification->idVoyage,
+                        'is_read' => $notification->isRead ?? false, // CORRECTION: isRead au lieu de is_read
+                        'voyage' => $notification->voyage ? [
+                            'trajet' => [
+                                'pointDepart' => $notification->voyage->trajet->pointDepart ?? 'N/A',
+                                'pointArrive' => $notification->voyage->trajet->pointArrive ?? 'N/A',
+                            ]
+                        ] : null
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'notifications' => $notifications
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du chargement des notifications',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Récupérer le nombre de notifications non lues (mobile)
+     */
+    public function getUnreadNotificationsCount()
+    {
+        try {
+            $user = Auth::user();
+
+            $unreadCount = Notifications::whereHas('voyage.tickets', function($query) use ($user) {
+                $query->where('idUtilisateur', $user->id);
+            })
+            ->where('isRead', false) // CORRECTION: isRead au lieu de is_read
+            ->count();
+
+            return response()->json([
+                'success' => true,
+                'unreadCount' => $unreadCount
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du chargement du compteur',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Marquer une notification comme lue (mobile)
+     */
+    public function markNotificationAsRead($id)
+    {
+        try {
+            $user = Auth::user();
+
+            $notification = Notifications::where('id', $id)
+                ->whereHas('voyage.tickets', function($query) use ($user) {
+                    $query->where('idUtilisateur', $user->id);
+                })
+                ->first();
+
+            if (!$notification) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Notification non trouvée'
+                ], 404);
+            }
+
+            $notification->update(['isRead' => true]); // CORRECTION: isRead au lieu de is_read
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Notification marquée comme lue'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du marquage de la notification',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Marquer toutes les notifications comme lues (mobile)
+     */
+    public function markAllNotificationsAsRead()
+    {
+        try {
+            $user = Auth::user();
+
+            Notifications::whereHas('voyage.tickets', function($query) use ($user) {
+                $query->where('idUtilisateur', $user->id);
+            })->update(['isRead' => true]); // CORRECTION: isRead au lieu de is_read
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Toutes les notifications marquées comme lues'
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors du marquage des notifications',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -98,6 +237,22 @@ EOT;
     {
         $trajet = $voyage->trajet;
 
+        // CORRECTION : Gérer le format de date de manière sécurisée
+        $dateDepart = $voyage->dateDepart;
+
+        // Si c'est une string, la convertir en Carbon
+        if (is_string($dateDepart)) {
+            $dateDepart = \Carbon\Carbon::parse($dateDepart);
+        }
+
+        // Si c'est un objet Carbon, formater la date
+        if ($dateDepart instanceof \Carbon\Carbon) {
+            $dateDepartFormatted = $dateDepart->format('Y-m-d');
+        } else {
+            // Sinon, utiliser la valeur telle quelle ou une valeur par défaut
+            $dateDepartFormatted = $dateDepart ?? 'Date inconnue';
+        }
+
         return [
             'title' => $data['titre'],
             'body' => $data['contenu'],
@@ -106,7 +261,7 @@ EOT;
                 'notification_type' => $data['type'],
                 'voyage_id' => (string) $voyage->id,
                 'trajet' => $trajet->pointDepart . ' → ' . $trajet->pointArrive,
-                'date_depart' => $voyage->dateDepart?->toDateString(),
+                'date_depart' => $dateDepartFormatted, // CORRIGÉ
                 'heure_depart' => $voyage->heuresDepart,
                 'screen' => 'voyage_details',
                 'action' => 'voir_details',
@@ -121,6 +276,19 @@ EOT;
     private function sendPushNotificationToUser(User $user, array $notificationData): void
     {
         try {
+            \Log::info("Tentative d'envoi push à l'utilisateur", [
+                'user_id' => $user->id,
+                'tokens' => $user->fcm_tokens,
+                'tokens_count' => count($user->fcm_tokens ?? []),
+                'notification_title' => $notificationData['title']
+            ]);
+
+            // Vérifiez si l'utilisateur a des tokens
+            if (!$user->hasFcmTokens()) {
+                \Log::warning("L'utilisateur {$user->id} n'a pas de tokens FCM");
+                return;
+            }
+
             $result = $this->firebaseService->sendToUser(
                 $user,
                 $notificationData['title'],
@@ -128,16 +296,13 @@ EOT;
                 $notificationData['data']
             );
 
-            // Log du résultat
-            \Log::info("Notification push envoyée à l'utilisateur {$user->id}", [
+            Log::info("Résultat envoi push", [
                 'success' => $result['success'] ?? false,
-                'user_id' => $user->id,
-                'tokens_count' => count($user->fcm_tokens ?? []),
-                'error' => $result['error'] ?? null,
+                'response' => $result
             ]);
 
         } catch (\Exception $e) {
-            \Log::error("Erreur envoi notification push à l'utilisateur {$user->id}: " . $e->getMessage());
+            \Log::error("Erreur envoi notification push: " . $e->getMessage());
         }
     }
 
@@ -180,115 +345,85 @@ EOT;
             'message' => 'Token FCM supprimé avec succès'
         ]);
     }
+
+    public function testPushNotification(Request $request)
+    {
+        $user = Auth::user();
+
+        // 1. Vérifier les tokens actuels
+        $currentTokens = $user->fcm_tokens ?? [];
+        \Log::info("Tokens FCM actuels", ['tokens' => $currentTokens]);
+
+        // 2. Tester l'ajout d'un token
+        $testToken = "test_token_123";
+        $user->addFcmToken($testToken);
+
+        // 3. Vérifier après ajout
+        $updatedTokens = $user->fresh()->fcm_tokens;
+        \Log::info("Tokens FCM après ajout", ['tokens' => $updatedTokens]);
+
+        // 4. Tester l'envoi de notification
+        $firebaseService = new FirebaseService();
+        $result = $firebaseService->sendToUser(
+            $user,
+            'Test Debug',
+            'Ceci est un test de notification',
+            ['test' => 'true']
+        );
+
+        return response()->json([
+            'user_id' => $user->id,
+            'initial_tokens' => $currentTokens,
+            'updated_tokens' => $updatedTokens,
+            'push_result' => $result
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
-{
-     $user = Auth::user();
+    {
+        $user = Auth::user();
 
-    $query = Notifications::with(['voyage.tickets.user'])
-        ->orderBy('DateEnvoie', 'desc');
+        $query = Notifications::with(['voyage.tickets.user', 'voyage.trajet'])
+            ->orderBy('DateEnvoie', 'desc');
 
-    // Si ce n'est pas un admin général, on filtre les notifications
-    if ($user->profil?->name !== 'Admin général') {
-        $query->whereHas('voyage.trajet', function ($q) use ($user) {
-            $q->where('idCompagnie', $user->idCompagnie);
-        });
+        // Si ce n'est pas un admin général, on filtre les notifications
+        if ($user->profil?->name !== 'Admin général') {
+            $query->whereHas('voyage.trajet', function ($q) use ($user) {
+                $q->where('idCompagnie', $user->idCompagnie);
+            });
+        }
+
+        $notifications = $query->get();
+
+        return view('back.notifications.index', compact('notifications'));
     }
-
-    $notifications = $query->get();
-
-    return view('back.notifications.index', compact('notifications'));
-}
-
 
     /**
      * Show the form for creating a new resource.
      */
- public function create()
-{$user = Auth::user();
-    $query = Voyages::with(['trajet.garresDepart', 'trajet.garresArrivee', 'trajet.frequences', 'bus', 'tickets'])
-        ->orderBy('dateDepart', 'desc');
+    public function create()
+    {
+        $user = Auth::user();
+        $query = Voyages::with(['trajet.garresDepart', 'trajet.garresArrivee', 'trajet.frequences', 'bus', 'tickets'])
+            ->orderBy('dateDepart', 'desc');
 
-    if ($user->profil?->name === 'Admin compagnie') {
-        $query->whereHas('trajet', function ($q) use ($user) {
-            $q->where('idCompagnie', $user->idCompagnie);
-        });
-    } elseif (in_array($user->profil?->name, ['Chef de gare', 'Réceptionniste'])) {
-        // Récupérer les trajets liés à la gare de l'utilisateur
-        $trajetIds = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
-        $query->whereIn('idTrajet', $trajetIds);
+        if ($user->profil?->name === 'Admin compagnie') {
+            $query->whereHas('trajet', function ($q) use ($user) {
+                $q->where('idCompagnie', $user->idCompagnie);
+            });
+        } elseif (in_array($user->profil?->name, ['Chef de gare', 'Réceptionniste'])) {
+            // Récupérer les trajets liés à la gare de l'utilisateur
+            $trajetIds = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+            $query->whereIn('idTrajet', $trajetIds);
+        }
+
+        $voyages = $query->get();
+
+        return view('back.notifications.create', compact('voyages'));
     }
-
-    $voyages = $query->get();
-
-    return view('back.notifications.create', compact('voyages'));
-}
-
-
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    // public function store(StoreNotificationsRequest $request)
-    // {
-//       public function store(Request $request)
-// {
-//     $data = $request->validate([
-//         'titre' => 'required|string',
-//         'contenu' => 'required|string',
-//         'type' => 'required|string',
-//         'idVoyage' => 'required|exists:voyages,id',
-//     ]);
-
-//     $data['DateEnvoie'] = now(); // Automatiquement la date/heure du moment
-
-//     $notification = Notifications::create($data);
-
-//     $voyage = Voyages::with('tickets')->findOrFail($data['idVoyage']);
-
-//    foreach ($voyage->tickets as $ticket) {
-//     $email = $data['type'] === 'accident'
-//         ? $ticket->emailPersonneAPrevenir
-//         : ($ticket->email ?? $ticket->user?->email);
-
-//     if ($email) {
-//         // ✅ Récupération des infos
-//         $voyage = $ticket->voyage;
-//         $trajet = $voyage->trajet;
-
-//         $pointDepart = $trajet->pointDepart ?? 'N/A';
-//         $pointArrive = $trajet->pointArrive ?? 'N/A';
-//         $dateDepart = $voyage->dateDepart ?? 'N/A';
-//         $heureDepart = $voyage->heuresDepart ?? 'N/A';
-//         $busNumero = $voyage->bus?->numero ?? 'Aucun';
-//         $compagnie = $trajet->compagnie?->name ?? 'Compagnie inconnue';
-
-//         // ✅ Contenu final
-//         $contenuFinal = <<<EOT
-// {$data['contenu']}
-
-// 🚌 Compagnie : {$compagnie}
-// 📍 Trajet : {$pointDepart} → {$pointArrive}
-// 🗓️ Date de départ : {$dateDepart}
-// 🕒 Heure de départ : {$heureDepart}
-// 🚌 Bus n° : {$busNumero}
-// EOT;
-
-//         // ✅ Envoi de l'e-mail
-//         Mail::raw($contenuFinal, function ($message) use ($email, $data) {
-//             $message->to($email)->subject($data['titre']);
-//         });
-//     }
-// }
-
-
-//      return redirect()->route('notifications.index')->with('success', 'Notification envoyée.');
-//     //return redirect()->back()->with('success', 'Notification envoyée.');
-// }
-  //
-    // }
 
     /**
      * Display the specified resource.

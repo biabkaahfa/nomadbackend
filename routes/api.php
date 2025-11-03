@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\StatsController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Notes\NotesController;
 use App\Http\Controllers\Api\FcmTokenController;
 use App\Http\Controllers\ReservationsController;
 use App\Http\Controllers\Api\CompagnieController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Api\ControllerApiController;
 use App\Http\Controllers\Api\ForgotPasswordController;
 use App\Http\Controllers\ValidationAbonnementController;
 use App\Http\Controllers\Api\ImageControllerApiController;
+use App\Http\Controllers\Notifications\NotificationsController;
 use App\Http\Controllers\Api\AbonnementPublicControllerApiController;
 
 Route::get('/user', function (Request $request) {
@@ -42,6 +44,20 @@ Route::post('/register', [RegisterController::class, 'register']);
 
 Route::middleware('auth:jwt')->group(function () {
 
+
+    // === NOTIFICATIONS MOBILES ===
+    Route::get('/mobile/notifications', [NotificationsController::class, 'getUserNotifications']);
+    Route::put('/mobile/notifications/{id}/mark-read', [NotificationsController::class, 'markNotificationAsRead']);
+    Route::put('/mobile/notifications/mark-all-read', [NotificationsController::class, 'markAllNotificationsAsRead']);
+
+    // === NOTES MOBILES ===
+    Route::get('/mobile/notes', [NotesController::class, 'getUserNotes']);
+    Route::post('/mobile/note', [NotesController::class, 'createUserNote']);
+
+    // === TICKETS MOBILES ===
+    Route::get('/mobile/tickets/rateable', [NotesController::class, 'getUserRateableTickets']);
+ Route::post('/fcm-token/register', [NotificationsController::class, 'registerFcmToken']);
+    Route::post('/fcm-token/remove', [NotificationsController::class, 'removeFcmToken']);
     // === ROUTES DU CONTRÔLEUR ===
 
     // Profil contrôleur
@@ -104,6 +120,18 @@ Route::get('/destinations/prive', [DestinationController::class, 'destinationsPr
 Route::get('/departs/public', [DestinationController::class, 'departsPubliques']);
 Route::get('/departs/prive', [DestinationController::class, 'departsPrives']);
 Route::get('/compagnies-disponibles', [CompagnieController::class, 'compagniesDisponibles']);
+// Forcez la route à être publique
+//Route::get('/compagnies-disponibles', [CompagnieController::class, 'compagniesDisponibles'])->withoutMiddleware(['auth:jwt', 'auth:sanctum']);
+// Route de test publique - À AJOUTER AVANT LES MIDDLEWARE AUTH
+Route::get('/test-public', function () {
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Route publique accessible sans auth',
+        'timestamp' => now()
+    ]);
+});
+
+
 
 
 // routes/api.php
@@ -113,7 +141,8 @@ Route::middleware('auth:jwt')->prefix('analytics')->group(function () {
     Route::get('/feedback/statistiques', [AnalyseFeedbackController::class, 'statistiques']);
 
     // FCM Token
-    Route::post('/token', [FcmTokenController::class, 'store']);
-    Route::post('/test', [FcmTokenController::class, 'test']);
+
+
+
 }
 );
