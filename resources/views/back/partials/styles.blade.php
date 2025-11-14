@@ -17,27 +17,22 @@
     crossorigin="anonymous" referrerpolicy="no-referrer" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
 
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css">
-
 <style>
-/* --- DÉFINITIONS DES VARIABLES CSS PAR DÉFAUT --- */
+/* --- DÉFINITIONS DES VARIABLES CSS AVEC COULEURS VERTES --- */
 :root {
-    --couleur-principale: #6c7ae0; /* Bleu par défaut */
-    --couleur-secondaire: #a8b8f0; /* Bleu clair par défaut */
-    --success-color: #52c41a;
-    --warning-color: #faad14;
-    --danger-color: #ff4d4f;
-    --light-blue: #e6f3ff;
+    --couleur-principale: #009688; /* Vert principal */
+    --couleur-secondaire: #20c997; /* Vert secondaire */
+    --success-color: #28a745;
+    --warning-color: #ffc107;
+    --danger-color: #dc3545;
+    --light-blue: #e6f7f0;
     --soft-gray: #f8f9fa;
-    --border-color: #e8e8e8;
-    --text-color: #4a5568; /* Couleur de texte par défaut */
-    --heading-color: #2d3748; /* Couleur des titres par défaut */
+    --border-color: #dee2e6;
+    --text-color: #4a5568;
+    --heading-color: #2d3748;
 }
 
 /* --- APPLICATION DE CES VARIABLES DANS VOS STYLES EXISTANTS --- */
-/* C'est ici que vous remplacez les couleurs en dur par les variables */
-
 body {
     background: linear-gradient(135deg, var(--soft-gray) 0%, var(--border-color) 100%);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -49,20 +44,20 @@ body {
     font-weight: 700;
     margin-bottom: 2rem;
     text-align: center;
-    font-size: 2.2rem; /* ou 2rem selon votre préférence finale */
+    font-size: 2.2rem;
 }
 .card-glass {
     background: rgba(255, 255, 255, 0.98);
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2); /* Peut-être une couleur de bordure plus neutre ou basée sur une variable */
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 2rem;
     margin-bottom: 2rem;
 }
 
 /* Boutons */
-.btn-primary-gradient, .btn-primary-soft { /* Regroupez si leurs styles sont similaires ou choisissez une nomenclature */
+.btn-primary-gradient, .btn-primary-soft {
     background: linear-gradient(135deg, var(--couleur-principale), var(--couleur-secondaire));
     border: none;
     color: #fff;
@@ -77,23 +72,19 @@ body {
 }
 .btn-primary-gradient:hover, .btn-primary-soft:hover {
     transform: translateY(-1px);
-    /* Utilisez des couleurs cohérentes pour les ombres, ou une variable pour les ombres */
-    box-shadow: 0 4px 12px rgba(var(--couleur-principale-rgb, 108, 122, 224), 0.3);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
     color: #fff;
 }
 
-/* Les autres boutons, etc., devront aussi utiliser vos variables */
+/* Les autres boutons */
 .btn-success-soft {
-    background: linear-gradient(135deg, var(--success-color), #73d13d);
-    /* ... */
+    background: linear-gradient(135deg, var(--success-color), #34ce57);
 }
 .btn-warning-soft {
-    background: linear-gradient(135deg, var(--warning-color), #ffc53d);
-    /* ... */
+    background: linear-gradient(135deg, var(--warning-color), #ffd351);
 }
 .btn-danger-soft {
-    background: linear-gradient(135deg, var(--danger-color), #ff7875);
-    /* ... */
+    background: linear-gradient(135deg, var(--danger-color), #e4606d);
 }
 
 /* Tables */
@@ -102,7 +93,7 @@ body {
     color: white;
 }
 .table-modern tbody tr:hover {
-    background-color: var(--light-blue); /* Ou une version plus claire de --couleur-principale */
+    background-color: var(--light-blue);
     transform: scale(1.005);
 }
 .table-modern tbody td {
@@ -113,7 +104,6 @@ body {
 .pagination .page-link {
     color: var(--couleur-principale);
     border: 1px solid var(--border-color);
-    /* ... */
 }
 .pagination .page-link:hover {
     background-color: var(--light-blue);
@@ -132,34 +122,24 @@ body {
 }
 .form-control:focus, .form-select:focus {
     border-color: var(--couleur-principale);
-    box-shadow: 0 0 0 0.2rem rgba(var(--couleur-principale-rgb, 108, 122, 224), 0.15);
+    box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
 }
 .required::after {
     content: " *";
     color: var(--danger-color);
 }
 
-/* ... continuez pour toutes les règles CSS pertinentes ... */
-
-/* Badge compagnie (si lié au thème) */
+/* Badge compagnie */
 .badge-compagnie {
     background: linear-gradient(135deg, var(--couleur-principale), var(--couleur-secondaire));
     color: white;
-    /* ... */
 }
 
-/* Pour le `body` lui-même, vous pouvez choisir si vous voulez un dégradé ou une couleur unie */
 body {
-    /* Si vous voulez un dégradé basé sur vos couleurs de thème */
-    background: linear-gradient(135deg, var(--couleur-principale-light, #f5f7fa) 0%, var(--couleur-secondaire-light, #c3cfe2) 100%);
-    /* Ou simplement une couleur unie: */
-    /* background-color: var(--soft-gray); */
-    /* Ou la couleur principale */
-    /* background-color: var(--couleur-principale); */
+    background: linear-gradient(135deg, #f5f9f7 0%, #e6f2ed 100%);
 }
 
-
-/* Styles généraux comme avant */
+/* Styles généraux */
 .card-glass {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 20px;
@@ -168,75 +148,71 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 2.5rem;
 }
-/* ... tous vos autres styles qui n'ont pas besoin de changer dynamiquement ... */
 
+.carte-abonnement {
+    width: 100%;
+    max-width: 900px;
+    height: 280px;
+    border-radius: 20px;
+    padding: 25px;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-family: 'Arial', sans-serif;
+}
 
+.carte-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-    .carte-abonnement {
-        width: 100%;
-        max-width: 900px;
-        height: 280px;
-        border-radius: 20px;
-        padding: 25px;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        font-family: 'Arial', sans-serif;
-    }
+.carte-logo img {
+    height: 50px;
+}
 
-    .carte-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
+.carte-body {
+    margin-top: 20px;
+}
 
-    .carte-logo img {
-        height: 50px;
-    }
+.carte-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
 
-    .carte-body {
-        margin-top: 20px;
-    }
-
-    .carte-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-end;
-    }
-
-    .qr-code {
-        background: white;
-        padding: 5px;
-        border-radius: 10px;
-    }
-
-
+.qr-code {
+    background: white;
+    padding: 5px;
+    border-radius: 10px;
+}
 </style>
+
 @push('styles')
 <style>
-    /* Variables CSS */
+    /* Variables CSS avec couleurs vertes */
     :root {
-        --primary: #4672f9;
-        --primary-soft: rgba(70, 114, 249, 0.1);
-        --success: #28c76f;
-        --success-soft: rgba(40, 199, 111, 0.1);
-        --warning: #ff9f43;
-        --warning-soft: rgba(255, 159, 67, 0.1);
-        --danger: #ea5455;
-        --danger-soft: rgba(234, 84, 85, 0.1);
-        --info: #00cfe8;
-        --info-soft: rgba(0, 207, 232, 0.1);
-        --dark: #4b4b4b;
-        --dark-soft: rgba(75, 75, 75, 0.1);
+        --primary: #28a745;
+        --primary-soft: rgba(40, 167, 69, 0.1);
+        --success: #20c997;
+        --success-soft: rgba(32, 201, 151, 0.1);
+        --warning: #ffc107;
+        --warning-soft: rgba(255, 193, 7, 0.1);
+        --danger: #dc3545;
+        --danger-soft: rgba(220, 53, 69, 0.1);
+        --info: #17a2b8;
+        --info-soft: rgba(23, 162, 184, 0.1);
+        --dark: #343a40;
+        --dark-soft: rgba(52, 58, 64, 0.1);
     }
 
     /* Header du Dashboard */
     .dashboard-header {
-        background: linear-gradient(135deg, var(--primary) 0%, #7367f0 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, #20c997 100%);
         margin: -1.5rem -1.5rem 2rem -1.5rem;
         position: relative;
         overflow: hidden;
@@ -291,7 +267,7 @@ body {
     .stats-card.warning::before { background: var(--warning); }
     .stats-card.info::before { background: var(--info); }
     .stats-card.dark::before { background: var(--dark); }
-    .stats-card.premium::before { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+    .stats-card.premium::before { background: linear-gradient(135deg, #28a745 0%, #20c997 100%); }
 
     .stats-card:hover {
         transform: translateY(-8px);
@@ -315,7 +291,7 @@ body {
     .stats-card.warning .stats-icon { background: var(--warning-soft); color: var(--warning); }
     .stats-card.info .stats-icon { background: var(--info-soft); color: var(--info); }
     .stats-card.dark .stats-icon { background: var(--dark-soft); color: var(--dark); }
-    .stats-card.premium .stats-icon { background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); color: #667eea; }
+    .stats-card.premium .stats-icon { background: linear-gradient(135deg, rgba(40, 167, 69, 0.1) 0%, rgba(32, 201, 151, 0.1) 100%); color: #28a745; }
 
     .stats-content h3 {
         font-size: 2rem;
@@ -631,6 +607,7 @@ body {
     }
 </style>
 @endpush
+
 @push('styles')
 <style>
     /* Styles spécifiques pour chef de gare */
@@ -937,6 +914,7 @@ body {
     }
 </style>
 @endpush
+
 @push('styles')
 <style>
     /* Styles pour la fonctionnalité multi-gares */
@@ -1037,8 +1015,8 @@ body {
     }
 
     .bg-warning-soft {
-        background-color: rgba(255, 171, 0, 0.1);
-        border: 1px solid rgba(255, 171, 0, 0.2);
+        background-color: rgba(255, 193, 7, 0.1);
+        border: 1px solid rgba(255, 193, 7, 0.2);
     }
 
     /* Responsive */

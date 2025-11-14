@@ -58,12 +58,13 @@
                 @endauth
 
                 <!-- Section Utilisateurs -->
-                <li class="menu-title">
-                    <span>Gestion Utilisateurs</span>
-                </li>
+
 
                 @auth
                 @if (Auth::user()->profil->name == 'Admin général' || Auth::user()->profil->name == 'Admin compagnie' || Auth::user()->profil->name == 'Chef de gare')
+                <li class="menu-title">
+                    <span>Gestion Utilisateurs</span>
+                </li>
                 <li class="submenu">
                     <a href="#">
                         <i class="fas fa-users-cog"></i>
@@ -96,12 +97,13 @@
                 @endauth
 
                 <!-- Section Transport -->
-                <li class="menu-title">
-                    <span>Gestion Transport</span>
-                </li>
+
 
                 @auth
                 @if (Auth::user()->profil->name != 'Réceptionniste')
+                 <li class="menu-title">
+                    <span>Gestion Transport</span>
+                </li>
                 <li class="submenu">
                     <a href="#">
                         <i class="fas fa-bus-alt"></i>

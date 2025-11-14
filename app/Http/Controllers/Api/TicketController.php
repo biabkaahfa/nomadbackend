@@ -95,6 +95,7 @@ class TicketController extends Controller
                 'pointArrive' => $trajet->pointArrive ?? 'N/A',
                 // ✅ NOUVEAU : Ajout des données de localisation
                 'localisation_gare_depart' => $localisationGareDepart,
+                
                 'nom_gare_depart' => $nomGareDepart,
             ];
 

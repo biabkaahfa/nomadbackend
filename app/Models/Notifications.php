@@ -6,21 +6,35 @@ use Illuminate\Database\Eloquent\Model;
 
 class Notifications extends Model
 {
-    protected $table = 'notifications'; // Spécifier explicitement le nom de la table
+    protected $table = 'notifications';
 
     protected $fillable = [
         'titre',
         'contenu',
         'DateEnvoie',
         'type',
-        'isRead', // Ajout du champ isRead
+        'isRead',
         'idUtilisateur',
         'idVoyage',
+        // ✅ NOUVEAUX CHAMPS
+        'email_sent',
+        'sms_sent',
+        'push_sent',
+        'email_count',
+        'sms_count',
+        'push_count',
     ];
 
     protected $casts = [
         'DateEnvoie' => 'date',
-        'isRead' => 'boolean', // Caster en boolean
+        'isRead' => 'boolean',
+        // ✅ NOUVEAUX CASTS
+        'email_sent' => 'boolean',
+        'sms_sent' => 'boolean',
+        'push_sent' => 'boolean',
+        'email_count' => 'integer',
+        'sms_count' => 'integer',
+        'push_count' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];
@@ -39,16 +53,6 @@ class Notifications extends Model
     public function voyage()
     {
         return $this->belongsTo(Voyages::class, 'idVoyage');
-    }
-
-    /**
-     * Relation avec le ticket (si elle existe dans votre base de données)
-     * Note: Votre table notifications n'a pas de champ idTicket selon la migration
-     * Si vous avez besoin de cette relation, vous devrez peut-être modifier la migration
-     */
-    public function ticket()
-    {
-        return $this->belongsTo(Ticket::class, 'idTicket');
     }
 
     /**
@@ -83,6 +87,22 @@ class Notifications extends Model
         return $query->where('created_at', '>=', now()->subDays($days));
     }
 
+    // ✅ NOUVEAUX SCOPES POUR LES MODES D'ENVOI
+    public function scopeWithEmail($query)
+    {
+        return $query->where('email_sent', true);
+    }
+
+    public function scopeWithSms($query)
+    {
+        return $query->where('sms_sent', true);
+    }
+
+    public function scopeWithPush($query)
+    {
+        return $query->where('push_sent', true);
+    }
+
     /**
      * Marquer la notification comme lue
      */
@@ -107,6 +127,26 @@ class Notifications extends Model
         return !$this->isRead;
     }
 
+    // ✅ NOUVELLES MÉTHODES POUR LES STATISTIQUES
+    public function getTotalSentAttribute()
+    {
+        return $this->email_count + $this->sms_count + $this->push_count;
+    }
+
+    public function getModesUtilisesAttribute()
+    {
+        $modes = [];
+        if ($this->email_sent) $modes[] = 'Email';
+        if ($this->sms_sent) $modes[] = 'SMS';
+        if ($this->push_sent) $modes[] = 'Push';
+        return $modes;
+    }
+
+    public function getModesUtilisesStringAttribute()
+    {
+        return implode(' + ', $this->modes_utilises);
+    }
+
     /**
      * Accessor pour formater la date d'envoi
      */
@@ -124,9 +164,9 @@ class Notifications extends Model
     }
 
     /**
-     * Méthode statique pour créer une notification
+     * Méthode statique pour créer une notification avec statistiques
      */
-    public static function createNotification($data)
+    public static function createNotification($data, $modesEnvoi = [], $results = [])
     {
         return static::create([
             'titre' => $data['titre'],
@@ -136,6 +176,28 @@ class Notifications extends Model
             'isRead' => $data['isRead'] ?? false,
             'idUtilisateur' => $data['idUtilisateur'],
             'idVoyage' => $data['idVoyage'],
+            // ✅ STATISTIQUES D'ENVOI
+            'email_sent' => in_array('email', $modesEnvoi),
+            'sms_sent' => in_array('sms', $modesEnvoi),
+            'push_sent' => in_array('push', $modesEnvoi),
+            'email_count' => $results['email'] ?? 0,
+            'sms_count' => $results['sms'] ?? 0,
+            'push_count' => $results['push'] ?? 0,
+        ]);
+    }
+
+    /**
+     * Mettre à jour les statistiques d'envoi
+     */
+    public function updateSendStats($modesEnvoi, $results)
+    {
+        $this->update([
+            'email_sent' => in_array('email', $modesEnvoi),
+            'sms_sent' => in_array('sms', $modesEnvoi),
+            'push_sent' => in_array('push', $modesEnvoi),
+            'email_count' => $results['email'] ?? 0,
+            'sms_count' => $results['sms'] ?? 0,
+            'push_count' => $results['push'] ?? 0,
         ]);
     }
 

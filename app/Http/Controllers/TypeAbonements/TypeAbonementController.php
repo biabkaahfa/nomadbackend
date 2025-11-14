@@ -70,7 +70,13 @@ public function edit(\App\Models\TypeAbonement $typeAbonement) // Et la méthode
 
     public function store(StoreTypeAbonementRequest $request)
     {
-        TypeAbonement::create($request->validated());
+        // Gérer les valeurs par défaut pour les checkboxes
+        $data = $request->validated();
+        $data['acces_notes'] = $request->has('acces_notes');
+        $data['est_actif'] = $request->has('est_actif');
+
+        TypeAbonement::create($data);
+
         return redirect()->route('type-abonements.index')
                          ->with('success', 'Type d\'abonnement créé avec succès');
     }
@@ -85,14 +91,20 @@ public function edit(\App\Models\TypeAbonement $typeAbonement) // Et la méthode
     //     return view('back.typeAbonement.create', compact('typeAbonement'));
     // }
 
-    public function update(UpdateTypeAbonementRequest $request, TypeAbonement $typeAbonement)
+     public function update(UpdateTypeAbonementRequest $request, TypeAbonement $typeAbonement)
     {
-        $typeAbonement->update($request->validated());
+        // Gérer les valeurs par défaut pour les checkboxes
+        $data = $request->validated();
+        $data['acces_notes'] = $request->has('acces_notes');
+        $data['est_actif'] = $request->has('est_actif');
+
+        $typeAbonement->update($data);
+
         return redirect()->route('type-abonements.index')
                          ->with('success', 'Type d\'abonnement mis à jour');
     }
 
-    public function destroy(TypeAbonement $typeAbonement)
+     public function destroy(TypeAbonement $typeAbonement)
     {
         $typeAbonement->delete();
         return redirect()->route('type-abonements.index')

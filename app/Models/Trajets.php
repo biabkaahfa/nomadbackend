@@ -22,6 +22,31 @@ class Trajets extends Model
     {
         return $this->belongsToMany(Garres::class, 'garre_trajets', 'idTrajet', 'idGarre');
     }
+    public function garres()
+    {
+        return $this->belongsToMany(Garres::class, 'garre_trajets', 'idTrajet', 'idGarre');
+    }
+        public function garresDepart()
+    {
+        // Si cette relation n'existe pas, vous devez la créer
+        return $this->belongsTo(Garres::class,'garre_trajets', 'idTrajet', 'idGarre');
+    }
+
+    public function garresArrivee()
+    {
+        return $this->belongsTo(Garres::class, 'garre_trajets', 'idTrajet', 'idGarre');
+    }
+
+    // // Ou peut-être que la relation existe sous un autre nom :
+    // public function gareDepart()
+    // {
+    //     return $this->belongsTo(Garres::class, 'idGarreDepart');
+    // }
+
+    // public function gareArrivee()
+    // {
+    //     return $this->belongsTo(Garres::class, 'idGarreArrivee');
+    // }
 
     public function compagnie()
     {

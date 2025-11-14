@@ -116,7 +116,41 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->profil->name === 'Admin général';
     }
+     /**
+     * Récupère le dernier abonnement actif de la compagnie de l'utilisateur
+     */
+    public function abonnementActif()
+    {
+        return $this->hasOne(Abonement::class, 'idCompagnie', 'idCompagnie')
+            ->where('statut', 'actif')
+            ->where('dateFin', '>=', now())
+            ->latest('dateFin');
+    }
 
+    /**
+     * Récupère tous les abonnements de la compagnie
+     */
+    public function abonnements()
+    {
+        return $this->hasMany(Abonement::class, 'idCompagnie', 'idCompagnie')
+            ->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Vérifie si la compagnie de l'utilisateur a un abonnement actif
+     */
+    public function hasAbonnementActif(): bool
+    {
+        return $this->abonnementActif()->exists();
+    }
+
+    /**
+     * Récupère le type d'abonnement actuel
+     */
+    public function typeAbonementActif()
+    {
+        return $this->abonnementActif()->with('typeAbonement');
+    }
     /**
      * Relation avec la gare
      */

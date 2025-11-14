@@ -34,11 +34,11 @@ class PaiementCallbackController extends Controller
             $reservationId = $request->input('reservationId');
 
             // ✅ CORRECTION : Charger les relations avec les gares
-            $reservation = Reservations::with([
-                'voyage.trajet.compagnie',
+           $reservation = Reservations::with([
+                'voyage.trajet.compagnie.garres', // ✅ Charger aussi les gares de la compagnie
                 'voyage.trajet.gares',
                 'voyage.bus',
-                'voyageRetour.trajet.compagnie',
+                'voyageRetour.trajet.compagnie.garres', // ✅ Ici aussi
                 'voyageRetour.trajet.gares',
                 'voyageRetour.bus'
             ])->findOrFail($reservationId);
@@ -79,6 +79,7 @@ class PaiementCallbackController extends Controller
             // ✅ NOUVEAU : Récupérer les gares pour l'aller et le retour
             $gareDepartAller = $this->getGareDepart($reservation->voyage->trajet, $reservation->voyage->trajet->pointDepart);
             $gareDepartRetour = $reservation->voyageRetour ?
+
                 $this->getGareDepart($reservation->voyageRetour->trajet, $reservation->voyageRetour->trajet->pointDepart) : null;
 
             foreach ($passagers as $index => $passager) {
@@ -224,35 +225,55 @@ class PaiementCallbackController extends Controller
 
     // ✅ NOUVELLE MÉTHODE : Récupérer la gare de départ
     private function getGareDepart($trajet, $pointDepart)
-    {
-        try {
-            // Charger les gares si pas déjà fait
-            if (!$trajet->relationLoaded('gares')) {
-                $trajet->load('gares');
-            }
+{
+    try {
+        // Charger les gares si pas déjà fait
+        if (!$trajet->relationLoaded('gares')) {
+            $trajet->load('gares');
+        }
 
-            // Chercher une gare correspondant au point de départ
-            $gare = $trajet->gares->first(function ($gare) use ($pointDepart) {
+        // Chercher une gare correspondant au point de départ
+        $gare = $trajet->gares->first(function ($gare) use ($pointDepart) {
+            return strtolower($gare->ville) === strtolower($pointDepart) ||
+                   str_contains(strtolower($gare->nom), strtolower($pointDepart)) ||
+                   str_contains(strtolower($pointDepart), strtolower($gare->ville));
+        });
+
+        if ($gare) {
+            return [
+                'nom' => $gare->name,
+                'ville' => $gare->ville,
+                'localisation' => $gare->localisation,
+                'latitude' => $gare->latitude,
+                'longitude' => $gare->longitude,
+            ];
+        }
+
+        // ✅ NOUVEAU : Fallback - chercher dans toutes les gares de la compagnie
+        if ($trajet->compagnie && $trajet->compagnie->relationLoaded('garres')) {
+            $gareFallback = $trajet->compagnie->garres->first(function ($gare) use ($pointDepart) {
                 return strtolower($gare->ville) === strtolower($pointDepart) ||
-                       str_contains(strtolower($gare->nom), strtolower($pointDepart));
+                       str_contains(strtolower($gare->nom), strtolower($pointDepart)) ||
+                       str_contains(strtolower($pointDepart), strtolower($gare->ville));
             });
 
-            if ($gare && $gare->localisation) {
+            if ($gareFallback) {
                 return [
-                    'nom' => $gare->nom,
-                    'ville' => $gare->ville,
-                    'localisation' => $gare->localisation,
-                    'latitude' => $gare->latitude,
-                    'longitude' => $gare->longitude,
+                    'nom' => $gareFallback->nom,
+                    'ville' => $gareFallback->ville,
+                    'localisation' => $gareFallback->localisation,
+                    'latitude' => $gareFallback->latitude,
+                    'longitude' => $gareFallback->longitude,
                 ];
             }
-
-            return null;
-        } catch (\Exception $e) {
-            Log::error('Erreur récupération gare départ: ' . $e->getMessage());
-            return null;
         }
+
+        return null;
+    } catch (\Exception $e) {
+        Log::error('Erreur récupération gare départ: ' . $e->getMessage());
+        return null;
     }
+}
 
     // ✅ MÉTHODE MODIFIÉE : Ajouter la gare de départ
     // ✅ MÉTHODE CORRIGÉE : Ajouter la gare de départ
