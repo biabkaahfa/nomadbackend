@@ -5,20 +5,20 @@
 
 
 @extends('back.app')
-@section('title', 'Trajets')
+@section('title', 'Utilisateurs')
 
 @section('dashboard-header')
 <div class="row align-items-center">
     <div class="col">
-        <h4 class="card-title mt-5">Listes des Trajets</h4>
-        <a href="{{ route('trajets.create') }}" class="btn btn-primary float-right">Ajouter un Trajet</a>
+        <h4 class="card-title mt-5">Listes des utilisateurs</h4>
+        <a href="{{ route('user.create') }}" class="btn btn-primary float-right">Ajouter un utilisateur</a>
     </div>
 </div>
 @endsection
 @section('dashboard-content')
 <div class="card">
     <div class="card-body table-responsive">
-        
+
      <div class="container py-5">
      <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
@@ -26,14 +26,14 @@
             <p class="text-muted">Liste et actions des utilisateurs</p>
         </div>
         <div>
-            <a href="{{ route('users.create') }}" class="btn btn-primary-gradient">
+            <a href="{{ route('user.create') }}" class="btn btn-primary-gradient">
                 <i class="fas fa-plus me-2"></i>Nouvel Utilisateur
             </a>
         </div>
      </div>
 
      <div class="card card-glass mb-4 p-4">
-        <form method="GET" action="{{ route('users.index') }}">
+        <form method="GET" action="{{ route('user.index') }}">
             <div class="row g-3">
                 <div class="col-md-4">
                     <label class="form-label">Recherche</label>
@@ -102,7 +102,10 @@
                         <tr>
                             <td>
                                 @if($user->image)
-                                    <img src="{{ asset('storage/' . $user->image) }}" class="table-avatar" alt="avatar">
+                                    <img src="{{ asset('storage/' . $user->image) }}" alt="avatar"
+                                    class="table-avatar img-thumbnail"
+                                    style="width: 60px; height: 60px; object-fit: cover;">
+
                                 @else
                                     <div class="bg-secondary text-white text-center rounded-circle" style="width:40px; height:40px; line-height:40px;">
                                         {{ strtoupper(substr($user->name, 0, 1)) }}
@@ -122,13 +125,13 @@
                             <td>{{ $user->compagnie->name ?? 'N/A' }}</td>
                             <td>
                                 <div class="btn-group">
-                                    <a href="{{ route('users.show', $user) }}" class="btn btn-sm btn-outline-primary">
+                                    <a href="{{ route('user.show', $user) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-outline-warning">
+                                    <a href="{{ route('user.edit', $user) }}" class="btn btn-sm btn-outline-warning">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form method="POST" action="{{ route('users.destroy', $user) }}" onsubmit="return confirm('Supprimer cet utilisateur ?')">
+                                    <form method="POST" action="{{ route('user.destroy', $user) }}" onsubmit="return confirm('Supprimer cet utilisateur ?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">

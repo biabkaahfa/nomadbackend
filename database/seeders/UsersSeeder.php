@@ -35,7 +35,7 @@ class UsersSeeder extends Seeder
             'statut' => 'inactif',
             'telephone' => '00000000',
             'image' => null,
-            'idCompagnie' => null,
+            'idCompagnie' => 1,
             'idGarre' => null
         ]
     ]);

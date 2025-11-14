@@ -1,170 +1,100 @@
 @extends('back.app')
 
-@section('title', 'Dashboard - Accueil')
+@section('title', 'Tableau de bord')
 
 @section('dashboard-header')
-    <div class="row">
-        <div class="col-sm-12 mt-5">
-            <h3 class="page-title mt-3">Hello {{ Auth::user()->name }} ! </h3>
-            <ul class="breadcrumb">
-                <li class="breadcrumb-item active">Dashboard</li>
-            </ul>
+<!-- Header avec background gradient -->
+<div class="dashboard-header">
+    <div class="container-fluid py-6">
+        <div class="row align-items-center">
+            <div class="col">
+                <div class="welcome-section">
+                    <h1 class="display-6 fw-bold text-green mb-2">
+                        <i class="fas fa-tachometer-alt me-3"></i>
+                        Tableau de bord
+                    </h1>
+                    <p class="text-green-50 mb-0 fs-5">
+                        Bienvenue, <span class="fw-semibold">{{ auth()->user()->name }}</span> !
+                        Voici votre activité aujourd'hui.
+                    </p>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="current-time">
+                    <div class="time-display text-green text-end">
+                        <div class="fs-2 fw-bold" id="liveTime">{{ now()->format('H:i') }}</div>
+                        <div class="fs-6 opacity-75">{{ now()->translatedFormat('l d F Y') }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
+</div>
 @endsection
 
 @section('dashboard-content')
-    <div class="row">
+@php $profil = strtolower($profil); @endphp
 
-        <!-- Card: Total Articles -->
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card board1 fill">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <div>
-                            <h3 class="card_widget_header">
-                                {{ Auth::user()->role->name == 'author' ? $author_articles : $articles->count() }}</h3>
-                            <h6 class="text-muted">Total Articles</h6>
-                        </div>
-                        <div class="ml-auto mt-md-3 mt-lg-0">
-                            <span class="opacity-7 text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-user-plus">
-                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="8.5" cy="7" r="4"></circle>
-                                    <line x1="20" y1="8" x2="20" y2="14"></line>
-                                    <line x1="23" y1="11" x2="17" y2="11"></line>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
+<!-- Messages d'alerte -->
+@if(session('success'))
+    <div class="container-fluid mt-4">
+        <div class="alert alert-success alert-elegant fade show" role="alert">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-check-circle me-3 fa-lg"></i>
+                <div class="flex-grow-1">
+                    <h6 class="alert-heading mb-1">Succès !</h6>
+                    <p class="mb-0">{{ session('success') }}</p>
                 </div>
-            </div>
-        </div>
-
-        <!-- Card: Total Categories -->
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card board1 fill">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <div>
-                            <h3 class="card_widget_header">{{ $categories }}</h3>
-                            <h6 class="text-muted">Total Catégories</h6>
-                        </div>
-                        <div class="ml-auto mt-md-3 mt-lg-0">
-                            <span class="opacity-7 text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-dollar-sign">
-                                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6">
-                                    </path>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card: Total Commentaires -->
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card board1 fill">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <div>
-                            <h3 class="card_widget_header">1538</h3>
-                            <h6 class="text-muted">Total Commentaires</h6>
-                        </div>
-                        <div class="ml-auto mt-md-3 mt-lg-0">
-                            <span class="opacity-7 text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-file-plus">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
-                                    </path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                                    <line x1="9" y1="15" x2="15" y2="15"></line>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Card: Abonnements -->
-        <div class="col-xl-3 col-sm-6 col-12">
-            <div class="card board1 fill">
-                <div class="card-body">
-                    <div class="dash-widget-header">
-                        <div>
-                            <h3 class="card_widget_header">364</h3>
-                            <h6 class="text-muted">Abonnements</h6>
-                        </div>
-                        <div class="ml-auto mt-md-3 mt-lg-0">
-                            <span class="opacity-7 text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                    fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-globe">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="2" y1="12" x2="22" y2="12"></line>
-                                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10
-                                                                    15.3 15.3 0 0 1 4-10z "></path>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
     </div>
+@endif
 
-    <!-- Table: Articles Récents -->
-    <div class="row">
-        <div class="col-md-12 d-flex">
-            <div class="card card-table flex-fill">
-                <div class="card-header">
-                    <h4 class="card-title float-left mt-2">Articles récents</h4>
-                    <a href="{{ route('article.index') }}" type="button" class="btn btn-primary float-right viewbutton">
-                        Voir tous</a>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover table-center">
-                            <thead>
-                                <tr>
-                                    <th>ID Article</th>
-                                    <th>Image</th>
-                                    <th>Titre</th>
-                                    <th>Catégorie</th>
-                                    <th class="text-right">Auteur</th>
+{{-- Admin Général --}}
+@if($profil === 'admin général')
+    @include('back.admin-general')
 
-                                </tr>
-                            </thead>
-                            <tbody>
+{{-- Admin Compagnie --}}
+@elseif($profil === 'admin compagnie')
+    @include('back.admin-compagnie')
 
-                                @foreach ($recents_articles as $items)
-                                    <tr>
-                                        <td class="text-nowrap">{{ $items->id }}</td>
-                                        <td class="text-nowrap">
-                                            <img src="{{ $items->imageUrl() }}" alt="{{ $items->slug }}" width="50">
-                                        </td>
-                                        <td>{{ $items->title }}</td>
-                                        <td>{{ $items->category->name }}</td>
-                                        <td class="text-right">{{ $items->author->name }}</td>
-                                    </tr>
-                                @endforeach
+{{-- Chef de Gare --}}
+@elseif($profil === 'chef de gare')
+    @include('back.chef-gare')
 
+{{-- Réceptionniste --}}
+@elseif($profil === 'réceptionniste')
+    @include('back.receptionniste')
+@endif
 
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 @endsection
+
+@push('scripts')
+<script>
+    // Mise à jour de l'heure en temps réel
+    function updateTime() {
+        const now = new Date();
+        const timeElement = document.getElementById('liveTime');
+        const dateElement = document.querySelector('.current-time .fs-6');
+
+        if (timeElement) {
+            timeElement.textContent = now.toLocaleTimeString('fr-FR', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    }
+
+    setInterval(updateTime, 1000);
+
+    // Animation des cartes de statistiques
+    document.addEventListener('DOMContentLoaded', function() {
+        const statsCards = document.querySelectorAll('.stats-card');
+        statsCards.forEach((card, index) => {
+            card.style.animationDelay = `${index * 0.1}s`;
+            card.classList.add('animate-in');
+        });
+    });
+</script>
+@endpush

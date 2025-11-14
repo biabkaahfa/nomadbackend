@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\FrequenceTrajets;
 use App\Models\Trajets;
+use App\Models\User;
+use App\Models\GarreTrajets;
+use App\Models\FrequenceTrajets;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreFrequenceTrajetsRequest;
 use App\Http\Requests\UpdateFrequenceTrajetsRequest;
 
@@ -15,10 +18,28 @@ class FrequenceTrajetsController extends Controller
     public function index()
     {
         //
-         //
-        $frequences=FrequenceTrajets::all();
+        $user = Auth::user();
+    $frequences = collect(); // Collection vide par défaut
 
-        return view("back.Frequences.index",['frequences'=>$frequences]);
+    if ($user->profil->name === 'Admin général') {
+        $frequences = FrequenceTrajets::with('trajet')->get();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        // On récupère les trajets de cette compagnie
+        $idTrajets = Trajets::where('idCompagnie', $user->idCompagnie)->pluck('id');
+        $frequences = FrequenceTrajets::with('trajet')
+                        ->whereIn('idTrajet', $idTrajets)
+                        ->get();
+
+    } elseif ($user->profil->name === 'Chef gare') {
+        // Obtenir les trajets liés à sa gare via la table garre_trajets
+        $idTrajets = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+        $frequences = FrequenceTrajets::with('trajet')
+                        ->whereIn('idTrajet', $idTrajets)
+                        ->get();
+    }
+
+    return view("back.Frequences.index", ['frequences' => $frequences]);
     }
 
     /**
@@ -27,9 +48,28 @@ class FrequenceTrajetsController extends Controller
     public function create()
     {
         //
-       $trajets=Trajets::all();
+        $user = Auth::user();
+    $trajets = collect(); // Vide par défaut
 
-        return view("back.Frequences.create",['trajets'=>$trajets]);
+    if ($user->profil->name === 'Admin général') {
+        // Tous les trajets
+        $trajets = Trajets::all();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        // Trajets liés à la compagnie de l'utilisateur
+        $trajets = Trajets::where('idCompagnie', $user->idCompagnie)->get();
+
+    } elseif ($user->profil->name === 'Chef gare') {
+        // Trajets liés à la gare du chef
+        $trajetIds = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+        $trajets = Trajets::whereIn('id', $trajetIds)->get();
+
+    } else {
+        // Autres profils : accès interdit
+        abort(403, "Accès refusé.");
+    }
+
+    return view("back.Frequences.create", ['trajets' => $trajets]);
     }
 
     /**
@@ -43,7 +83,7 @@ class FrequenceTrajetsController extends Controller
         FrequenceTrajets::create($data);
 
         return redirect()->route('frequences.index')->with('success', 'Frequence mis à jour avec succès.');
-        
+
     }
 
     /**

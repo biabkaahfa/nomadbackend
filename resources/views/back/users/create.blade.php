@@ -2,17 +2,18 @@
 
 @extends('back.app')
 
-@section('title', isset($trajet) ? 'Modifier un Trajet' : 'Ajouter un Trajet')
+@section('title', isset($trajet) ? 'Modifier un utilisateur' : 'Ajouter un utilistateur')
+
 
 @section('dashboard-header')
     <h3 class="page-title mt-5">
         {{ isset($trajet) ? 'Modifier' : 'Ajouter' }} un Utilisateur
-        
+
     </h3>
 @endsection
 
 @section('dashboard-content')
-   
+
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-10">
@@ -53,7 +54,7 @@
                 @endif
 
                 <form method="POST" enctype="multipart/form-data" id="userForm"
-                      action="{{ $mode === 'edit' ? route('users.update', $user) : route('users.store') }}">
+                      action="{{ $mode === 'edit' ? route('user.update', $user) : route('user.store') }}">
 
                     @csrf
                     @if(isset($user) && $mode === 'edit')
@@ -199,13 +200,15 @@
                                     <i class="fas fa-user-tag me-1"></i>
                                     Profil <span class="required">*</span>
                                 </label>
-                                <select name="idProfil" class="form-select @error('idProfil') is-invalid @enderror" 
-                                        {{ $mode === 'show' ? 'disabled' : 'required' }}>
+                                <select name="idProfil" class="form-select @error('idProfil') is-invalid @enderror"
+        {{ $mode === 'show' ? 'disabled' : 'required' }}>
+
+
                                     <option value="">Sélectionner un profil</option>
                                     @foreach($profils as $profil)
-                                        <option value="{{ $profil->id }}" 
+                                        <option value="{{ $profil->id }}"
                                                 {{ (old('idProfil', $user->idProfil ?? '') == $profil->id) ? 'selected' : '' }}>
-                                            {{ $profil->libelle }}
+                                            {{ $profil->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -222,15 +225,24 @@
                                     <i class="fas fa-map-marker-alt me-1"></i>
                                     Gare
                                 </label>
-                                <select name="idGarre" class="form-select @error('idGarre') is-invalid @enderror" 
-                                        {{ $mode === 'show' ? 'disabled' : '' }}>
+                                <select name="idGarre" class="form-select @error('idGarre') is-invalid @enderror"
+        {{ $mode === 'show' || $garres->isEmpty() ? 'disabled' : '' }}>
+
+
                                     <option value="">Sélectionner une gare</option>
                                     @foreach($garres as $garre)
-                                        <option value="{{ $garre->id }}" 
+                                        <option value="{{ $garre->id }}"
                                                 {{ (old('idGarre', $user->idGarre ?? '') == $garre->id) ? 'selected' : '' }}>
-                                            {{ $garre->nom }}
+                                            {{ $garre->name }}
                                         </option>
+                                        @if($garres->isEmpty())
+    <option disabled>Aucune gare disponible</option>
+@endif
+
                                     @endforeach
+
+
+
                                 </select>
                                 @error('idGarre')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -245,13 +257,14 @@
                                     <i class="fas fa-building me-1"></i>
                                     Compagnie
                                 </label>
-                                <select name="idCompagnie" class="form-select @error('idCompagnie') is-invalid @enderror" 
-                                        {{ $mode === 'show' ? 'disabled' : '' }}>
+                                <select name="idCompagnie" class="form-select @error('idCompagnie') is-invalid @enderror"
+        {{ $mode === 'show' || $compagnies->isEmpty() ? 'disabled' : '' }}>
+
                                     <option value="">Sélectionner une compagnie</option>
                                     @foreach($compagnies as $compagnie)
-                                        <option value="{{ $compagnie->id }}" 
+                                        <option value="{{ $compagnie->id }}"
                                                 {{ (old('idCompagnie', $user->idCompagnie ?? '') == $compagnie->id) ? 'selected' : '' }}>
-                                            {{ $compagnie->nom }}
+                                            {{ $compagnie->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -270,14 +283,14 @@
                                 </label>
                                 @if(isset($user) && $user->image)
                                     <div class="mb-3">
-                                        <img src="{{ asset('storage/' . $user->image) }}" 
-                                             alt="Photo de {{ $user->name }}" 
+                                        <img src="{{ asset('storage/' . $user->image) }}"
+                                             alt="Photo de {{ $user->name }}"
                                              class="user-image"
-                                             width="120" height="120" 
+                                             width="120" height="120"
                                              style="object-fit: cover;">
                                     </div>
                                 @endif
-                                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror" 
+                                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror"
                                        {{ $mode === 'show' ? 'disabled' : '' }}
                                        accept="image/*">
                                 <div class="form-text">
@@ -302,8 +315,8 @@
                                 </span>
                             </button>
                         @endif
-                        
-                        <a href="{{ route('users.index') }}" class="btn btn-secondary-gradient">
+
+                        <a href="{{ route('user.index') }}" class="btn btn-secondary-gradient">
                             <i class="fas fa-arrow-left me-2"></i>
                             Retour à la liste
                         </a>

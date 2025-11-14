@@ -21,7 +21,7 @@ class BusSeeder extends Seeder
                 'idCompagnie'=> 1,
                 'status' => 'Actif',
                 //'nombrePlaceDispo' => 60
-            ]
+        ]
         ]);
     }
 }

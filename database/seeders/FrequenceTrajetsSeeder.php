@@ -23,6 +23,27 @@ class FrequenceTrajetsSeeder extends Seeder
                 'updated_at' => now(),
             ],
             [
+                'idTrajet' => 2, // doit correspondre à un trajet existant
+                'heureDepart' => '07:30:00',
+                'jourSemaine' => 'LUNDI',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'idTrajet' => 3, // doit correspondre à un trajet existant
+                'heureDepart' => '07:30:00',
+                'jourSemaine' => 'LUNDI',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'idTrajet' => 4, // doit correspondre à un trajet existant
+                'heureDepart' => '07:30:00',
+                'jourSemaine' => 'LUNDI',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
                 'idTrajet' => 1,
                 'heureDepart' => '14:00:00',
                 'jourSemaine' => 'VENDREDI',

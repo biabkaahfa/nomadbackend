@@ -23,7 +23,7 @@ class UpdateTicketRequest extends FormRequest
     {
         return [
             'dateReservation' => ['required', 'date'],
-            'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE'],
+            'statut' => ['required', 'in:CONFIRME,ANNULE,REPORTE,UTILISE,CLASSIFIE'],
             'modeAchat' => ['required', 'in:sur place'],
             'modeReception' => ['required', 'in:email,papier,application'],
             'name' => ['required', 'string', 'max:255'],

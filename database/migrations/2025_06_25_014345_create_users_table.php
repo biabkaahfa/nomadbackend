@@ -21,24 +21,18 @@ return new class extends Migration
             $table->foreign('idProfil')->references('id')->on('profils')->onDelete('CASCADE');
             $table->enum('statut', ['actif', 'inactif']);
             $table->string('telephone',12);
-             $table->unsignedBigInteger('idGarre')->nullable();
+            $table->unsignedBigInteger('idGarre')->nullable();
             $table->foreign('idGarre')->references('id')->on('garres')->onDelete('CASCADE');
             $table->unsignedBigInteger('idCompagnie')->nullable();
-              $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
+            $table->foreign('idCompagnie')->references('id')->on('compagnies')->onDelete('CASCADE');
             $table->string('image')->nullable();
-           
+
+            // ✅ AJOUT: Colonne pour les tokens FCM
+            $table->json('fcm_tokens')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });
-        //  'name',
-        // 'email',
-        // 'password',
-        // 'idProfil',
-        // 'statut',
-        // 'telephone',
-        // 'idGarre',
-        // 'idCompagnie',
-        // 'image'
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();

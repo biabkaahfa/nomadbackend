@@ -10,8 +10,17 @@
         <div class="col">
             <div class="mt-5">
                 <h4 class="card-title float-left mt-2">Liste des Garres</h4>
-                
-                <a href="{{ route('garres.create') }}" class="btn btn-primary float-right viewbutton">Ajouter une garre</a>
+
+
+
+
+
+                @if(Auth::user()->profil->name === 'Admin général' || Auth::user()->profil->name === 'Admin compagnie')
+    <a href="{{ route('garres.create') }}" class="btn btn-primary">Ajouter une garre</a>
+@endif
+
+
+                {{-- <a href="{{ route('garres.create') }}" class="btn btn-primary float-right viewbutton">Ajouter une garre</a> --}}
             </div>
         </div>
     </div>
@@ -19,7 +28,7 @@
 @section('dashboard-content')
 <div class="card">
     <div class="card-body table-responsive">
-        
+
 <div class="container-fluid py-4">
     <div class="row justify-content-center">
         <div class="col-12">
@@ -55,7 +64,10 @@
                     <div class="col-md-3">
                         <div class="stats-card">
                             <i class="fas fa-plus fa-2x mb-3"></i>
-                            <a href="{{ route('garres.create') }}" class="btn btn-primary-soft btn-sm">
+                            {{-- <a href="{{ route('garres.create') }}" class="btn btn-primary-soft btn-sm"> --}}
+                                  @if(Auth::user()->profil->name === 'Admin général' || Auth::user()->profil->name === 'Admin compagnie')
+    <a href="{{ route('garres.create') }}" class="btn btn-primary-soft btn-sm">
+@endif
                                 <i class="fas fa-plus me-1"></i>
                                 Nouvelle Gare
                             </a>
@@ -89,9 +101,9 @@
                                     <i class="fas fa-search me-1"></i>
                                     Rechercher
                                 </label>
-                                <input type="text" 
-                                       class="form-control search-box" 
-                                       id="search" 
+                                <input type="text"
+                                       class="form-control search-box"
+                                       id="search"
                                        name="search"
                                        value="{{ request('search') }}"
                                        placeholder="Nom de la gare, ville...">
@@ -104,7 +116,7 @@
                                 <select class="form-select search-box" id="compagnie" name="compagnie">
                                     <option value="">Toutes les compagnies</option>
                                     @foreach($compagnies as $compagnie)
-                                        <option value="{{ $compagnie->id }}" 
+                                        <option value="{{ $compagnie->id }}"
                                                 {{ request('compagnie') == $compagnie->id ? 'selected' : '' }}>
                                             {{ $compagnie->name }}
                                         </option>
@@ -121,7 +133,9 @@
                                         <i class="fas fa-times me-1"></i>
                                         Effacer
                                     </a>
-                                    <a href="{{ route('garres.create') }}" class="btn btn-success-soft">
+                                   @if(Auth::user()->profil->name === 'Admin général' || Auth::user()->profil->name === 'Admin compagnie')
+    <a href="{{ route('garres.create') }}" class="btn btn-primary-soft btn-sm">
+@endif
                                         <i class="fas fa-plus me-1"></i>
                                         Nouvelle Gare
                                     </a>
@@ -246,7 +260,7 @@
                 @if($gares->count() > 0)
                     <div class="text-center text-muted mt-3">
                         <small>
-                            Affichage de {{ $gares->firstItem() }} à {{ $gares->lastItem() }} 
+                            Affichage de {{ $gares->firstItem() }} à {{ $gares->lastItem() }}
                             sur {{ $gares->total() }} résultats
                         </small>
                     </div>

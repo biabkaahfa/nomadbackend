@@ -26,23 +26,42 @@ class AuthController extends Controller
     /**
      * Handle an authentication attempt.
      */
-    public function authenticate(Request $request): RedirectResponse
-    {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+   public function authenticate(Request $request): RedirectResponse
+{
+    $request->validate([
+        'email' => ['required', 'email'],
+        'password' => ['required'],
+    ]);
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
+    $user = \App\Models\User::where('email', $request->email)->first();
 
-            return redirect()->intended('/');
-        }
-
+    if (!$user) {
+        // L'adresse email n'existe pas
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'Cet email n\'est pas enregistré.',
         ])->onlyInput('email');
     }
+
+    if (!$user->statut=='actif') {
+        // Le compte est désactivé
+        return back()->withErrors([
+            'email' => 'Votre compte n\'est pas actif. Veuillez contacter l\'administrateur.',
+        ])->onlyInput('email');
+    }
+
+    if (!Hash::check($request->password, $user->password)) {
+        // Mauvais mot de passe
+        return back()->withErrors([
+            'password' => 'Mot de passe incorrect.',
+        ])->onlyInput('email');
+    }
+
+    // Tout est bon, on connecte l'utilisateur
+    Auth::login($user);
+    $request->session()->regenerate();
+
+    return redirect()->intended('/dashboard');
+}
 
     /**
      * Log the user out of the application.

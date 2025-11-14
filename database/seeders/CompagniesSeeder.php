@@ -8,19 +8,31 @@ use Illuminate\Support\Facades\DB;
 
 class CompagniesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //
         DB::table('compagnies')->insert([
-        [
-            'name' => 'TransFaso',
-            'logo' => 'transfaso.png',
-            'description' => 'Transport national',
-            'telephone' => '70112233',
-            'email' => 'contact@transfaso.com'
-        ]]);
+            [
+                'name' => 'TransFaso',
+                'logo' => 'transfaso.png',
+                'type' => 'PRIVE',
+                'description' => 'Transport sous-regional national',
+                'telephone' => '70112233',
+                'email' => 'contact@transfaso.com',
+                //'idAbonement' => 1, // Sera mis à jour après création
+                'created_at' => now(),
+                'updated_at' => now()
+            ],
+            [
+                'name' => 'SOTRACO',
+                'logo' => 'sotraco.png',
+                'type' => 'PUBLIC',
+                'description' => 'Transport urbain',
+                'telephone' => '50112233',
+                'email' => 'contact@sotraco.com',
+           //     'idAbonement' => 2, // Sera mis à jour après création
+                'created_at' => now(),
+                'updated_at' => now()
+            ]
+        ]);
     }
 }

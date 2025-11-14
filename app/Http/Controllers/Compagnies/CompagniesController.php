@@ -45,23 +45,24 @@ class CompagniesController extends Controller
 
             $image=$request->logo->store('asset','public');
 
-               
+
         }
-        
+
 
         $compagnies= Compagnies::create([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
-           
+
             'logo'=>$image,
 
-           
-            
+
+
 
            ] );
-           
+
 
            return to_route('compagnies.index')->with('success','compagnies enregistrer avec success');
     }
@@ -98,24 +99,25 @@ class CompagniesController extends Controller
                 Storage::disk('public')->delete($compagny->logo);
             }
 
-            $image=$request->logo->store('asset','public');
+            $image=$request->logo->store('abonnements','public');
 
-               
+
         }
 
-      
+
 
         if($image==null){
 
             $compagny->update([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
-           
+
             //'logo'=>$image,
-                
-    
+
+
                ] );
 
         }else{
@@ -123,17 +125,18 @@ class CompagniesController extends Controller
         $compagny->update([
             'name'=>$request->name,
             'email'=>$request->email,
+            'type'=>$request->type,
             'telephone'=>$request->telephone,
             'description'=>$request->description,
-           
+
             'logo'=>$image,
-           
-            
+
+
 
            ] );}
-    
 
-         
+
+
 
 
            return to_route('compagnies.index')->with('success','Compagnies Modifier  avec success');

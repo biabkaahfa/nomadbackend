@@ -5,6 +5,8 @@
 <!-- ✅ Popper.js (obligatoire pour Dropdowns Bootstrap 4) -->
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 <!-- ✅ Bootstrap JS -->
 <script src="{{ asset('back_auth/assets/js/bootstrap.min.js') }}"></script>
@@ -117,7 +119,7 @@
     });
 
 
-    
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -133,7 +135,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /*
     const searchInput = document.getElementById('search');
     let searchTimeout;
-    
+
     searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
@@ -172,7 +174,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('form[onsubmit*="confirm"]').forEach(form => {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
-            
+
             if (confirm('⚠️ Êtes-vous sûr de vouloir supprimer cette gare ?\n\nCette action est irréversible.')) {
                 this.submit();
             }
@@ -233,6 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 </script>
 </script>
+
 
 
 

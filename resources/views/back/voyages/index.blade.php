@@ -7,7 +7,9 @@
     <div class="col">
         <div class="mt-5 d-flex justify-content-between align-items-center">
             <h4 class="card-title">Départs programmés</h4>
-            <a href="{{ route('voyages.create') }}" class="btn btn-primary">Ajouter un Voyage</a>
+            @if(Auth::user()->profil->name === 'Admin général' || Auth::user()->profil->name === 'Admin compagnie')
+    <a href="{{ route('voyages.create') }}" class="btn btn-primary">Ajouter un Voyage</a>
+@endif
         </div>
     </div>
 </div>
@@ -19,12 +21,12 @@
 <form method="GET" action="{{ route('voyages.index') }}" class="mb-4 d-flex justify-content-between align-items-end">
     <div class="form-group mb-0">
         <label>Rechercher un trajet</label>
-        <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Ex : Ouaga, Bobo">
+        <input type="text" name="search" class="form-control" value="{{ request('search') }}" placeholder="Ex : Ouaga, Bobo" style="font-size: 1.3rem; padding: 1rem; height: auto;">
     </div>
 
     <div class="form-group mb-0 ml-3">
         <label>Trier par date de départ</label>
-        <select name="sort" class="form-control" onchange="this.form.submit()">
+        <select name="sort" class="form-control" onchange="this.form.submit()" style="font-size: 1.3rem; padding: 1rem; height: auto;">
             <option value="asc" {{ request('sort') == 'asc' ? 'selected' : '' }}>Date croissante</option>
             <option value="desc" {{ request('sort') == 'desc' ? 'selected' : '' }}>Date décroissante</option>
         </select>
@@ -44,6 +46,7 @@
                     <th>Heure</th>
                     <th>Trajet</th>
                     <th>Bus</th>
+                    <th>Compagnie</th>
                     <th>Occupation</th>
                     <th>Actions</th>
                 </tr>
@@ -68,9 +71,10 @@
                         <td>{{ $datetimeVoyage->format('H:i') }}</td>
                         <td>{{ $voyage->trajet->pointDepart }} → {{ $voyage->trajet->pointArrive }}</td>
                         <td>{{ $voyage->bus->numeroBus ?? 'Non assigné' }}</td>
+                        <td>{{ $voyage->bus->compagnie->name ?? 'Non assignée' }}</td>
                         <td style="min-width: 200px;">
                             <div class="progress" style="height: 20px;">
-                                <div class="progress-bar 
+                                <div class="progress-bar
                                     {{ $voyagePasse ? 'bg-danger' : 'bg-success' }}"
                                     role="progressbar"
                                     style="width: {{ $taux }}%;"
@@ -85,6 +89,10 @@
                         </td>
                         <td>
                             <a href="{{ route('voyages.edit', $voyage->id) }}" class="btn btn-sm btn-primary">Modifier</a>
+                            @if (is_null($voyage->bus?->numeroBus))
+                            <a href="{{ route('voyages.affectation', $voyage->id) }}" class="btn btn-sm btn-primary">Affectation</a>
+                            @endif
+
                             <form action="{{ route('voyages.destroy', $voyage->id) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')

@@ -8,11 +8,32 @@
 
     <!-- Dashboard -Links -->
     @include('back.partials.styles')
+    @if(isset($theme))
+    <style>
+        :root {
+            --couleur-principale: {{ $theme->couleur_principale }};
+            --couleur-secondaire: {{ $theme->couleur_secondaire }};
+        }
+
+        body {
+            background-color: var(--couleur-principale);
+        }
+
+        .btn-theme {
+            background-color: var(--couleur-secondaire);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+    </style>
+@endif
+
 </head>
 
 
 <body>
-    <h2>Session : {{ session('success') }}</h2>
+    {{-- <h2>Session : {{ session('success') }}</h2> --}}
     <!-- Main wrapper -->
     <div class="main-wrapper">
         <!-- Début header -->

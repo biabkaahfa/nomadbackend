@@ -30,6 +30,12 @@
                         <p class="text-danger mt-1">{{ $message }}</p>
                     @enderror
                 </div>
+                <label for="type">Type de compagnies</label>
+    <select name="type" class="form-control mb-3" required  style="font-size: 1.3rem; padding: 1rem; height:auto;">
+        <option value="">-- Choisir un type --</option>
+        <option value="PUBLIC">Public</option>
+        <option value="PRIVE">Prive</option>
+    </select>
 
                 <!-- Email -->
                 <div class="form-group">

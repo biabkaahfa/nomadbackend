@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Voyages;
 
-use App\Models\Voyages;
 use App\Models\Bus;
-use App\Models\Trajets;
+use App\Models\Garres;
 use App\Models\Tickets;
-use App\Models\FrequenceTrajets;
-use Illuminate\Http\Request;
+use App\Models\Trajets;
+use App\Models\Voyages;
+use App\Models\GarreTrajets;
 
+use Illuminate\Http\Request;
+use App\Models\FrequenceTrajets;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreVoyagesRequest;
 use App\Http\Requests\UpdateVoyagesRequest;
 
@@ -21,10 +24,11 @@ class VoyagesController extends Controller
     public function index(Request $request)
     {
         //
-        
-      $query = Voyages::with(['trajet.frequences', 'bus', 'tickets']);
 
-    // 🔎 Filtrage par recherche
+    $user = Auth::user();
+    $query = Voyages::with(['trajet.frequences', 'bus', 'tickets', 'trajet']);
+
+    // 🔍 Recherche texte
     if ($request->filled('search')) {
         $search = strtolower($request->search);
         $query->whereHas('trajet', function ($q) use ($search) {
@@ -33,16 +37,25 @@ class VoyagesController extends Controller
         });
     }
 
-    // 🔄 Tri par date
-    if ($request->filled('sort') && in_array($request->sort, ['asc', 'desc'])) {
-        $query->orderBy('dateDepart', $request->sort);
-    } else {
-        $query->orderBy('dateDepart', 'asc');
+    // 📅 Tri
+    $query->orderBy('dateDepart', $request->input('sort', 'asc'));
+
+    // 🛡️ Filtrage selon le rôle
+    if ($user->profil->name === 'Admin compagnie') {
+        // Ne garder que les voyages dont le trajet appartient à sa compagnie
+        $query->whereHas('trajet', function ($q) use ($user) {
+            $q->where('idCompagnie', $user->idCompagnie);
+        });
+
+    } elseif (in_array($user->profil->name, ['Chef gare', 'Réceptionniste'])) {
+        // Récupérer les ID des trajets liés à la gare du user
+        $idTrajets = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet');
+        $query->whereIn('idTrajet', $idTrajets);
     }
 
     $voyages = $query->get();
 
-    return view('back.Voyages.index', compact('voyages'));
+    return view('back.voyages.index', compact('voyages'));
     }
 
     /**
@@ -50,10 +63,39 @@ class VoyagesController extends Controller
      */
     public function create()
     {
-        //
-        $bus=Bus::all();
-       $trajets=Trajets::all();
-        return view("back.voyages.create",["trajets"=>$trajets,"buses"=>$bus]);
+       $user = Auth::user();
+    $buses = collect();
+    $trajets = collect();
+
+    if ($user->profil->name === 'Admin général') {
+        // Admin général : tous les bus et trajets
+        $buses = Bus::all();
+        $trajets = Trajets::all();
+
+    } elseif ($user->profil->name === 'Admin compagnie') {
+        // Bus de sa compagnie
+        $buses = Bus::where('idCompagnie', $user->idCompagnie)->get();
+
+        // Trajets de sa compagnie, liés à ses gares
+        $idGares = Garres::where('idCompagnie', $user->idCompagnie)->pluck('id');
+        $idTrajets = GarreTrajets::whereIn('idGarre', $idGares)->pluck('idTrajet')->unique();
+        $trajets = Trajets::whereIn('id', $idTrajets)
+                    ->where('idCompagnie', $user->idCompagnie)
+                    ->get();
+
+    } elseif ($user->profil->name === 'Chef gare') {
+        // Chef gare : trajets liés à sa gare
+        $idTrajets = GarreTrajets::where('idGarre', $user->idGarre)->pluck('idTrajet')->unique();
+        $trajets = Trajets::whereIn('id', $idTrajets)->get();
+
+        // Bus de la compagnie de sa gare
+        $buses = Bus::where('idCompagnie', $user->garre->idCompagnie ?? null)->get();
+    }
+
+    return view("back.voyages.create", [
+        "trajets" => $trajets,
+        "buses" => $buses
+    ]);
     }
 
     /**
@@ -69,7 +111,7 @@ class VoyagesController extends Controller
     $voyage->idTrajet = $data['idTrajet'];
     $voyage->dateDepart = $data['dateDepart'];
     $voyage->heuresDepart = $data['heuresDepart'];
-    // $voyage->status = $data['status'] ?? 'ACTIF';       
+    // $voyage->status = $data['status'] ?? 'ACTIF';
     $voyage->save();
 
     return redirect()->route('voyages.index')->with('success', 'Voyage créé avec succès.');
@@ -92,30 +134,49 @@ class VoyagesController extends Controller
        // $voyages=Voyages::all();
        $bus=Bus::all();
        $trajets=Trajets::all();
-        return view("back.voyages.create",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
+        return view("back.voyages.update",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
     }
+
+    public function affectation(Voyages $voyage)
+    {
+        //
+       // $voyages=Voyages::all();
+       $bus=Bus::all();
+       $trajets=Trajets::all();
+        return view("back.voyages.affectation",["voyage"=>$voyage,"trajets"=>$trajets,"buses"=>$bus]);
+    }
+    public function affecterBus(Request $request, Voyages $voyage)
+{
+    $request->validate([
+        'idBus' => 'required|exists:buses,id',
+    ]);
+
+    $voyage->idBus = $request->idBus;
+    $voyage->save();
+
+    return redirect()->route('voyages.index')->with('success', 'Bus affecté avec succès.');
+}
+
+
+
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateVoyagesRequest $request, Voyages $voyage)
-    {
-
-       // dd('Requête reçue', $request->all());
-        // dd('Formulaire bien envoyé');
-        
-         $data = $request->validated();
+   public function update(UpdateVoyagesRequest $request, Voyages $voyage)
+{
+    $data = $request->validated();
 
     $voyage->update([
         'idBus' => $data['idBus'],
         'idTrajet' => $data['idTrajet'],
         'dateDepart' => $data['dateDepart'],
         'heuresDepart' => $data['heuresDepart'],
-        // 'status' => $data['status'],
     ]);
 
     return redirect()->route('voyages.index')->with('success', 'Voyage mis à jour avec succès.');
-    }
+}
+
 
     /**
      * Remove the specified resource from storage.
@@ -123,7 +184,7 @@ class VoyagesController extends Controller
     public function destroy(Voyages $voyage)
     {
         //
-       
+
          $voyage->delete();
           return to_route('voyages.index')->with('success','Voyages Supprimer  avec success');
     }

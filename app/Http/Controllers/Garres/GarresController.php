@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Garres;
 
 use App\Models\Garres;
 use App\Models\Compagnie;
+use App\Models\Compagnies;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Gare\StoreGarresRequest;
 use App\Http\Requests\Gare\UpdateGarresRequest;
-use App\Models\Compagnies;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 
 class GarresController extends Controller
 {
@@ -19,34 +20,44 @@ class GarresController extends Controller
     public function index(Request $request)
     {
 
-          
         try {
-           $query = Garres::with(['compagnie', 'trajets']);
+        $user = Auth::user();
 
-            // Filtrage par recherche
-            if ($request->filled('search')) {
-                $search = $request->search;
-                $query->where(function ($q) use ($search) {
-                    $q->where('name', 'like', "%{$search}%");
-                    //   ->orWhere('email', 'like', "%{$search}%")
-                    //   ->orWhere('telephone', 'like', "%{$search}%");
-                });
-            }
+        $query = Garres::with(['compagnie', 'trajets']);
 
-            // Filtrage par compagnie
-            if ($request->filled('compagnie')) {
-                $query->where('idCompagnie', $request->compagnie);
-            }
-
-            $gares = $query->paginate(15);
-            
-            $compagnies = Compagnies::all();
-
-            return view('gares.index', compact('gares', 'compagnies'));
-        } catch (\Exception $e) {
-            Log::error('Erreur lors de la récupération des utilisateurs: ' . $e->getMessage());
+        // 🔍 Recherche
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
         }
-    
+
+        // 🌐 Filtrage dynamique selon le rôle
+        if ($user->profil->name === 'Admin compagnie') {
+            $query->where('idCompagnie', $user->idCompagnie);
+        } elseif ($user->profil->name === 'Chef gare') {
+            $query->where('id', $user->idGarre);
+        }
+
+        // 🔁 Filtrage manuel de compagnie via requête
+        if ($request->filled('compagnie')) {
+            $query->where('idCompagnie', $request->compagnie);
+        }
+
+        $gares = $query->paginate(15);
+
+        // 🔁 Pour le filtre dropdown (seulement si admin général)
+        $compagnies = $user->profil->name === 'Admin général'
+            ? Compagnies::all()
+            : ($user->profil->name === 'Admin compagnie'
+                ? Compagnies::where('id', $user->idCompagnie)->get()
+                : collect());
+
+        return view('gares.index', compact('gares', 'compagnies'));
+
+    } catch (\Exception $e) {
+        \Log::error('Erreur lors de la récupération des gares : ' . $e->getMessage());
+        return back()->with('error', 'Erreur de récupération des données');
+    }
 
     }
 
@@ -55,9 +66,25 @@ class GarresController extends Controller
      */
     public function create()
     {
+       $user = Auth::user();
+
+    // 🚫 Refuser l'accès aux rôles non autorisés
+    if (!in_array($user->profil->name, ['Admin général', 'Admin compagnie'])) {
+        abort(403, 'Accès non autorisé.');
+    }
+
+    // ✅ Admin général → toutes les compagnies
+    if ($user->profil->name === 'Admin général') {
         $compagnies = Compagnies::all();
-        $mode = 'create';
-        return view('gares.create', compact('compagnies', 'mode'));
+    }
+
+    // ✅ Admin compagnie → uniquement sa propre compagnie
+    if ($user->profil->name === 'Admin compagnie') {
+        $compagnies = Compagnies::where('id', $user->idCompagnie)->get();
+    }
+
+    $mode = 'create';
+    return view('gares.create', compact('compagnies', 'mode'));
     }
 
     /**
@@ -67,7 +94,7 @@ class GarresController extends Controller
     {
         try {
             Garres::create($request->validated());
-            
+
             return redirect()->route('garres.index')
                            ->with('success', 'Gare créée avec succès.');
         } catch (\Exception $e) {
@@ -104,7 +131,7 @@ class GarresController extends Controller
     {
         try {
             $garre->update($request->validated());
-            
+
             return redirect()->route('garres.index')
                            ->with('success', 'Gare modifiée avec succès.');
         } catch (\Exception $e) {
@@ -121,7 +148,7 @@ class GarresController extends Controller
     {
         try {
             $garre->delete();
-            
+
             return redirect()->route('gares.index')
                            ->with('success', 'Gare supprimée avec succès.');
         } catch (\Exception $e) {
